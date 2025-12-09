@@ -11,7 +11,7 @@ WORKDIR /opt/ricochet
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN mkdir -p /opt/ricochet/data/content && \
     mkdir -p /opt/ricochet/renv/cache && \
-    apk add --no-cache g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev readline-dev zeromq-dev tzdata lsb-release libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake && \
+    apk add --no-cache g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev readline-dev zeromq-dev tzdata lsb-release libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake git && \
     R -q -e 'install.packages("renv")'
 
 WORKDIR /opt/ricochet/data/content
