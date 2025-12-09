@@ -1,0 +1,103 @@
+when:
+  event:
+    - push
+    - cron
+    - manual
+    - pull_request
+
+depends_on:
+  - lint
+
+labels:
+  group: ccx
+
+variables:
+  - logins: &logins
+      - registry: https://reg.ricochet.rs
+        username: robot$ricochet
+        password:
+          from_secret: ricochet_registry_token
+      # - registry: https://index.docker.io
+      # username: ricochetrs
+      # password:
+      # from_secret: ricochet_dockerhub_token
+  # - &repo 'reg.ricochet.rs/exec-envs/exec-env-r,docker.io/ricochetrs/exec-env-r'
+  - &repo 'reg.ricochet.rs/exec-envs/${name}'
+
+matrix:
+  include:
+    ### 3.23
+    - name: r-alpine
+      R_VERSION: 4.5.2
+      OS_VERSION: 3.23
+      tag_additional: '4.5,4.5-3.23'
+      requests_cpu: 1000m
+      requests_memory: 500Mi
+      limits_cpu: 2000m
+      limits_memory: 800Mi
+    - name: r-alpine
+      R_VERSION: 4.4.3
+      OS_VERSION: 3.23
+      tag_additional: '4.4,4.4-3.23'
+      requests_cpu: 1000m
+      requests_memory: 500Mi
+      limits_cpu: 2000m
+      limits_memory: 800Mi
+
+steps:
+  'Build and publish image (cron)':
+    when:
+      event: cron
+    image: codeberg.org/crow-plugins/docker-buildx:2.0.1
+    settings:
+      mtu: 1350
+      platforms: linux/amd64,linux/arm64
+      logins: *logins
+      repo: *repo
+      dockerfile: ${name}/Containerfile
+      tags: ${tag_additional}
+      provenance: true
+      sbom: true
+      build_args_from_env:
+        - R_VERSION
+        - OS_VERSION
+
+  'Build and publish image (branch)':
+    when:
+      - event: push
+        branch:
+          - renovate/*
+    image: codeberg.org/crow-plugins/docker-buildx:2.0.1
+    settings:
+      mtu: 1350
+      platforms: linux/amd64,linux/arm64
+      logins: *logins
+      repo: *repo
+      dockerfile: ${name}/Containerfile
+      tags: ${tag_additional}
+      dry_run: true
+      provenance: true
+      sbom: true
+      build_args_from_env:
+        - R_VERSION
+        - OS_VERSION
+
+  'Build and publish image (PR)':
+    when:
+      path:
+        - ${name}/Containerfile
+      event: pull_request
+    image: codeberg.org/crow-plugins/docker-buildx:2.0.1
+    settings:
+      mtu: 1350
+      platforms: linux/amd64,linux/arm64
+      logins: *logins
+      repo: *repo
+      dockerfile: ${name}/Containerfile
+      tags: ${tag_additional}
+      dry_run: true
+      provenance: true
+      sbom: true
+      build_args_from_env:
+        - R_VERSION
+        - OS_VERSION

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>ricochet-rs/renovate-config"],
+  "automergeType": "branch",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.crow(?:/[^/]+)?\\.ya?ml$/"],
+      "matchStrings": [
+        "(?<depName>\\w+):\\s*(?<currentValue>\\S+)\\s*#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s*depName=(?<depName2>\\S+)"
+      ],
+      "datasourceTemplate": "{{{datasource}}}",
+      "depNameTemplate": "{{{depName2}}}",
+      "versioningTemplate": "semver"
+    }
+  ]
+}

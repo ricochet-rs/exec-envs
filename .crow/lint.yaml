@@ -1,0 +1,44 @@
+when:
+  - event: [pull_request, tag, cron, manual]
+  - event: push
+    branch:
+      - ${CI_REPO_DEFAULT_BRANCH}
+      - renovate/*
+
+labels:
+  group: ccx
+
+steps:
+  lint-dockerfile:
+    image: reg.ricochet.rs/docker.io/hadolint/hadolint:v2.14.0-alpine
+    depends_on: []
+    commands:
+      - find . -type f \( -iname \*.containerfile -or -iname Containerfile \) | sort | xargs hadolint
+
+  lint-markdown:
+    image: reg.ricochet.rs/docker.io/davidanson/markdownlint-cli2:v0.20.0
+    depends_on: []
+    commands:
+      - 'markdownlint-cli2 *.{md,markdown}'
+    when:
+      path: '*.{md,markdown}'
+
+  prettier:
+    image: reg.ricochet.rs/docker.io/woodpeckerci/plugin-prettier:1.4.0
+    depends_on: []
+    settings:
+      version: 3.2.5
+
+  lint-editorconfig:
+    depends_on: []
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.6.0
+    when:
+      event: pull_request
+
+  lint-yaml:
+    image: reg.ricochet.rs/docker.io/pipelinecomponents/yamllint:0.35.9
+    depends_on: []
+    commands:
+      - yamllint .
+    when:
+      path: '*.{yml,yaml}'
