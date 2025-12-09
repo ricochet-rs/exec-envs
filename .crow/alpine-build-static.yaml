@@ -20,9 +20,8 @@ variables:
       - registry: https://index.docker.io
         username: ricochetrs
         password:
-        from_secret: ricochet_dockerhub_token
-  - &repo 'reg.ricochet.rs/exec-envs/exec-env-r,docker.io/ricochetrs/exec-env-r'
-  - &repo 'reg.ricochet.rs/exec-envs/${name}'
+          from_secret: ricochet_dockerhub_token
+  - &repo 'reg.ricochet.rs/exec-envs/${name},docker.io/ricochetrs/${name}'
 
 matrix:
   include:
