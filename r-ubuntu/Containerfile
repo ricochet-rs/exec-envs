@@ -11,7 +11,7 @@ WORKDIR /opt/ricochet
 RUN mkdir -p /opt/ricochet/data/content && \
     mkdir -p /opt/ricochet/renv/cache && \
     apt-get update && \
-    apt-get install --no-install-recommends -y g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev readline-dev zeromq-dev tzdata lsb-release libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake git && \
+    apt-get install --no-install-recommends -y g++ gfortran libbz2-dev libblas-dev libicu-dev liblapack-dev liblzma-dev libpaper-utils libpcre2-dev libtcl8.6 libtk8.6 libxt6 unzip zip zlib1g-dev libpcre3-dev libopenblas-dev xtail default-jdk-headless freetds-bin freetds-common freetds-dev git git-core jags libbibutils-dev libcairo2-dev libfribidi-dev libgdal-dev libgeos-dev libgit2-dev libharfbuzz-dev libicu-dev libjpeg62 libjq-dev libmagick++-dev libnetcdf-dev libopenblas-dev libglpk-dev libv8-dev libxml2-dev netcdf-bin odbc-postgresql tdsodbc unixodbc-dev libssl-dev libsodium-dev libtiff-dev libudunits2-dev qpdf libpng16-16 libreadline-dev gdal-bin imagemagick libfontconfig1-dev libfreetype6-dev libgsl0-dev libmpfr-dev libpng-dev libpq-dev librsvg2-dev libsqlite3-dev libsecret-1-0 libxslt1-dev libzmq3-dev zlib1g-dev tzdata unzip lsb-release libsecret-1-dev cmake poppler-utils libglu1-mesa-dev rustc cargo libabsl-dev git && \
     rm -rf /var/lib/apt/lists/* && \
     R -q -e 'install.packages("renv")'
 
