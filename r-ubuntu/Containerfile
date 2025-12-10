@@ -1,0 +1,20 @@
+ARG OS_VERSION=noble
+ARG R_VERSION=4.5
+FROM reg.devxy.io/r/r-ubuntu:${R_VERSION}-${OS_VERSION}
+
+ENV RENV_PATHS_PREFIX_AUTO=TRUE
+ENV RENV_PATHS_ROOT=/opt/ricochet/cache/renv
+ENV RENV_PATHS_LIBRARY=/opt/ricochet/cache/renv/library
+
+WORKDIR /opt/ricochet
+
+RUN mkdir -p /opt/ricochet/data/content && \
+    mkdir -p /opt/ricochet/renv/cache && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y g++ gfortran libbz2-dev libblas-dev libicu-dev liblapack-dev liblzma-dev libpaper-utils libpcre2-dev libtcl8.6 libtk8.6 libxt6 unzip zip zlib1g-dev libpcre3-dev libopenblas-dev xtail default-jdk-headless freetds-bin freetds-common freetds-dev git git-core jags libbibutils-dev libcairo2-dev libfribidi-dev libgdal-dev libgeos-dev libgit2-dev libharfbuzz-dev libicu-dev libjpeg62 libjq-dev libmagick++-dev libnetcdf-dev libopenblas-dev libglpk-dev libv8-dev libxml2-dev netcdf-bin odbc-postgresql tdsodbc unixodbc-dev libssl-dev libsodium-dev libtiff-dev libudunits2-dev qpdf libpng16-16 libreadline-dev gdal-bin imagemagick libfontconfig1-dev libfreetype6-dev libgsl0-dev libmpfr-dev libpng-dev libpq-dev librsvg2-dev libsqlite3-dev libsecret-1-0 libxslt1-dev libzmq3-dev zlib1g-dev tzdata unzip lsb-release libsecret-1-dev cmake poppler-utils libglu1-mesa-dev rustc cargo libabsl-dev git && \
+    rm -rf /var/lib/apt/lists/* && \
+    R -q -e 'install.packages("renv")'
+
+WORKDIR /opt/ricochet/data/content
+
+CMD ["R"]
