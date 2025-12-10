@@ -1,0 +1,20 @@
+ARG OS_VERSION=noble
+ARG R_VERSION=4.5
+FROM reg.devxy.io/r/r-ubuntu:${R_VERSION}-${OS_VERSION}
+
+ENV RENV_PATHS_PREFIX_AUTO=TRUE
+ENV RENV_PATHS_ROOT=/opt/ricochet/cache/renv
+ENV RENV_PATHS_LIBRARY=/opt/ricochet/cache/renv/library
+
+WORKDIR /opt/ricochet
+
+RUN mkdir -p /opt/ricochet/data/content && \
+    mkdir -p /opt/ricochet/renv/cache && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev readline-dev zeromq-dev tzdata lsb-release libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake git && \
+    rm -rf /var/lib/apt/lists/* && \
+    R -q -e 'install.packages("renv")'
+
+WORKDIR /opt/ricochet/data/content
+
+CMD ["R"]
