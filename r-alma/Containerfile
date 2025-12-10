@@ -10,6 +10,9 @@ WORKDIR /opt/ricochet
 
 RUN mkdir -p /opt/ricochet/data/content && \
     mkdir -p /opt/ricochet/renv/cache && \
+    dnf install -y epel-release && \
+    dnf config-manager --set-enabled crb && \
+    dnf update -y && \
     dnf install -q -y --nodocs java-21-openjdk java-21-openjdk-devel git libcurl-devel jq fribidi gdal gdal-libs gdal-devel geos-devel proj-devel glpk glpk-devel mesa-libGLU libicu-devel harfbuzz libjpeg-turbo-devel ImageMagick-c++-devel ImageMagick-libs ImageMagick-c++ netcdf-devel openblas readline libtiff-devel udunits2-devel libxml2-devel qpdf-libs freetds-devel unixODBC-devel libsodium-devel libuuid-devel mpfr freetype-devel fontconfig-devel sqlite-devel zlib-devel tzdata libpq-devel libpng-devel cairo openssl-devel wget vim-minimal libssh-devel cronie libsecret libxslt-devel libaio hostname libiodbc unzip libgit2-devel jq-devel libsecret-devel cmake poppler-utils mesa-libGL rust cargo postgresql-devel abseil-cpp-devel git && \
     dnf clean all && \
     R -q -e 'install.packages("renv")'
