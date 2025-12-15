@@ -19,7 +19,7 @@ steps:
     image: reg.ricochet.rs/docker.io/davidanson/markdownlint-cli2:v0.20.0
     depends_on: []
     commands:
-      - 'markdownlint-cli2 *.{md,markdown}'
+      - 'markdownlint-cli2 --ignore-pattern LICENSE.md "*.{md,markdown}"'
     when:
       path: '*.{md,markdown}'
 
