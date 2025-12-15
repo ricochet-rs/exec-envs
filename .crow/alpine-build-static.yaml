@@ -18,7 +18,7 @@ variables:
         password:
           from_secret: ricochet_registry_token
       - registry: https://index.docker.io
-        username: ricochetrs
+        username: ricochetbot
         password:
           from_secret: ricochet_dockerhub_token
   - &repo 'reg.ricochet.rs/exec-envs/${name},docker.io/ricochetrs/${name}'
