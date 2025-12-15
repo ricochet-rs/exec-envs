@@ -34,7 +34,7 @@ matrix:
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
-    - name: r-noble
+    - name: r-ubuntu
       R_VERSION: 4.4.3
       OS_VERSION: noble
       tag_additional: '4.4,4.4-noble,4.4.3-noble'
