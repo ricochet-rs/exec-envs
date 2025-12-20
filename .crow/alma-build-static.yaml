@@ -8,8 +8,9 @@ when:
 depends_on:
   - lint
 
+# autoscaled agents don't have buildx emulators installed
 labels:
-  group: ccx
+  agent: dev_ubuntu
 
 variables:
   - logins: &logins
@@ -27,7 +28,7 @@ matrix:
   include:
     ### 9
     - name: r-alma
-      R_VERSION: 4.5.2
+      R_VERSION: 4.5
       OS_VERSION: 9
       tag_additional: '4.5,4.5-9,4.5.2-9'
       requests_cpu: 1000m
@@ -35,7 +36,7 @@ matrix:
       limits_cpu: 2000m
       limits_memory: 800Mi
     - name: r-alma
-      R_VERSION: 4.4.3
+      R_VERSION: 4.4
       OS_VERSION: 9
       tag_additional: '4.4,4.4-9,4.4.3-9'
       requests_cpu: 1000m

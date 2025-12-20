@@ -8,8 +8,9 @@ when:
 depends_on:
   - lint
 
+# autoscaled agents don't have buildx emulators installed
 labels:
-  group: ccx
+  agent: dev_ubuntu
 
 variables:
   - logins: &logins
@@ -27,7 +28,7 @@ matrix:
   include:
     ### 3.23
     - name: r-alpine
-      R_VERSION: 4.5.2
+      R_VERSION: 4.5
       OS_VERSION: 3.23
       tag_additional: '4.5,4.5-3.23,4.5.2-3.23'
       requests_cpu: 1000m
@@ -35,7 +36,7 @@ matrix:
       limits_cpu: 2000m
       limits_memory: 800Mi
     - name: r-alpine
-      R_VERSION: 4.4.3
+      R_VERSION: 4.4
       OS_VERSION: 3.23
       tag_additional: '4.4,4.4-3.23,4.4.3-3.23'
       requests_cpu: 1000m
@@ -44,7 +45,7 @@ matrix:
       limits_memory: 800Mi
     # 3.22
     - name: r-alpine
-      R_VERSION: 4.5.2
+      R_VERSION: 4.5
       OS_VERSION: 3.22
       tag_additional: '4.5-3.22,4.5.2-3.22'
       requests_cpu: 1000m
@@ -52,7 +53,7 @@ matrix:
       limits_cpu: 2000m
       limits_memory: 800Mi
     - name: r-alpine
-      R_VERSION: 4.4.3
+      R_VERSION: 4.4
       OS_VERSION: 3.22
       tag_additional: '4.4-3.22,4.4.3-3.22'
       requests_cpu: 1000m
