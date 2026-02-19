@@ -10,7 +10,7 @@ depends_on:
 
 # autoscaled agents don't have buildx emulators installed
 labels:
-  agent: dev_ubuntu
+  agent: thumper
 
 variables:
   - logins: &logins
