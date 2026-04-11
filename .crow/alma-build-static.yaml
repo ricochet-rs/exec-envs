@@ -30,7 +30,7 @@ matrix:
     - name: r-alma
       R_VERSION: 4.5
       OS_VERSION: 9
-      tag_additional: '4.5,4.5-9,4.5.2-9'
+      tag_additional: '4.5,4.5-9,4.5.3-9'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m

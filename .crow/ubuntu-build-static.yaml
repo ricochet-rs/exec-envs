@@ -30,7 +30,7 @@ matrix:
     - name: r-ubuntu
       R_VERSION: 4.5
       OS_VERSION: noble
-      tag_additional: '4.5,4.5-noble,4.5.2-noble'
+      tag_additional: '4.5,4.5-noble,4.5.3-noble'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
