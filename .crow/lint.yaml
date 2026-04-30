@@ -16,7 +16,7 @@ steps:
       - find . -type f \( -iname \*.containerfile -or -iname Containerfile \) | sort | xargs hadolint
 
   lint-markdown:
-    image: reg.ricochet.rs/docker.io/davidanson/markdownlint-cli2:v0.20.0
+    image: reg.ricochet.rs/docker.io/davidanson/markdownlint-cli2:v0.22.1
     depends_on: []
     commands:
       - 'markdownlint-cli2 --ignore-pattern LICENSE.md "*.{md,markdown}"'
@@ -24,14 +24,14 @@ steps:
       path: '*.{md,markdown}'
 
   prettier:
-    image: reg.ricochet.rs/docker.io/woodpeckerci/plugin-prettier:1.4.0
+    image: reg.ricochet.rs/docker.io/woodpeckerci/plugin-prettier:1.4.1
     depends_on: []
     settings:
       version: 3.2.5
 
   lint-editorconfig:
     depends_on: []
-    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.6.0
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.6.1
     when:
       event: pull_request
 
