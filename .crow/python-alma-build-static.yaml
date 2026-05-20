@@ -27,8 +27,8 @@ variables:
 matrix:
   include:
     - name: python-alma
-      OS_VERSION: 9
-      tag_additional: 'latest,9'
+      OS_VERSION: 10
+      tag_additional: 'latest,10'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
