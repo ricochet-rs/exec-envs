@@ -27,8 +27,8 @@ variables:
 matrix:
   include:
     - name: python-ubuntu
-      OS_VERSION: noble
-      tag_additional: 'latest,noble'
+      OS_VERSION: 26.04
+      tag_additional: 'latest,26.04'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
