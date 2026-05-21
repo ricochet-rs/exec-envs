@@ -11,7 +11,7 @@ WORKDIR /opt/ricochet
 
 RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia && \
     dnf update -y && \
-    dnf install -q -y --nodocs ca-certificates curl git gcc gcc-c++ gcc-gfortran make tar gzip && \
+    dnf install -q -y --nodocs ca-certificates git gcc gcc-c++ gcc-gfortran make tar gzip && \
     dnf clean all && \
     case "${TARGETARCH}" in \
         amd64) JARCH=x86_64; JDIR=x64 ;; \
