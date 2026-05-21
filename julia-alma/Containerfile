@@ -1,0 +1,27 @@
+ARG OS_VERSION=10
+FROM almalinux:${OS_VERSION}
+
+ARG JULIA_VERSION=1.11
+ARG TARGETARCH
+
+ENV JULIA_DEPOT_PATH=/opt/ricochet/cache/julia
+ENV PATH=/opt/julia/bin:${PATH}
+
+WORKDIR /opt/ricochet
+
+RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia && \
+    dnf update -y && \
+    dnf install -q -y --nodocs ca-certificates curl git gcc gcc-c++ gcc-gfortran make tar gzip && \
+    dnf clean all && \
+    case "${TARGETARCH}" in \
+        amd64) JARCH=x86_64; JDIR=x64 ;; \
+        arm64) JARCH=aarch64; JDIR=aarch64 ;; \
+        *) echo "Unsupported architecture: ${TARGETARCH}" >&2 && exit 1 ;; \
+    esac && \
+    curl -fsSLo /tmp/julia.tar.gz "https://julialang-s3.julialang.org/bin/linux/${JDIR}/${JULIA_VERSION}/julia-${JULIA_VERSION}-latest-linux-${JARCH}.tar.gz" && \
+    tar -xzf /tmp/julia.tar.gz -C /opt/julia --strip-components=1 && \
+    rm /tmp/julia.tar.gz
+
+WORKDIR /opt/ricochet/data/content
+
+CMD ["julia"]

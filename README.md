@@ -12,3 +12,6 @@ All containerfiles in this repo are configured as follows:
 - [ricochetrs/r-alma](https://hub.docker.com/r/ricochetrs/r-alma)
 - [ricochetrs/python-ubuntu](https://hub.docker.com/r/ricochetrs/python-ubuntu)
 - [ricochetrs/python-alma](https://hub.docker.com/r/ricochetrs/python-alma)
+- [ricochetrs/julia-alpine](https://hub.docker.com/r/ricochetrs/julia-alpine)
+- [ricochetrs/julia-ubuntu](https://hub.docker.com/r/ricochetrs/julia-ubuntu)
+- [ricochetrs/julia-alma](https://hub.docker.com/r/ricochetrs/julia-alma)
