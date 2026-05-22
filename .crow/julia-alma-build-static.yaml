@@ -28,14 +28,14 @@ matrix:
   include:
     ### 9
     - name: julia-alma
-      JULIA_VERSION: 1.11 # renovate: julia-stable
+      JULIA_VERSION: '1.11' # renovate: julia-stable
       OS_VERSION: 9
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
     - name: julia-alma
-      JULIA_VERSION: 1.10
+      JULIA_VERSION: '1.10'
       OS_VERSION: 9
       requests_cpu: 1000m
       requests_memory: 500Mi

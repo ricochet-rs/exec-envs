@@ -28,14 +28,14 @@ matrix:
   include:
     ### 3.23
     - name: julia-alpine
-      JULIA_VERSION: 1.11 # renovate: julia-stable
+      JULIA_VERSION: '1.11' # renovate: julia-stable
       OS_VERSION: 3.23
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
     - name: julia-alpine
-      JULIA_VERSION: 1.10
+      JULIA_VERSION: '1.10'
       OS_VERSION: 3.23
       requests_cpu: 1000m
       requests_memory: 500Mi
@@ -43,14 +43,14 @@ matrix:
       limits_memory: 800Mi
     # 3.22
     - name: julia-alpine
-      JULIA_VERSION: 1.11 # renovate: julia-stable
+      JULIA_VERSION: '1.11' # renovate: julia-stable
       OS_VERSION: 3.22
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
     - name: julia-alpine
-      JULIA_VERSION: 1.10
+      JULIA_VERSION: '1.10'
       OS_VERSION: 3.22
       requests_cpu: 1000m
       requests_memory: 500Mi
