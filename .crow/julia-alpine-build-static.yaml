@@ -64,7 +64,7 @@ steps:
     image: codefloe.com/crow-plugins/docker-buildx:2.3.1
     settings:
       mtu: 1350
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/amd64
       logins: *logins
       repo: *repo
       dockerfile: ${name}/Containerfile
@@ -83,7 +83,7 @@ steps:
     image: codefloe.com/crow-plugins/docker-buildx:2.3.1
     settings:
       mtu: 1350
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/amd64
       logins: *logins
       repo: *repo
       dockerfile: ${name}/Containerfile
@@ -103,7 +103,7 @@ steps:
     image: codefloe.com/crow-plugins/docker-buildx:2.3.1
     settings:
       mtu: 1350
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/amd64
       logins: *logins
       repo: *repo
       dockerfile: ${name}/Containerfile

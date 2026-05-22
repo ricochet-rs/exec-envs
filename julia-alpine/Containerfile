@@ -14,8 +14,7 @@ RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia && 
     apk add --no-cache ca-certificates curl git bash gcc g++ gfortran make libc-dev linux-headers && \
     case "${TARGETARCH}" in \
         amd64) JARCH=x86_64; JDIR=x64 ;; \
-        arm64) JARCH=aarch64; JDIR=aarch64 ;; \
-        *) echo "Unsupported architecture: ${TARGETARCH}" >&2 && exit 1 ;; \
+        *) echo "julia-alpine: no upstream musl binary for ${TARGETARCH} (amd64 only)" >&2 && exit 1 ;; \
     esac && \
     curl -fsSLo /tmp/julia.tar.gz "https://julialang-s3.julialang.org/bin/musl/${JDIR}/${JULIA_VERSION}/julia-${JULIA_VERSION}-latest-musl-${JARCH}.tar.gz" && \
     tar -xzf /tmp/julia.tar.gz -C /opt/julia --strip-components=1 && \
