@@ -31,12 +31,12 @@ steps:
 
   lint-editorconfig:
     depends_on: []
-    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.6.1
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.7.0
     when:
       event: pull_request
 
   lint-yaml:
-    image: reg.ricochet.rs/docker.io/pipelinecomponents/yamllint:0.35.9
+    image: reg.ricochet.rs/docker.io/pipelinecomponents/yamllint:0.35.13
     depends_on: []
     commands:
       - yamllint .
