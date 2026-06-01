@@ -12,6 +12,21 @@
       "datasourceTemplate": "{{{datasource}}}",
       "depNameTemplate": "{{{depName2}}}",
       "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.crow/julia-.*-build-static\\.ya?ml$/"],
+      "matchStrings": ["JULIA_VERSION:\\s*'(?<currentValue>[^']+)'\\s*#\\s*renovate:\\s*julia-stable"],
+      "depNameTemplate": "JuliaLang/julia",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+)\\.\\d+$",
+      "versioningTemplate": "loose"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": ["JuliaLang/julia"],
+      "groupName": "julia stable"
     }
   ]
 }
