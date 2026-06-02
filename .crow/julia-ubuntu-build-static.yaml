@@ -28,7 +28,7 @@ matrix:
   include:
     ### noble
     - name: julia-ubuntu
-      JULIA_VERSION: '1.11' # renovate: julia-stable
+      JULIA_VERSION: '1.12' # renovate: julia-stable
       OS_VERSION: noble
       requests_cpu: 1000m
       requests_memory: 500Mi
