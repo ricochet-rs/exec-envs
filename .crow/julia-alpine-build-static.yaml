@@ -61,7 +61,7 @@ steps:
   'Build and publish image (cron)':
     when:
       event: cron
-    image: codefloe.com/crow-plugins/docker-buildx:2.3.2
+    image: codefloe.com/crow-plugins/docker-buildx:2.3.3
     settings:
       mtu: 1350
       platforms: linux/amd64
@@ -80,7 +80,7 @@ steps:
       - event: push
         branch:
           - renovate/*
-    image: codefloe.com/crow-plugins/docker-buildx:2.3.2
+    image: codefloe.com/crow-plugins/docker-buildx:2.3.3
     settings:
       mtu: 1350
       platforms: linux/amd64
@@ -100,7 +100,7 @@ steps:
       path:
         - ${name}/Containerfile
       event: pull_request
-    image: codefloe.com/crow-plugins/docker-buildx:2.3.2
+    image: codefloe.com/crow-plugins/docker-buildx:2.3.3
     settings:
       mtu: 1350
       platforms: linux/amd64
