@@ -16,7 +16,7 @@ steps:
       - find . -type f \( -iname \*.containerfile -or -iname Containerfile \) | sort | xargs hadolint
 
   lint-markdown:
-    image: reg.ricochet.rs/docker.io/davidanson/markdownlint-cli2:v0.23.1
+    image: reg.ricochet.rs/docker.io/davidanson/markdownlint-cli2:v0.23.2
     depends_on: []
     commands:
       - 'markdownlint-cli2 --ignore-pattern LICENSE.md "*.{md,markdown}"'
