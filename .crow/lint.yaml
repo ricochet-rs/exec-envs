@@ -10,7 +10,7 @@ labels:
 
 steps:
   lint-dockerfile:
-    image: reg.ricochet.rs/docker.io/hadolint/hadolint:v2.14.0-alpine
+    image: reg.ricochet.rs/docker.io/hadolint/hadolint:v2.15.1-alpine
     depends_on: []
     commands:
       - find . -type f \( -iname \*.containerfile -or -iname Containerfile \) | sort | xargs hadolint
@@ -31,7 +31,7 @@ steps:
 
   lint-editorconfig:
     depends_on: []
-    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.8.0
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.9.0
     when:
       event: pull_request
 
