@@ -8,7 +8,24 @@ registry_dockerhub := "docker.io/ricochetrs"
 
 # Lint Containerfiles
 lint-docker:
-    hadolint **/Containerfile
+    find . -type f \( -iname \*.containerfile -o -iname Containerfile \) -print0 | sort -z | xargs -0 hadolint
+
+# Create an immutable monthly release and inventory its contents
+release release_month:
+    RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "{{release_month}}"
+    scripts/format-release.sh "{{release_month}}"
+
+# Publish the immutable tags for an existing monthly release
+publish-release release_month:
+    scripts/publish-release.sh "{{release_month}}"
+
+# Validate archived files and generated links
+check-releases:
+    scripts/check-releases.sh
+
+# Validate archived files, generated links, and retained registry tags
+check-releases-remote:
+    scripts/check-releases.sh --remote
 
 # Build an image with specified parameters
 # Example: just build r-alpine 4.4.3 3.23
@@ -46,5 +63,5 @@ build image r_version os_version os_version_id="" tags="":
         --push \
         $BUILD_ARGS \
         $TAG_FLAGS \
-        -f images/{{image}}/Containerfile \
-        images/{{image}}
+        -f {{image}}/Containerfile \
+        {{image}}
