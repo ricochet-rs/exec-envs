@@ -28,7 +28,7 @@ matrix:
   include:
     ### 9
     - name: julia-alma
-      JULIA_VERSION: '1.12' # renovate: julia-stable
+      JULIA_VERSION: '1.12' # renovate: julia-rolling
       OS_VERSION: 9
       requests_cpu: 1000m
       requests_memory: 500Mi

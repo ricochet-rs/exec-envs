@@ -24,7 +24,7 @@ matrix:
   include:
     ### 3.24
     - name: julia-alpine
-      JULIA_VERSION: '1.12' # renovate: julia-stable
+      JULIA_VERSION: '1.12' # renovate: julia-rolling
       OS_VERSION: 3.24
       release_from: '2026-09'
       requests_cpu: 1000m
@@ -41,7 +41,7 @@ matrix:
       limits_memory: 800Mi
     ### 3.23
     - name: julia-alpine
-      JULIA_VERSION: '1.12' # renovate: julia-stable
+      JULIA_VERSION: '1.12'
       OS_VERSION: 3.23
       requests_cpu: 1000m
       requests_memory: 500Mi
@@ -56,7 +56,7 @@ matrix:
       limits_memory: 800Mi
     # 3.22
     - name: julia-alpine
-      JULIA_VERSION: '1.12' # renovate: julia-stable
+      JULIA_VERSION: '1.12'
       OS_VERSION: 3.22
       release_through: '2026-08'
       requests_cpu: 1000m

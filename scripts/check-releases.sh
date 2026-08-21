@@ -22,6 +22,41 @@ for command in jq yq; do
     fi
 done
 
+validate_renovate_targets() {
+    local pipeline
+    local marked_entries
+    local marked_entry_count
+    local marked_julia
+    local latest_julia
+    local marked_os
+    local latest_os
+
+    for pipeline in "${repository_root}"/.crow/julia-*-build-static.yaml; do
+        marked_entries=$(mktemp)
+        yq -r '.matrix.include[]
+            | select((.JULIA_VERSION | line_comment) == "renovate: julia-rolling")
+            | [.JULIA_VERSION, .OS_VERSION]
+            | @tsv' "${pipeline}" >"${marked_entries}"
+        marked_entry_count=$(awk 'END {print NR + 0}' "${marked_entries}")
+        latest_julia=$(yq -r '.matrix.include[].JULIA_VERSION' "${pipeline}" | sort -Vu | tail -n 1)
+        marked_julia=$(cut -f1 "${marked_entries}")
+
+        if [[ ${marked_entry_count} != 1 || ${marked_julia} != "${latest_julia}" ]]; then
+            echo "${pipeline} must mark exactly its newest Julia definition as renovate: julia-rolling" >&2
+            exit 1
+        fi
+
+        if [[ $(basename "${pipeline}") == julia-alpine-build-static.yaml ]]; then
+            latest_os=$(yq -r '.matrix.include[].OS_VERSION' "${pipeline}" | sort -Vu | tail -n 1)
+            marked_os=$(cut -f2 "${marked_entries}")
+            if [[ ${marked_os} != "${latest_os}" ]]; then
+                echo "${pipeline} must restrict Renovate to its newest Alpine definition" >&2
+                exit 1
+            fi
+        fi
+    done
+}
+
 validate_release_policy() {
     local release_month=$1
     local environments
@@ -54,6 +89,8 @@ validate_release_policy() {
         fi
     done
 }
+
+validate_renovate_targets
 
 current_month=$(date -u +%Y-%m)
 current_year=${current_month%%-*}

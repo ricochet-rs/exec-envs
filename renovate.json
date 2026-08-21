@@ -17,7 +17,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^\\.crow/julia-.*-build-static\\.ya?ml$/"],
-      "matchStrings": ["JULIA_VERSION:\\s*'(?<currentValue>[^']+)'\\s*#\\s*renovate:\\s*julia-stable"],
+      "matchStrings": ["JULIA_VERSION:\\s*'(?<currentValue>[^']+)'\\s*#\\s*renovate:\\s*julia-rolling"],
       "depNameTemplate": "JuliaLang/julia",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+)\\.\\d+$",

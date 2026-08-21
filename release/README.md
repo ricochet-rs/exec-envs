@@ -12,6 +12,8 @@ Alpine releases keep exactly two OS minor versions active each month, so each Ma
 
 The same rollover marks the outgoing minor's final monthly release, keeps it rebuilding for one grace month, removes expired matrix entries, moves unqualified R tags to the newest minor, and updates both Alpine Containerfile defaults.
 
+Renovate ignores `releases/**` and follows one `julia-rolling` marker per Julia matrix, while the Alpine rollover moves that marker to the newest mutable environment and leaves older definitions fixed.
+
 The generator resolves the source image index to a digest, verifies its advertised platforms, runs its `amd64` variant to inventory installed software, and writes an immutable wrapper Containerfile.
 
 The publisher copies that exact digest to month-specific tags in Docker Hub and the Ricochet Registry without rebuilding it.

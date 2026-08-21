@@ -159,6 +159,23 @@ for matrix_file in "${matrix_files[@]}"; do
         ' "${matrix_file}"
     fi
 
+    if [[ $(basename "${matrix_file}") == julia-alpine-build-static.yaml ]]; then
+        latest_julia=$(yq -r '.matrix.include[].JULIA_VERSION' "${matrix_file}" | sort -Vu | tail -n 1)
+        # shellcheck disable=SC2016
+        LATEST_ALPINE=${latest_alpine} LATEST_JULIA=${latest_julia} yq -i '
+            with(.matrix.include[];
+                .JULIA_VERSION line_comment = ""
+            )
+            | with(.matrix.include[]
+                | select(
+                    (.OS_VERSION | tostring) == strenv(LATEST_ALPINE) and
+                    .JULIA_VERSION == strenv(LATEST_JULIA)
+                );
+                .JULIA_VERSION line_comment = "renovate: julia-rolling"
+            )
+        ' "${matrix_file}"
+    fi
+
     # shellcheck disable=SC2016
     LATEST_ALPINE=${latest_alpine} PREVIOUS_ALPINE=${previous_alpine} CURRENT_MONTH=${current_month} yq -i '
         with(.matrix.include[]
