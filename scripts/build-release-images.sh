@@ -4,9 +4,15 @@ set -euo pipefail
 
 repository_root=${RELEASE_REPOSITORY_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)}
 release_month=${1:-$(date -u +%Y-%m)}
+selected_environment=${2:-}
 docker_context=${DOCKER_CONTEXT:-default}
 release_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
 dry_run=${RELEASE_BUILD_DRY_RUN:-false}
+
+if (( $# > 2 )); then
+    echo "Usage: $0 [YYYY-MM [environment-id]]" >&2
+    exit 1
+fi
 
 if [[ ! ${release_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
     echo "Release must use YYYY-MM format: ${release_month}" >&2
@@ -23,6 +29,25 @@ done
 if [[ -d ${repository_root}/releases/${release_month} ]]; then
     echo "Release ${release_month} already exists; refusing to rebuild its immutable tags"
     exit 0
+fi
+
+all_environments=$(mktemp)
+selected_environments=$(mktemp)
+trap 'rm -f "${all_environments}" "${selected_environments}"' EXIT
+
+"${repository_root}/scripts/list-release-environments.sh" --json "${release_month}" >"${all_environments}"
+environment_source=${all_environments}
+
+if [[ -n ${selected_environment} ]]; then
+    jq -c --arg environment_id "${selected_environment}" 'select(.id == $environment_id)' \
+        "${all_environments}" >"${selected_environments}"
+    if [[ ! -s ${selected_environments} ]]; then
+        echo "Unknown environment for ${release_month}: ${selected_environment}" >&2
+        echo "Available environment IDs:" >&2
+        jq -r '.id' "${all_environments}" >&2
+        exit 1
+    fi
+    environment_source=${selected_environments}
 fi
 
 inspect_manifest() {
@@ -73,4 +98,4 @@ while IFS= read -r environment; do
         echo "Building calendar tag ${release_reference}"
         "${build_command[@]}"
     fi
-done < <("${repository_root}/scripts/list-release-environments.sh" --json "${release_month}")
+done <"${environment_source}"

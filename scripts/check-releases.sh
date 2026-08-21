@@ -39,6 +39,31 @@ validate_static_builds() {
     done
 }
 
+validate_release_triggers() {
+    local manual_workflow
+    local monthly_workflow
+
+    monthly_workflow=$(yq -o=json '.' "${repository_root}/.crow/monthly-release.yaml")
+    if ! jq -e '
+        all(.when.event[]; . != "manual") and
+        all(.steps[].when.event[]?; . != "manual")
+    ' <<<"${monthly_workflow}" >/dev/null; then
+        echo ".crow/monthly-release.yaml must reserve full releases for cron events" >&2
+        exit 1
+    fi
+
+    manual_workflow=$(yq -o=json '.' "${repository_root}/.crow/manual-release-image.yaml")
+    if ! jq -e '
+        (.when.event == ["manual"]) and
+        (.when.branch == ["main"]) and
+        any(.steps[].commands[]?; contains("RELEASE_ENVIRONMENT")) and
+        any(.steps[].commands[]?; contains("scripts/build-release-images.sh"))
+    ' <<<"${manual_workflow}" >/dev/null; then
+        echo ".crow/manual-release-image.yaml must select one calendar build through Crow variables" >&2
+        exit 1
+    fi
+}
+
 validate_renovate_targets() {
     local pipeline
     local marked_entries
@@ -108,6 +133,7 @@ validate_release_policy() {
 }
 
 validate_static_builds
+validate_release_triggers
 validate_renovate_targets
 
 current_month=$(date -u +%Y-%m)

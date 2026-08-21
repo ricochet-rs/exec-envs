@@ -8,6 +8,19 @@ Each archived environment includes an automatically generated inventory of its o
 
 Only calendar-versioned tags are published, and release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
 
+An individual environment can be prepared manually through Crow without publishing a rolling tag:
+
+```sh
+crow pipeline create ricochet-rs/exec-envs \
+  --branch main \
+  --var RELEASE_MONTH=2026-09 \
+  --var RELEASE_ENVIRONMENT=r-ubuntu-4.5.3-noble
+```
+
+`RELEASE_ENVIRONMENT` is required and must match an ID printed by `scripts/list-release-environments.sh YYYY-MM`.
+`RELEASE_MONTH` defaults to the current UTC month when omitted.
+The manual pipeline builds only the selected Ricochet Registry calendar tag, and the monthly cron pipeline later scans, promotes, and archives it with the rest of that month.
+
 Alpine monthly releases contain the newest two OS minor versions, and older minors leave the build matrix as soon as their final monthly archive is complete.
 
 ## Monthly releases

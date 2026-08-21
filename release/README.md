@@ -20,6 +20,10 @@ The monthly builder publishes the Ricochet Registry calendar tag, and the genera
 
 The publisher verifies that exact digest in the Ricochet Registry and copies it to the matching calendar tag in Docker Hub without rebuilding it.
 
+The `manual-release-image` Crow workflow accepts `RELEASE_ENVIRONMENT` and optional `RELEASE_MONTH` pipeline variables to prepare one Ricochet Registry calendar tag before the monthly release runs.
+The environment value must be an exact ID from `scripts/list-release-environments.sh YYYY-MM`, and the month defaults to the current UTC month.
+The manual workflow never publishes a rolling tag or bypasses the monthly scan, promotion, and archive steps.
+
 The release pipeline scans every pinned Ricochet Registry digest for fixable critical vulnerabilities before promotion to Docker Hub.
 
 Every later cron run verifies that both registry copies still resolve to the recorded digest until the release's three-year retention date.

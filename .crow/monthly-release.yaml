@@ -1,7 +1,6 @@
 when:
   event:
     - cron
-    - manual
     - pull_request
 
 depends_on:
@@ -24,7 +23,6 @@ steps:
     when:
       event:
         - cron
-        - manual
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       RICOCHET_REGISTRY_TOKEN:
@@ -49,7 +47,6 @@ steps:
     when:
       event:
         - cron
-        - manual
     image: reg.ricochet.rs/docker.io/oven/bun:1.3.14-alpine
     commands:
       - release_month="$$(date -u +%Y-%m)"
@@ -59,7 +56,6 @@ steps:
     when:
       event:
         - cron
-        - manual
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       GH_TOKEN:
