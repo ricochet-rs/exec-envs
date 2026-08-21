@@ -11,10 +11,11 @@ Only calendar-versioned tags are published, and release cutoffs remove deprecate
 An individual environment can be prepared manually through Crow without publishing a rolling tag:
 
 ```sh
-crow pipeline create ricochet-rs/exec-envs \
+crow pipeline create \
   --branch main \
   --var RELEASE_MONTH=2026-09 \
-  --var RELEASE_ENVIRONMENT=r-ubuntu-4.5.3-noble
+  --var RELEASE_ENVIRONMENT=r-ubuntu-4.5.3-noble \
+  ricochet-rs/exec-envs
 ```
 
 `RELEASE_ENVIRONMENT` is required and must match an ID printed by `scripts/list-release-environments.sh YYYY-MM`.
