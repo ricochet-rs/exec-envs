@@ -123,12 +123,13 @@ probe_image() {
     '
 }
 
-while IFS=$'\t' read -r environment_id image source_tag expected_platforms; do
+while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; do
     if [[ -z ${environment_id} || ${environment_id} == \#* ]]; then
         continue
     fi
 
-    source_reference="${source_registry}/${image}:${source_tag}"
+    release_tag="${release_month}-${version_suffix}"
+    source_reference="${source_registry}/${image}:${release_tag}"
     echo "Freezing ${source_reference}"
     manifest=$(inspect_image "${source_reference}")
     digest=$(jq -r '.digest' <<<"${manifest}")
@@ -164,7 +165,6 @@ while IFS=$'\t' read -r environment_id image source_tag expected_platforms; do
             echo "Unable to remove the local probe image ${source_reference}@${digest}" >&2
     fi
 
-    release_tag="${release_month}-${source_tag}"
     docker_hub_reference="docker.io/ricochetrs/${image}:${release_tag}"
     registry_reference="reg.ricochet.rs/exec-envs/${image}:${release_tag}"
     environment_directory="${temporary_release}/${environment_id}"
@@ -176,7 +176,7 @@ while IFS=$'\t' read -r environment_id image source_tag expected_platforms; do
     environment_record=$(jq -n \
         --arg id "${environment_id}" \
         --arg image "${image}" \
-        --arg sourceTag "${source_tag}" \
+        --arg sourceTag "${release_tag}" \
         --arg releaseTag "${release_tag}" \
         --arg digest "${digest}" \
         --arg platforms "${platforms}" \
@@ -246,4 +246,4 @@ jq -n \
 
 mv "${temporary_release}" "${release_directory}"
 "${repository_root}/scripts/render-release-index.sh"
-echo "Created release ${release_month}; its immutable registry tags have not been published"
+echo "Created release ${release_month}; its Docker Hub calendar tags have not been published"

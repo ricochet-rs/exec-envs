@@ -1,14 +1,14 @@
 # exec-envs
 
-The top-level Containerfiles are rebuilt weekly for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
+The top-level Containerfiles are validated on pull requests and built once per calendar-month release for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
 
 Monthly releases freeze every supported environment to an immutable multi-platform digest and retain its registry tags for at least three years.
 
 Each archived environment includes an automatically generated inventory of its operating system, R, Python, Julia, and Quarto versions.
 
-Supported matrix entries receive weekly rebuilds, while scheduled release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
+Only calendar-versioned tags are published, and release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
 
-Alpine monthly releases contain the newest two OS minor versions, with one additional month of rebuilds allowed after an older minor's final release.
+Alpine monthly releases contain the newest two OS minor versions, and older minors leave the build matrix as soon as their final monthly archive is complete.
 
 ## Monthly releases
 

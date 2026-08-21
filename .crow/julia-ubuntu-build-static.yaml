@@ -1,34 +1,19 @@
 when:
   event:
     - push
-    - cron
-    - manual
     - pull_request
-
 depends_on:
   - lint
-
 # autoscaled agents don't have buildx emulators installed
 labels:
   agent: thumper
-
 variables:
-  - logins: &logins
-      - registry: https://reg.ricochet.rs
-        username: robot$ricochet
-        password:
-          from_secret: ricochet_registry_token
-      - registry: https://index.docker.io
-        username: ricochetbot
-        password:
-          from_secret: ricochet_dockerhub_token
   - &repo 'reg.ricochet.rs/exec-envs/${name},docker.io/ricochetrs/${name}'
-
 matrix:
   include:
     ### noble
     - name: julia-ubuntu
-      JULIA_VERSION: '1.12' # renovate: julia-rolling
+      JULIA_VERSION: '1.12' # renovate: julia-current
       OS_VERSION: noble
       requests_cpu: 1000m
       requests_memory: 500Mi
@@ -41,26 +26,8 @@ matrix:
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
-
 steps:
-  'Build and publish image (cron)':
-    when:
-      event: cron
-    image: codefloe.com/crow-plugins/docker-buildx:2.5.0
-    settings:
-      mtu: 1350
-      platforms: linux/amd64,linux/arm64
-      logins: *logins
-      repo: *repo
-      dockerfile: ${name}/Containerfile
-      tags: '${JULIA_VERSION},${JULIA_VERSION}-${OS_VERSION}'
-      provenance: true
-      sbom: true
-      build_args_from_env:
-        - JULIA_VERSION
-        - OS_VERSION
-
-  'Build and publish image (branch)':
+  Build image (branch):
     when:
       - event: push
         branch:
@@ -69,30 +36,28 @@ steps:
     settings:
       mtu: 1350
       platforms: linux/amd64,linux/arm64
-      logins: *logins
       repo: *repo
       dockerfile: ${name}/Containerfile
-      tags: '${JULIA_VERSION},${JULIA_VERSION}-${OS_VERSION}'
+      tags: '${JULIA_VERSION}-${OS_VERSION}'
       dry_run: true
       provenance: true
       sbom: true
       build_args_from_env:
         - JULIA_VERSION
         - OS_VERSION
-
-  'Build and publish image (PR)':
+  Build image (PR):
     when:
       path:
+        - .crow/julia-ubuntu-build-static.yaml
         - ${name}/Containerfile
       event: pull_request
     image: codefloe.com/crow-plugins/docker-buildx:2.5.0
     settings:
       mtu: 1350
       platforms: linux/amd64,linux/arm64
-      logins: *logins
       repo: *repo
       dockerfile: ${name}/Containerfile
-      tags: '${JULIA_VERSION},${JULIA_VERSION}-${OS_VERSION}'
+      tags: '${JULIA_VERSION}-${OS_VERSION}'
       dry_run: true
       provenance: true
       sbom: true

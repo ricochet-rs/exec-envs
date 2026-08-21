@@ -1,8 +1,6 @@
 when:
   event:
     - push
-    - cron
-    - manual
     - pull_request
 depends_on:
   - lint
@@ -10,15 +8,6 @@ depends_on:
 labels:
   agent: thumper
 variables:
-  - logins: &logins
-      - registry: https://reg.ricochet.rs
-        username: robot$ricochet
-        password:
-          from_secret: ricochet_registry_token
-      - registry: https://index.docker.io
-        username: ricochetbot
-        password:
-          from_secret: ricochet_dockerhub_token
   - &repo 'reg.ricochet.rs/exec-envs/${name},docker.io/ricochetrs/${name}'
 matrix:
   include:
@@ -27,74 +16,39 @@ matrix:
       R_VERSION: 4.5
       OS_VERSION: 3.24
       release_from: '2026-09'
-      tag_additional: '4.5,4.5-3.24,4.5.3-3.24'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
+      release_suffix: 4.5.3-3.24
     - name: r-alpine
       R_VERSION: 4.4
       OS_VERSION: 3.24
       release_from: '2026-09'
-      tag_additional: '4.4,4.4-3.24,4.4.3-3.24'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
+      release_suffix: 4.4.3-3.24
     ### 3.23
     - name: r-alpine
       R_VERSION: 4.5
       OS_VERSION: 3.23
-      tag_additional: '4.5-3.23,4.5.3-3.23'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
+      release_suffix: 4.5.3-3.23
     - name: r-alpine
       R_VERSION: 4.4
       OS_VERSION: 3.23
-      tag_additional: '4.4-3.23,4.4.3-3.23'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
-    # 3.22
-    - name: r-alpine
-      R_VERSION: 4.5
-      OS_VERSION: 3.22
-      release_through: '2026-08'
-      tag_additional: '4.5-3.22,4.5.3-3.22'
-      requests_cpu: 1000m
-      requests_memory: 500Mi
-      limits_cpu: 2000m
-      limits_memory: 800Mi
-    - name: r-alpine
-      R_VERSION: 4.4
-      OS_VERSION: 3.22
-      release_through: '2026-08'
-      tag_additional: '4.4-3.22,4.4.3-3.22'
-      requests_cpu: 1000m
-      requests_memory: 500Mi
-      limits_cpu: 2000m
-      limits_memory: 800Mi
+      release_suffix: 4.4.3-3.23
 steps:
-  'Build and publish image (cron)':
-    when:
-      event: cron
-    image: codefloe.com/crow-plugins/docker-buildx:2.5.0
-    settings:
-      mtu: 1350
-      platforms: linux/amd64,linux/arm64
-      logins: *logins
-      repo: *repo
-      dockerfile: ${name}/Containerfile
-      tags: ${tag_additional}
-      provenance: true
-      sbom: true
-      build_args_from_env:
-        - R_VERSION
-        - OS_VERSION
-  'Build and publish image (branch)':
+  Build image (branch):
     when:
       - event: push
         branch:
@@ -103,17 +57,16 @@ steps:
     settings:
       mtu: 1350
       platforms: linux/amd64,linux/arm64
-      logins: *logins
       repo: *repo
       dockerfile: ${name}/Containerfile
-      tags: ${tag_additional}
+      tags: ${release_suffix}
       dry_run: true
       provenance: true
       sbom: true
       build_args_from_env:
         - R_VERSION
         - OS_VERSION
-  'Build and publish image (PR)':
+  Build image (PR):
     when:
       path:
         - .crow/alpine-build-static.yaml
@@ -123,10 +76,9 @@ steps:
     settings:
       mtu: 1350
       platforms: linux/amd64,linux/arm64
-      logins: *logins
       repo: *repo
       dockerfile: ${name}/Containerfile
-      tags: ${tag_additional}
+      tags: ${release_suffix}
       dry_run: true
       provenance: true
       sbom: true

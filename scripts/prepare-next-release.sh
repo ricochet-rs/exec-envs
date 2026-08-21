@@ -24,18 +24,6 @@ for command in "${required_commands[@]}"; do
     fi
 done
 
-month_before() {
-    local month=$1
-    local year=${month%%-*}
-    local month_number=${month##*-}
-
-    if [[ ${month_number} == 01 ]]; then
-        printf '%04d-12\n' "$((10#${year} - 1))"
-    else
-        printf '%04d-%02d\n' "${year}" "$((10#${month_number} - 1))"
-    fi
-}
-
 month_after() {
     local month=$1
     local year=${month%%-*}
@@ -79,7 +67,6 @@ alpine_candidate_is_ready() {
 }
 
 target_month=$(month_after "${current_month}")
-previous_month=$(month_before "${current_month}")
 matrix_files=(
     "${repository_root}/.crow/alpine-build-static.yaml"
     "${repository_root}/.crow/julia-alpine-build-static.yaml"
@@ -121,42 +108,13 @@ for matrix_file in "${matrix_files[@]}"; do
                     | .OS_VERSION = (strenv(NEW_ALPINE) | tonumber)
                     | .release_from = strenv(TARGET_MONTH)
                     | del(.release_through)
-                    | . * (({
-                        "tag_additional": (
-                            (.tag_additional // "")
-                            | split(",")
-                            | map(
-                                select(test("-[0-9]+\\.[0-9]+$"))
-                                | sub("-[0-9]+\\.[0-9]+$"; "-" + strenv(NEW_ALPINE))
-                            )
-                            | join(",")
-                        )
-                      } | select(.tag_additional != "")) // {})
+                    | with(select(has("release_suffix"));
+                        .release_suffix |= sub("-[0-9]+\\.[0-9]+$"; "-" + strenv(NEW_ALPINE))
+                      )
                 ] + .matrix.include
             )
         ' "${matrix_file}"
         echo "Added Alpine ${latest_alpine} to $(basename "${matrix_file}") for ${target_month}"
-    fi
-
-    if [[ $(basename "${matrix_file}") == alpine-build-static.yaml ]]; then
-        # shellcheck disable=SC2016
-        LATEST_ALPINE=${latest_alpine} yq -i '
-            with(.matrix.include[];
-                .OS_VERSION as $os_version
-                | .R_VERSION as $r_version
-                | .tag_additional = (
-                    (
-                        ([($r_version | tostring)]
-                            | select(($os_version | tostring) == strenv(LATEST_ALPINE))) // []
-                    ) + [
-                        .tag_additional
-                        | split(",")[]
-                        | select(test("-[0-9]+\\.[0-9]+$"))
-                    ]
-                    | join(",")
-                )
-            )
-        ' "${matrix_file}"
     fi
 
     if [[ $(basename "${matrix_file}") == julia-alpine-build-static.yaml ]]; then
@@ -171,29 +129,17 @@ for matrix_file in "${matrix_files[@]}"; do
                     (.OS_VERSION | tostring) == strenv(LATEST_ALPINE) and
                     .JULIA_VERSION == strenv(LATEST_JULIA)
                 );
-                .JULIA_VERSION line_comment = "renovate: julia-rolling"
+                .JULIA_VERSION line_comment = "renovate: julia-current"
             )
         ' "${matrix_file}"
     fi
 
     # shellcheck disable=SC2016
-    LATEST_ALPINE=${latest_alpine} PREVIOUS_ALPINE=${previous_alpine} CURRENT_MONTH=${current_month} yq -i '
-        with(.matrix.include[]
-            | select(
-                (.OS_VERSION | tostring) != strenv(LATEST_ALPINE) and
-                (.OS_VERSION | tostring) != strenv(PREVIOUS_ALPINE) and
-                ((.release_through // "") == "")
-            );
-            .release_through = strenv(CURRENT_MONTH)
-        )
-    ' "${matrix_file}"
-
-    # shellcheck disable=SC2016
-    PREVIOUS_MONTH=${previous_month} yq -i '
+    LATEST_ALPINE=${latest_alpine} PREVIOUS_ALPINE=${previous_alpine} yq -i '
         .matrix.include |= map(
             select(
-                (has("release_through") | not) or
-                .release_through >= strenv(PREVIOUS_MONTH)
+                (.OS_VERSION | tostring) == strenv(LATEST_ALPINE) or
+                (.OS_VERSION | tostring) == strenv(PREVIOUS_ALPINE)
             )
         )
     ' "${matrix_file}"

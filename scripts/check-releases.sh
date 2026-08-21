@@ -22,6 +22,23 @@ for command in jq yq; do
     fi
 done
 
+validate_static_builds() {
+    local pipeline
+    local workflow
+
+    for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
+        workflow=$(yq -o=json '.' "${pipeline}")
+        if ! jq -e '
+            all(.when.event[]; . != "cron" and . != "manual") and
+            all(.steps[]; .settings.dry_run == true) and
+            all(.matrix.include[]; has("tag_additional") | not)
+        ' <<<"${workflow}" >/dev/null; then
+            echo "${pipeline} must validate builds without publishing non-calendar tags" >&2
+            exit 1
+        fi
+    done
+}
+
 validate_renovate_targets() {
     local pipeline
     local marked_entries
@@ -34,7 +51,7 @@ validate_renovate_targets() {
     for pipeline in "${repository_root}"/.crow/julia-*-build-static.yaml; do
         marked_entries=$(mktemp)
         yq -r '.matrix.include[]
-            | select((.JULIA_VERSION | line_comment) == "renovate: julia-rolling")
+            | select((.JULIA_VERSION | line_comment) == "renovate: julia-current")
             | [.JULIA_VERSION, .OS_VERSION]
             | @tsv' "${pipeline}" >"${marked_entries}"
         marked_entry_count=$(awk 'END {print NR + 0}' "${marked_entries}")
@@ -42,7 +59,7 @@ validate_renovate_targets() {
         marked_julia=$(cut -f1 "${marked_entries}")
 
         if [[ ${marked_entry_count} != 1 || ${marked_julia} != "${latest_julia}" ]]; then
-            echo "${pipeline} must mark exactly its newest Julia definition as renovate: julia-rolling" >&2
+            echo "${pipeline} must mark exactly its newest Julia definition as renovate: julia-current" >&2
             exit 1
         fi
 
@@ -90,6 +107,7 @@ validate_release_policy() {
     done
 }
 
+validate_static_builds
 validate_renovate_targets
 
 current_month=$(date -u +%Y-%m)
@@ -100,28 +118,7 @@ if [[ ${current_month_number} == 12 ]]; then
 else
     next_month=$(printf '%04d-%02d' "${current_year}" "$((10#${current_month_number} + 1))")
 fi
-if [[ ${current_month_number} == 01 ]]; then
-    previous_month="$((10#${current_year} - 1))-12"
-else
-    previous_month=$(printf '%04d-%02d' "${current_year}" "$((10#${current_month_number} - 1))")
-fi
-
-validate_release_policy "${current_month}"
 validate_release_policy "${next_month}"
-
-expired_rebuilds=$(mktemp)
-for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
-    yq -o=json '.matrix.include' "${pipeline}" | jq -r --arg previous_month "${previous_month}" --arg pipeline "${pipeline}" '
-        .[]
-        | select(has("release_through") and .release_through < $previous_month)
-        | "\($pipeline): \(.name) \(.release_through)"
-    '
-done >"${expired_rebuilds}"
-if [[ -s ${expired_rebuilds} ]]; then
-    echo "Deprecated environments exceeded their one-month rebuild grace period:" >&2
-    cat "${expired_rebuilds}" >&2
-    exit 1
-fi
 
 inspect_digest() {
     local image_reference=$1
@@ -161,6 +158,17 @@ while IFS= read -r release_metadata; do
     fi
     if [[ ${retention_until} != "${expected_retention}" ]]; then
         echo "Release ${release_month} must be retained through ${expected_retention}, found ${retention_until}" >&2
+        exit 1
+    fi
+    if ! jq -e --arg release_month "${release_month}" '
+        all(.environments[];
+            .releaseTag as $release_tag
+            | ($release_tag | startswith($release_month + "-")) and
+              (.images.dockerHub | endswith(":" + $release_tag)) and
+              (.images.ricochetRegistry | endswith(":" + $release_tag))
+        )
+    ' "${release_metadata}" >/dev/null; then
+        echo "Release ${release_month} contains a non-calendar registry tag" >&2
         exit 1
     fi
     unique_environment_count=$(jq '[.environments[].id] | unique | length' "${release_metadata}")

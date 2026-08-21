@@ -38,6 +38,15 @@ jq -c '.environments[]' "${release_metadata}" | while IFS= read -r environment; 
     source_reference="${source_registry}/${image}@${digest}"
 
     for release_reference in "${docker_hub_reference}" "${registry_reference}"; do
+        if published_digest=$(inspect_digest "${release_reference}" 2>/dev/null); then
+            if [[ ${published_digest} != "${digest}" ]]; then
+                echo "Existing calendar tag mismatch for ${release_reference}: expected ${digest}, found ${published_digest}" >&2
+                exit 1
+            fi
+            echo "Calendar tag already published: ${release_reference}"
+            continue
+        fi
+
         echo "Publishing ${release_reference}"
         docker --context "${docker_context}" buildx imagetools create --tag "${release_reference}" "${source_reference}"
         published_digest=$(inspect_digest "${release_reference}")
