@@ -4,14 +4,11 @@ when:
     - cron
     - manual
     - pull_request
-
 depends_on:
   - lint
-
 # autoscaled agents don't have buildx emulators installed
 labels:
   agent: thumper
-
 variables:
   - logins: &logins
       - registry: https://reg.ricochet.rs
@@ -23,14 +20,32 @@ variables:
         password:
           from_secret: ricochet_dockerhub_token
   - &repo 'reg.ricochet.rs/exec-envs/${name},docker.io/ricochetrs/${name}'
-
 matrix:
   include:
+    ### 3.24
+    - name: r-alpine
+      R_VERSION: 4.5
+      OS_VERSION: 3.24
+      release_from: '2026-09'
+      tag_additional: '4.5,4.5-3.24,4.5.3-3.24'
+      requests_cpu: 1000m
+      requests_memory: 500Mi
+      limits_cpu: 2000m
+      limits_memory: 800Mi
+    - name: r-alpine
+      R_VERSION: 4.4
+      OS_VERSION: 3.24
+      release_from: '2026-09'
+      tag_additional: '4.4,4.4-3.24,4.4.3-3.24'
+      requests_cpu: 1000m
+      requests_memory: 500Mi
+      limits_cpu: 2000m
+      limits_memory: 800Mi
     ### 3.23
     - name: r-alpine
       R_VERSION: 4.5
       OS_VERSION: 3.23
-      tag_additional: '4.5,4.5-3.23,4.5.3-3.23'
+      tag_additional: '4.5-3.23,4.5.3-3.23'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
@@ -38,7 +53,7 @@ matrix:
     - name: r-alpine
       R_VERSION: 4.4
       OS_VERSION: 3.23
-      tag_additional: '4.4,4.4-3.23,4.4.3-3.23'
+      tag_additional: '4.4-3.23,4.4.3-3.23'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
@@ -47,6 +62,7 @@ matrix:
     - name: r-alpine
       R_VERSION: 4.5
       OS_VERSION: 3.22
+      release_through: '2026-08'
       tag_additional: '4.5-3.22,4.5.3-3.22'
       requests_cpu: 1000m
       requests_memory: 500Mi
@@ -55,12 +71,12 @@ matrix:
     - name: r-alpine
       R_VERSION: 4.4
       OS_VERSION: 3.22
+      release_through: '2026-08'
       tag_additional: '4.4-3.22,4.4.3-3.22'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
-
 steps:
   'Build and publish image (cron)':
     when:
@@ -78,7 +94,6 @@ steps:
       build_args_from_env:
         - R_VERSION
         - OS_VERSION
-
   'Build and publish image (branch)':
     when:
       - event: push
@@ -98,10 +113,10 @@ steps:
       build_args_from_env:
         - R_VERSION
         - OS_VERSION
-
   'Build and publish image (PR)':
     when:
       path:
+        - .crow/alpine-build-static.yaml
         - ${name}/Containerfile
       event: pull_request
     image: codefloe.com/crow-plugins/docker-buildx:2.5.0

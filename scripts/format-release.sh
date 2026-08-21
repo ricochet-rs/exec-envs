@@ -12,4 +12,8 @@ if [[ ! -d ${release_directory} ]]; then
 fi
 
 cd "${repository_root}"
-bunx prettier@3.2.5 --write --ignore-unknown README.md "releases/${release_month}"
+bunx prettier@3.2.5 --write --ignore-unknown \
+    README.md \
+    .crow/alpine-build-static.yaml \
+    .crow/julia-alpine-build-static.yaml \
+    "releases/${release_month}"

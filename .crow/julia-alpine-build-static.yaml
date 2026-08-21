@@ -4,14 +4,11 @@ when:
     - cron
     - manual
     - pull_request
-
 depends_on:
   - lint
-
 # autoscaled agents don't have buildx emulators installed
 labels:
   agent: thumper
-
 variables:
   - logins: &logins
       - registry: https://reg.ricochet.rs
@@ -23,9 +20,25 @@ variables:
         password:
           from_secret: ricochet_dockerhub_token
   - &repo 'reg.ricochet.rs/exec-envs/${name},docker.io/ricochetrs/${name}'
-
 matrix:
   include:
+    ### 3.24
+    - name: julia-alpine
+      JULIA_VERSION: '1.12' # renovate: julia-stable
+      OS_VERSION: 3.24
+      release_from: '2026-09'
+      requests_cpu: 1000m
+      requests_memory: 500Mi
+      limits_cpu: 2000m
+      limits_memory: 800Mi
+    - name: julia-alpine
+      JULIA_VERSION: '1.10'
+      OS_VERSION: 3.24
+      release_from: '2026-09'
+      requests_cpu: 1000m
+      requests_memory: 500Mi
+      limits_cpu: 2000m
+      limits_memory: 800Mi
     ### 3.23
     - name: julia-alpine
       JULIA_VERSION: '1.12' # renovate: julia-stable
@@ -45,6 +58,7 @@ matrix:
     - name: julia-alpine
       JULIA_VERSION: '1.12' # renovate: julia-stable
       OS_VERSION: 3.22
+      release_through: '2026-08'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
@@ -52,11 +66,11 @@ matrix:
     - name: julia-alpine
       JULIA_VERSION: '1.10'
       OS_VERSION: 3.22
+      release_through: '2026-08'
       requests_cpu: 1000m
       requests_memory: 500Mi
       limits_cpu: 2000m
       limits_memory: 800Mi
-
 steps:
   'Build and publish image (cron)':
     when:
@@ -74,7 +88,6 @@ steps:
       build_args_from_env:
         - JULIA_VERSION
         - OS_VERSION
-
   'Build and publish image (branch)':
     when:
       - event: push
@@ -94,10 +107,10 @@ steps:
       build_args_from_env:
         - JULIA_VERSION
         - OS_VERSION
-
   'Build and publish image (PR)':
     when:
       path:
+        - .crow/julia-alpine-build-static.yaml
         - ${name}/Containerfile
       event: pull_request
     image: codefloe.com/crow-plugins/docker-buildx:2.5.0

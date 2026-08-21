@@ -15,6 +15,14 @@ release release_month:
     RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "{{release_month}}"
     scripts/format-release.sh "{{release_month}}"
 
+# List build-matrix environments active for a monthly release
+list-release-environments release_month:
+    scripts/list-release-environments.sh "{{release_month}}"
+
+# Prepare build matrices and defaults for the next monthly release
+prepare-next-release release_month:
+    scripts/prepare-next-release.sh "{{release_month}}"
+
 # Publish the immutable tags for an existing monthly release
 publish-release release_month:
     scripts/publish-release.sh "{{release_month}}"

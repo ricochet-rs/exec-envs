@@ -6,6 +6,10 @@ Monthly releases freeze every supported environment to an immutable multi-platfo
 
 Each archived environment includes an automatically generated inventory of its operating system, R, Python, Julia, and Quarto versions.
 
+Supported matrix entries receive weekly rebuilds, while scheduled release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
+
+Alpine monthly releases contain the newest two OS minor versions, with one additional month of rebuilds allowed after an older minor's final release.
+
 ## Monthly releases
 
 <!-- releases:start -->

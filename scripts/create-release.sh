@@ -3,7 +3,6 @@
 set -euo pipefail
 
 repository_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
-environment_catalog="${repository_root}/release/environments.tsv"
 release_month=${1:-$(date -u +%Y-%m)}
 docker_context=${DOCKER_CONTEXT:-default}
 source_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
@@ -19,7 +18,7 @@ if [[ ! ${release_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
     exit 1
 fi
 
-for command in docker jq; do
+for command in docker jq yq; do
     if ! command -v "${command}" >/dev/null; then
         echo "Required command is unavailable: ${command}" >&2
         exit 1
@@ -227,7 +226,7 @@ Build the snapshot locally with:
 docker build -t exec-env:${environment_id}-${release_month} releases/${release_month}/${environment_id}
 \`\`\`
 EOF
-done <"${environment_catalog}"
+done < <("${repository_root}/scripts/list-release-environments.sh" "${release_month}")
 
 jq -n \
     --arg release "${release_month}" \

@@ -3,7 +3,6 @@
 set -euo pipefail
 
 repository_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
-environment_catalog="${repository_root}/release/environments.tsv"
 check_remote=false
 docker_context=${DOCKER_CONTEXT:-default}
 
@@ -14,7 +13,6 @@ elif [[ -n ${1:-} ]]; then
     exit 1
 fi
 
-expected_environment_count=$(awk -F '\t' '$1 !~ /^#/ && NF {count++} END {print count + 0}' "${environment_catalog}")
 release_count=0
 
 for command in jq yq; do
@@ -24,19 +22,67 @@ for command in jq yq; do
     fi
 done
 
-catalog_sources=$(mktemp)
-pipeline_sources=$(mktemp)
-awk -F '\t' '$1 !~ /^#/ && NF {print $2 "\t" $3}' "${environment_catalog}" | sort -u >"${catalog_sources}"
-for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
-    yq -o=json '.matrix.include' "${pipeline}" | jq -r '.[] | [
-        .name,
-        (if has("tag_additional") then (.tag_additional | split(",")[-1]) else (.JULIA_VERSION + "-" + (.OS_VERSION | tostring)) end)
-    ] | @tsv'
-done | sort -u >"${pipeline_sources}"
+validate_release_policy() {
+    local release_month=$1
+    local environments
+    local environment_count
+    local unique_environment_count
+    local alpine_versions
+    local alpine_version_count
+    local image
 
-if ! cmp -s "${catalog_sources}" "${pipeline_sources}"; then
-    echo "release/environments.tsv does not match the exact tags in the Crow build matrices" >&2
-    diff -u "${pipeline_sources}" "${catalog_sources}" >&2 || true
+    environments=$(mktemp)
+    "${repository_root}/scripts/list-release-environments.sh" "${release_month}" >"${environments}"
+    environment_count=$(awk 'END {print NR + 0}' "${environments}")
+    unique_environment_count=$(cut -f1 "${environments}" | sort -u | awk 'END {print NR + 0}')
+
+    if [[ ${environment_count} == 0 || ${unique_environment_count} != "${environment_count}" ]]; then
+        echo "Release policy for ${release_month} must contain unique environments" >&2
+        exit 1
+    fi
+
+    for image in r-alpine julia-alpine; do
+        alpine_versions=$(mktemp)
+        awk -F '\t' -v image="${image}" '$2 == image {
+            field_count = split($3, fields, "-")
+            print fields[field_count]
+        }' "${environments}" | sort -Vu >"${alpine_versions}"
+        alpine_version_count=$(awk 'END {print NR + 0}' "${alpine_versions}")
+        if [[ ${alpine_version_count} != 2 ]]; then
+            echo "Release policy for ${release_month} must contain exactly two ${image} OS versions" >&2
+            exit 1
+        fi
+    done
+}
+
+current_month=$(date -u +%Y-%m)
+current_year=${current_month%%-*}
+current_month_number=${current_month##*-}
+if [[ ${current_month_number} == 12 ]]; then
+    next_month="$((10#${current_year} + 1))-01"
+else
+    next_month=$(printf '%04d-%02d' "${current_year}" "$((10#${current_month_number} + 1))")
+fi
+if [[ ${current_month_number} == 01 ]]; then
+    previous_month="$((10#${current_year} - 1))-12"
+else
+    previous_month=$(printf '%04d-%02d' "${current_year}" "$((10#${current_month_number} - 1))")
+fi
+
+validate_release_policy "${current_month}"
+validate_release_policy "${next_month}"
+
+expired_rebuilds=$(mktemp)
+for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
+    yq -o=json '.matrix.include' "${pipeline}" | jq -r --arg previous_month "${previous_month}" --arg pipeline "${pipeline}" '
+        .[]
+        | select(has("release_through") and .release_through < $previous_month)
+        | "\($pipeline): \(.name) \(.release_through)"
+    '
+done >"${expired_rebuilds}"
+if [[ -s ${expired_rebuilds} ]]; then
+    echo "Deprecated environments exceeded their one-month rebuild grace period:" >&2
+    cat "${expired_rebuilds}" >&2
     exit 1
 fi
 
@@ -80,20 +126,12 @@ while IFS= read -r release_metadata; do
         echo "Release ${release_month} must be retained through ${expected_retention}, found ${retention_until}" >&2
         exit 1
     fi
-    if [[ ${environment_count} != "${expected_environment_count}" ]]; then
-        echo "Release ${release_month} has ${environment_count} environments; expected ${expected_environment_count}" >&2
+    unique_environment_count=$(jq '[.environments[].id] | unique | length' "${release_metadata}")
+    containerfile_count=$(find "${release_directory}" -mindepth 2 -maxdepth 2 -name Containerfile -print | awk 'END {print NR + 0}')
+    if [[ ${environment_count} == 0 || ${unique_environment_count} != "${environment_count}" || ${containerfile_count} != "${environment_count}" ]]; then
+        echo "Release ${release_month} must contain matching unique metadata and Containerfiles" >&2
         exit 1
     fi
-
-    while IFS=$'\t' read -r environment_id _image _source_tag _platforms; do
-        if [[ -z ${environment_id} || ${environment_id} == \#* ]]; then
-            continue
-        fi
-        if ! jq -e --arg id "${environment_id}" 'any(.environments[]; .id == $id)' "${release_metadata}" >/dev/null; then
-            echo "Release ${release_month} is missing ${environment_id}" >&2
-            exit 1
-        fi
-    done <"${environment_catalog}"
 
     jq -c '.environments[]' "${release_metadata}" | while IFS= read -r environment; do
         environment_id=$(jq -r '.id' <<<"${environment}")
