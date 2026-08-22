@@ -14,6 +14,16 @@ elif [[ -n ${1:-} ]]; then
 fi
 
 release_count=0
+first_readme_heading=$(awk '/^## / { print; exit }' "${repository_root}/README.md")
+
+if [[ ${first_readme_heading} != "## Monthly releases" ]]; then
+    echo "README.md must present Monthly releases as its first section" >&2
+    exit 1
+fi
+if ! grep -Eq '^\| Release +\| Retained through +\| Environments +\| CI +\|$' "${repository_root}/README.md"; then
+    echo "README.md must use the compact monthly release index" >&2
+    exit 1
+fi
 
 for command in jq yq; do
     if ! command -v "${command}" >/dev/null; then
@@ -186,6 +196,13 @@ while IFS= read -r release_metadata; do
         echo "Release ${release_month} must be retained through ${expected_retention}, found ${retention_until}" >&2
         exit 1
     fi
+    if ! jq -e '
+        (.ci == null) or
+        ((.ci.status == "passed") and (.ci.url | type == "string" and startswith("https://")))
+    ' "${release_metadata}" >/dev/null; then
+        echo "Release ${release_month} contains invalid CI run metadata" >&2
+        exit 1
+    fi
     if ! jq -e --arg release_month "${release_month}" '
         all(.environments[];
             .releaseTag as $release_tag
@@ -201,6 +218,14 @@ while IFS= read -r release_metadata; do
     containerfile_count=$(find "${release_directory}" -mindepth 2 -maxdepth 2 -name Containerfile -print | awk 'END {print NR + 0}')
     if [[ ${environment_count} == 0 || ${unique_environment_count} != "${environment_count}" || ${containerfile_count} != "${environment_count}" ]]; then
         echo "Release ${release_month} must contain matching unique metadata and Containerfiles" >&2
+        exit 1
+    fi
+    if ! grep -Fq "[${release_month}](releases/${release_month}/)" "${repository_root}/README.md"; then
+        echo "README.md does not link release ${release_month}" >&2
+        exit 1
+    fi
+    if grep -Fq '| Platforms |' "${release_directory}/README.md"; then
+        echo "Release summary must omit its redundant Platforms column: ${release_directory}/README.md" >&2
         exit 1
     fi
 
@@ -221,8 +246,8 @@ while IFS= read -r release_metadata; do
             echo "Environment description is missing: ${environment_readme}" >&2
             exit 1
         fi
-        if ! grep -Fq "releases/${release_month}/${environment_id}/Containerfile" "${repository_root}/README.md"; then
-            echo "README.md does not link ${environment_id} from release ${release_month}" >&2
+        if ! grep -Fq "[${environment_id}](./${environment_id}/)" "${release_directory}/README.md"; then
+            echo "Release README does not link ${environment_id}: ${release_directory}/README.md" >&2
             exit 1
         fi
 

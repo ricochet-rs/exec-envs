@@ -7,6 +7,7 @@ release_month=${1:-$(date -u +%Y-%m)}
 docker_context=${DOCKER_CONTEXT:-default}
 source_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
 cleanup_images=${RELEASE_CLEANUP_IMAGES:-false}
+ci_pipeline_url=${CI_PIPELINE_URL:-}
 
 if [[ -z ${DOCKER_CONFIG:-} ]]; then
     export DOCKER_CONFIG
@@ -15,6 +16,11 @@ fi
 
 if [[ ! ${release_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
     echo "Release must use YYYY-MM format: ${release_month}" >&2
+    exit 1
+fi
+
+if [[ -n ${ci_pipeline_url} && ! ${ci_pipeline_url} =~ ^https:// ]]; then
+    echo "CI pipeline URL must use HTTPS: ${ci_pipeline_url}" >&2
     exit 1
 fi
 
@@ -28,6 +34,7 @@ done
 release_directory="${repository_root}/releases/${release_month}"
 if [[ -d ${release_directory} ]]; then
     echo "Release ${release_month} already exists; leaving its pinned digests unchanged"
+    "${repository_root}/scripts/render-release-readme.sh" "${release_month}"
     "${repository_root}/scripts/render-release-index.sh"
     exit 0
 fi
@@ -231,19 +238,13 @@ done < <("${repository_root}/scripts/list-release-environments.sh" "${release_mo
 jq -n \
     --arg release "${release_month}" \
     --arg retentionUntil "${retention_until}" \
+    --arg ciPipelineUrl "${ci_pipeline_url}" \
     --slurpfile environments "${environment_records}" \
-    '{release: $release, retentionUntil: $retentionUntil, environments: $environments[0]}' \
+    '{release: $release, retentionUntil: $retentionUntil, environments: $environments[0]}
+        + if $ciPipelineUrl == "" then {} else {ci: {status: "passed", url: $ciPipelineUrl}} end' \
     >"${temporary_release}/release.json"
 
-{
-    printf '# %s exec environments\n\n' "${release_month}"
-    printf 'This release is retained through at least %s.\n\n' "${retention_until}"
-    echo '| Environment | R | Python | Julia | Quarto | Platforms |'
-    echo '| --- | --- | --- | --- | --- | --- |'
-    jq -r '.environments[] | "| [\(.id)](./\(.id)/) | \(.versions.r) | \(.versions.python | join(", ")) | \(.versions.julia) | \(.versions.quarto) | \(.platforms | join(", ")) |"' \
-        "${temporary_release}/release.json"
-} >"${temporary_release}/README.md"
-
 mv "${temporary_release}" "${release_directory}"
+"${repository_root}/scripts/render-release-readme.sh" "${release_month}"
 "${repository_root}/scripts/render-release-index.sh"
 echo "Created release ${release_month}; its Docker Hub calendar tags have not been published"
