@@ -1,6 +1,7 @@
 # Monthly release process
 
 The first successful cron pipeline in each UTC month builds and creates a `releases/YYYY-MM` archive from every active entry in the Crow build matrices.
+The main README lists each available month with its retention date, environment count, and recorded creation pipeline, while the monthly README contains the detailed component inventory.
 
 Each image is published only under its immutable `YYYY-MM-<version>-<os>` tag in the Ricochet Registry and Docker Hub.
 
@@ -25,6 +26,7 @@ The environment value must be an exact ID from `scripts/list-release-environment
 The manual workflow never publishes a rolling tag or bypasses the monthly scan, promotion, and archive steps.
 
 The release pipeline scans every pinned Ricochet Registry digest for fixable critical vulnerabilities before promotion to Docker Hub.
+New release metadata records the successful Crow pipeline URL so the main release index links each month to its creation status.
 
 Every later cron run verifies that both registry copies still resolve to the recorded digest until the release's three-year retention date.
 
