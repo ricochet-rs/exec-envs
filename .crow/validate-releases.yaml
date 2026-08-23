@@ -1,0 +1,25 @@
+when:
+  - event: pull_request
+  - event: push
+    branch:
+      - ${CI_REPO_DEFAULT_BRANCH}
+
+depends_on:
+  - lint
+
+# Deliberately separate from monthly-release: that workflow waits on the merge
+# workflows, which never run for a pull request, so validation living there would
+# silently stop running.
+#
+# The backend label is required, not cosmetic: a local-backend agent execs the
+# image field as a command and fails with
+# "execvp() of 'reg.ricochet.rs/...' failed: No such file or directory".
+labels:
+  backend: docker
+
+steps:
+  validate-release-files:
+    image: reg.ricochet.rs/docker.io/library/alpine:3.24
+    commands:
+      - apk add -q --no-cache bash jq yq
+      - scripts/check-releases.sh
