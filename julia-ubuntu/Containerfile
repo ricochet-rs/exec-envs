@@ -2,15 +2,17 @@ ARG OS_VERSION=resolute
 FROM ubuntu:${OS_VERSION}
 
 ARG JULIA_VERSION=1.11
+# renovate: datasource=github-releases depName=quarto-dev/quarto-cli
+ARG QUARTO_VERSION=1.10.18
 ARG TARGETARCH
 
 ENV JULIA_DEPOT_PATH=/opt/ricochet/cache/julia
-ENV PATH=/opt/julia/bin:${PATH}
+ENV PATH=/opt/julia/bin:/opt/quarto/bin:${PATH}
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /opt/ricochet
 
-RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia && \
+RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /opt/quarto && \
     apt-get update && \
     apt-get install --no-install-recommends -y ca-certificates curl git build-essential gfortran && \
     rm -rf /var/lib/apt/lists/* && \
@@ -21,7 +23,10 @@ RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia && 
     esac && \
     curl -fsSLo /tmp/julia.tar.gz "https://julialang-s3.julialang.org/bin/linux/${JDIR}/${JULIA_VERSION}/julia-${JULIA_VERSION}-latest-linux-${JARCH}.tar.gz" && \
     tar -xzf /tmp/julia.tar.gz -C /opt/julia --strip-components=1 && \
-    rm /tmp/julia.tar.gz
+    rm /tmp/julia.tar.gz && \
+    curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
+    tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
+    rm /tmp/quarto.tar.gz
 
 WORKDIR /opt/ricochet/data/content
 
