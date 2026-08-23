@@ -4,6 +4,7 @@ set -euo pipefail
 
 repository_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 github_repository=${RELEASE_GITHUB_REPOSITORY:-ricochet-rs/exec-envs}
+expected_actor=${RELEASE_GITHUB_ACTOR:-ricochet-bot}
 dry_run=${RELEASE_NOTES_DRY_RUN:-false}
 selected_month=${1:-}
 
@@ -12,9 +13,19 @@ if [[ -n ${selected_month} && ! ${selected_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ 
     exit 1
 fi
 
-if [[ ${dry_run} != true ]] && ! command -v gh >/dev/null; then
-    echo "Required command is unavailable: gh" >&2
-    exit 1
+if [[ ${dry_run} != true ]]; then
+    if ! command -v gh >/dev/null; then
+        echo "Required command is unavailable: gh" >&2
+        exit 1
+    fi
+
+    # Releases carry the identity of the token that creates them, so refuse any other account.
+    # RELEASE_GITHUB_ACTOR retargets this check at a different account; it cannot switch it off.
+    authenticated_actor=$(gh api user --jq .login)
+    if [[ ${authenticated_actor} != "${expected_actor}" ]]; then
+        echo "Releases must be published as ${expected_actor}, but the token authenticates as ${authenticated_actor}" >&2
+        exit 1
+    fi
 fi
 
 archived_months=$(find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print |
