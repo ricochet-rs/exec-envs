@@ -11,6 +11,14 @@ depends_on:
 labels:
   agent: thumper
 
+variables:
+  RELEASE_MONTH:
+    description: Calendar month to build as YYYY-MM, defaulting to the current UTC month.
+    default: ''
+  RELEASE_ENVIRONMENT:
+    description: Environment ID printed by scripts/list-release-environments.sh, such as r-ubuntu-4.5.3-noble.
+    required: true
+
 steps:
   build-selected-calendar-image:
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
