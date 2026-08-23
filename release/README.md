@@ -34,6 +34,7 @@ The `arm64` agent is gaia, the only `arm64` Docker host in the fleet, deployed f
 `check-releases.sh` enforces that the `arm64` workflow pins `platform: linux/arm64`, because losing that label would silently fall back to emulation.
 
 The two build workflows serve every release path, so the monthly cron, a manual single-environment preparation, and a rebuild all reuse them and differ only in which workflow consumes the result.
+Pull-request validation lives in its own `validate-releases` workflow rather than in `monthly-release`, which now waits on the build workflows and so never runs for a pull request.
 A manual run therefore selects the two build workflows alongside the one that finishes the job.
 `RELEASE_REBUILD` is one pipeline input shared by all of them, and `manual-release-rebuild` refuses to continue when it is false, because the builds would then have reused the tags the rebuild exists to replace.
 

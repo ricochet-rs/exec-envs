@@ -1,0 +1,18 @@
+when:
+  - event: pull_request
+  - event: push
+    branch:
+      - ${CI_REPO_DEFAULT_BRANCH}
+
+depends_on:
+  - lint
+
+# Deliberately not part of monthly-release: that workflow waits on the two
+# release-build workflows, which never run for a pull request, so validation
+# living there would silently stop running on pull requests.
+steps:
+  validate-release-files:
+    image: reg.ricochet.rs/docker.io/library/alpine:3.24
+    commands:
+      - apk add -q --no-cache bash jq yq
+      - scripts/check-releases.sh

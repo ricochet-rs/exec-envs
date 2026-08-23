@@ -1,7 +1,6 @@
 when:
   event:
     - cron
-    - pull_request
 
 depends_on:
   - lint
@@ -13,14 +12,6 @@ labels:
   agent: thumper
 
 steps:
-  validate-release-files:
-    when:
-      event: pull_request
-    image: reg.ricochet.rs/docker.io/library/alpine:3.24
-    commands:
-      - apk add -q --no-cache bash jq yq
-      - scripts/check-releases.sh
-
   merge-prepare-and-scan-release:
     when:
       event:
