@@ -10,6 +10,13 @@ depends_on:
 # Deliberately not part of monthly-release: that workflow waits on the two
 # release-build workflows, which never run for a pull request, so validation
 # living there would silently stop running on pull requests.
+#
+# The backend label is required, not cosmetic: a local-backend agent execs the
+# image field as a command, so an unlabelled workflow fails with
+# "execvp() of 'reg.ricochet.rs/...' failed: No such file or directory".
+labels:
+  backend: docker
+
 steps:
   validate-release-files:
     image: reg.ricochet.rs/docker.io/library/alpine:3.24

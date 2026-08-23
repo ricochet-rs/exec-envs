@@ -13,6 +13,7 @@ depends_on:
 # built on an agent of that architecture and merged afterwards.
 # thumper is the amd64 build host.
 labels:
+  backend: docker
   agent: thumper
 
 variables:

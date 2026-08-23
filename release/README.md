@@ -31,7 +31,8 @@ So `release-build-amd64` and `release-build-arm64` each build one architecture o
 `merge-release-images.sh` then composes `YYYY-MM-<version>-<os>` from those tags with `docker buildx imagetools create`, and verifies the resulting index advertises exactly the platforms the environment promises.
 
 The `arm64` agent is gaia, the only `arm64` Docker host in the fleet, deployed from `ansible/internal`.
-`check-releases.sh` enforces that the `arm64` workflow pins `platform: linux/arm64`, because losing that label would silently fall back to emulation.
+`check-releases.sh` enforces that both build workflows pin `backend: docker`, and that the `arm64` one also pins `platform: linux/arm64`.
+Both labels are load-bearing: losing the platform falls back to emulation, and losing the backend can place the workflow on a local-backend agent, which execs the `image` field as a command and fails with `execvp() ... No such file or directory`.
 
 The two build workflows serve every release path, so the monthly cron, a manual single-environment preparation, and a rebuild all reuse them and differ only in which workflow consumes the result.
 Pull-request validation lives in its own `validate-releases` workflow rather than in `monthly-release`, which now waits on the build workflows and so never runs for a pull request.

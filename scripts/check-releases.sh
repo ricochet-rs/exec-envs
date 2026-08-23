@@ -64,12 +64,13 @@ validate_architecture_builds() {
     for architecture in amd64 arm64; do
         pipeline="${repository_root}/.crow/release-build-${architecture}.yaml"
         workflow=$(yq -o=json '.' "${pipeline}")
-        # The agent label is the load-bearing part: an arm64 build that lands on an
-        # amd64 agent falls back to emulation, which cannot build these images.
+        # The labels are the load-bearing part. An arm64 build that lands on an amd64
+        # agent falls back to emulation, which cannot build these images, and one that
+        # lands on a local-backend agent execs the image field as a command.
         if ! jq -e --arg platform "linux/${architecture}" --arg architecture "${architecture}" '
             (.when.event | index("cron")) and
             (.when.event | index("manual")) and
-            (.labels | length > 0) and
+            (.labels.backend == "docker") and
             (if $architecture == "arm64" then .labels.platform == "linux/arm64" else true end) and
             all(.steps[]; .environment.RELEASE_PLATFORM == $platform) and
             any(.steps[].commands[]?; contains("scripts/build-release-images.sh"))

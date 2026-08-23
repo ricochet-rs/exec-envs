@@ -13,6 +13,7 @@ depends_on:
 # built on an agent of that architecture and merged afterwards.
 # gaia is the fleet's only arm64 Docker host, reached through its ci.ricochet.rs agent.
 labels:
+  backend: docker
   platform: linux/arm64
 
 variables:
