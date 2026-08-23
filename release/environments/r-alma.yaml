@@ -1,0 +1,12 @@
+# Build matrix for the r-alma exec environment.
+# Each entry becomes one immutable calendar tag in every monthly release it is active for.
+image: r-alma
+platforms: linux/amd64,linux/arm64
+environments:
+  ### 9
+  - R_VERSION: 4.5
+    OS_VERSION: 9
+    release_suffix: 4.5.3-9
+  - R_VERSION: 4.4
+    OS_VERSION: 9
+    release_suffix: 4.4.3-9

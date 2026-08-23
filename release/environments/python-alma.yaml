@@ -1,0 +1,7 @@
+# Build matrix for the python-alma exec environment.
+# Each entry becomes one immutable calendar tag in every monthly release it is active for.
+image: python-alma
+platforms: linux/amd64,linux/arm64
+environments:
+  - OS_VERSION: 10
+    release_suffix: '10'

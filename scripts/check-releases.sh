@@ -32,21 +32,28 @@ for command in jq yq; do
     fi
 done
 
-validate_static_builds() {
+validate_release_only_builds() {
     local pipeline
     local workflow
+    local builder
 
-    for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
+    for pipeline in "${repository_root}"/.crow/*.yaml; do
         workflow=$(yq -o=json '.' "${pipeline}")
-        if ! jq -e '
-            all(.when.event[]; . != "cron" and . != "manual") and
-            all(.steps[]; .settings.dry_run == true) and
-            all(.matrix.include[]; has("tag_additional") | not)
-        ' <<<"${workflow}" >/dev/null; then
-            echo "${pipeline} must validate builds without publishing non-calendar tags" >&2
+        if jq -e 'any(.steps[]?; .settings.dockerfile? != null)' <<<"${workflow}" >/dev/null; then
+            echo "${pipeline} must not build a Containerfile outside the monthly release" >&2
             exit 1
         fi
     done
+
+    while IFS= read -r builder; do
+        case $(basename "${builder}") in
+            monthly-release.yaml | manual-release-image.yaml) ;;
+            *)
+                echo "${builder} must not run scripts/build-release-images.sh" >&2
+                exit 1
+                ;;
+        esac
+    done < <(grep -rl 'scripts/build-release-images.sh' "${repository_root}/.crow")
 }
 
 validate_release_triggers() {
@@ -75,7 +82,7 @@ validate_release_triggers() {
 }
 
 validate_renovate_targets() {
-    local pipeline
+    local definition
     local marked_entries
     local marked_entry_count
     local marked_julia
@@ -83,26 +90,26 @@ validate_renovate_targets() {
     local marked_os
     local latest_os
 
-    for pipeline in "${repository_root}"/.crow/julia-*-build-static.yaml; do
+    for definition in "${repository_root}"/release/environments/julia-*.yaml; do
         marked_entries=$(mktemp)
-        yq -r '.matrix.include[]
+        yq -r '.environments[]
             | select((.JULIA_VERSION | line_comment) == "renovate: julia-current")
             | [.JULIA_VERSION, .OS_VERSION]
-            | @tsv' "${pipeline}" >"${marked_entries}"
+            | @tsv' "${definition}" >"${marked_entries}"
         marked_entry_count=$(awk 'END {print NR + 0}' "${marked_entries}")
-        latest_julia=$(yq -r '.matrix.include[].JULIA_VERSION' "${pipeline}" | sort -Vu | tail -n 1)
+        latest_julia=$(yq -r '.environments[].JULIA_VERSION' "${definition}" | sort -Vu | tail -n 1)
         marked_julia=$(cut -f1 "${marked_entries}")
 
         if [[ ${marked_entry_count} != 1 || ${marked_julia} != "${latest_julia}" ]]; then
-            echo "${pipeline} must mark exactly its newest Julia definition as renovate: julia-current" >&2
+            echo "${definition} must mark exactly its newest Julia definition as renovate: julia-current" >&2
             exit 1
         fi
 
-        if [[ $(basename "${pipeline}") == julia-alpine-build-static.yaml ]]; then
-            latest_os=$(yq -r '.matrix.include[].OS_VERSION' "${pipeline}" | sort -Vu | tail -n 1)
+        if [[ $(basename "${definition}") == julia-alpine.yaml ]]; then
+            latest_os=$(yq -r '.environments[].OS_VERSION' "${definition}" | sort -Vu | tail -n 1)
             marked_os=$(cut -f2 "${marked_entries}")
             if [[ ${marked_os} != "${latest_os}" ]]; then
-                echo "${pipeline} must restrict Renovate to its newest Alpine definition" >&2
+                echo "${definition} must restrict Renovate to its newest Alpine definition" >&2
                 exit 1
             fi
         fi
@@ -142,7 +149,7 @@ validate_release_policy() {
     done
 }
 
-validate_static_builds
+validate_release_only_builds
 validate_release_triggers
 validate_renovate_targets
 

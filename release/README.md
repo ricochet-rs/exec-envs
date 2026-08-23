@@ -1,13 +1,15 @@
 # Monthly release process
 
-The first successful cron pipeline in each UTC month builds and creates a `releases/YYYY-MM` archive from every active entry in the Crow build matrices.
+The first successful cron pipeline in each UTC month builds and creates a `releases/YYYY-MM` archive from every active entry in the build matrices under `release/environments/`.
+Each matrix file describes one image: its name, the platforms its calendar tags must advertise, and the environments it contributes, with optional `release_from` and `release_through` bounds.
 The main README lists each available month with its retention date, environment count, and recorded creation pipeline, while the monthly README contains the detailed component inventory.
 
 Each image is published only under its immutable `YYYY-MM-<version>-<os>` tag in the Ricochet Registry and Docker Hub.
 
 Legacy non-calendar tags may remain in the registries, but no workflow creates or updates them.
 
-The static build workflows perform dry-run validation without publishing tags.
+No workflow builds a Containerfile outside the release path.
+Pull requests lint the Containerfiles, and only `monthly-release` and `manual-release-image` run `scripts/build-release-images.sh`, which `check-releases.sh` enforces.
 
 Alpine releases keep exactly two OS minor versions active each month, so each May and November rollover adds the new minor, removes the oldest minor after its final archive, and preserves that archive for three years.
 

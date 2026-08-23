@@ -1,0 +1,21 @@
+# Build matrix for the r-alpine exec environment.
+# Each entry becomes one immutable calendar tag in every monthly release it is active for.
+image: r-alpine
+platforms: linux/amd64,linux/arm64
+environments:
+  ### 3.24
+  - R_VERSION: 4.5
+    OS_VERSION: 3.24
+    release_from: '2026-09'
+    release_suffix: 4.5.3-3.24
+  - R_VERSION: 4.4
+    OS_VERSION: 3.24
+    release_from: '2026-09'
+    release_suffix: 4.4.3-3.24
+  ### 3.23
+  - R_VERSION: 4.5
+    OS_VERSION: 3.23
+    release_suffix: 4.5.3-3.23
+  - R_VERSION: 4.4
+    OS_VERSION: 3.23
+    release_suffix: 4.4.3-3.23

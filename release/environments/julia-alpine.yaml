@@ -1,0 +1,17 @@
+# Build matrix for the julia-alpine exec environment.
+# Each entry becomes one immutable calendar tag in every monthly release it is active for.
+image: julia-alpine
+platforms: linux/amd64
+environments:
+  ### 3.24
+  - JULIA_VERSION: '1.12' # renovate: julia-current
+    OS_VERSION: 3.24
+    release_from: '2026-09'
+  - JULIA_VERSION: '1.10'
+    OS_VERSION: 3.24
+    release_from: '2026-09'
+  ### 3.23
+  - JULIA_VERSION: '1.12'
+    OS_VERSION: 3.23
+  - JULIA_VERSION: '1.10'
+    OS_VERSION: 3.23

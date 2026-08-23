@@ -63,17 +63,17 @@ alpine_candidate_is_ready() {
             echo "Alpine ${candidate} exists, but ${r_base_registry}:${r_version}-${candidate} is not ready" >&2
             return 1
         fi
-    done < <(yq -r '.matrix.include[].R_VERSION' "${repository_root}/.crow/alpine-build-static.yaml" | sort -Vu)
+    done < <(yq -r '.environments[].R_VERSION' "${repository_root}/release/environments/r-alpine.yaml" | sort -Vu)
 }
 
 target_month=$(month_after "${current_month}")
 matrix_files=(
-    "${repository_root}/.crow/alpine-build-static.yaml"
-    "${repository_root}/.crow/julia-alpine-build-static.yaml"
+    "${repository_root}/release/environments/r-alpine.yaml"
+    "${repository_root}/release/environments/julia-alpine.yaml"
 )
 
 configured_latest=$(for matrix_file in "${matrix_files[@]}"; do
-    yq -r '.matrix.include[].OS_VERSION' "${matrix_file}"
+    yq -r '.environments[].OS_VERSION' "${matrix_file}"
 done | sort -Vu | tail -n 1)
 latest_alpine=${ALPINE_LATEST_VERSION:-${configured_latest}}
 
@@ -97,13 +97,13 @@ fi
 previous_alpine=${latest_alpine%%.*}.$((10#${latest_alpine##*.} - 1))
 
 for matrix_file in "${matrix_files[@]}"; do
-    matrix_latest=$(yq -r '.matrix.include[].OS_VERSION' "${matrix_file}" | sort -Vu | tail -n 1)
+    matrix_latest=$(yq -r '.environments[].OS_VERSION' "${matrix_file}" | sort -Vu | tail -n 1)
 
-    if ! LATEST_ALPINE=${latest_alpine} yq -e '.matrix.include[] | select((.OS_VERSION | tostring) == strenv(LATEST_ALPINE))' "${matrix_file}" >/dev/null 2>&1; then
+    if ! LATEST_ALPINE=${latest_alpine} yq -e '.environments[] | select((.OS_VERSION | tostring) == strenv(LATEST_ALPINE))' "${matrix_file}" >/dev/null 2>&1; then
         # shellcheck disable=SC2016
         OLD_ALPINE=${matrix_latest} NEW_ALPINE=${latest_alpine} TARGET_MONTH=${target_month} yq -i '
-            (.matrix.include | map(select((.OS_VERSION | tostring) == strenv(OLD_ALPINE)))) as $templates
-            | .matrix.include = (
+            (.environments | map(select((.OS_VERSION | tostring) == strenv(OLD_ALPINE)))) as $templates
+            | .environments = (
                 [$templates[]
                     | .OS_VERSION = (strenv(NEW_ALPINE) | tonumber)
                     | .release_from = strenv(TARGET_MONTH)
@@ -111,20 +111,20 @@ for matrix_file in "${matrix_files[@]}"; do
                     | with(select(has("release_suffix"));
                         .release_suffix |= sub("-[0-9]+\\.[0-9]+$"; "-" + strenv(NEW_ALPINE))
                       )
-                ] + .matrix.include
+                ] + .environments
             )
         ' "${matrix_file}"
         echo "Added Alpine ${latest_alpine} to $(basename "${matrix_file}") for ${target_month}"
     fi
 
-    if [[ $(basename "${matrix_file}") == julia-alpine-build-static.yaml ]]; then
-        latest_julia=$(yq -r '.matrix.include[].JULIA_VERSION' "${matrix_file}" | sort -Vu | tail -n 1)
+    if [[ $(basename "${matrix_file}") == julia-alpine.yaml ]]; then
+        latest_julia=$(yq -r '.environments[].JULIA_VERSION' "${matrix_file}" | sort -Vu | tail -n 1)
         # shellcheck disable=SC2016
         LATEST_ALPINE=${latest_alpine} LATEST_JULIA=${latest_julia} yq -i '
-            with(.matrix.include[];
+            with(.environments[];
                 .JULIA_VERSION line_comment = ""
             )
-            | with(.matrix.include[]
+            | with(.environments[]
                 | select(
                     (.OS_VERSION | tostring) == strenv(LATEST_ALPINE) and
                     .JULIA_VERSION == strenv(LATEST_JULIA)
@@ -136,7 +136,7 @@ for matrix_file in "${matrix_files[@]}"; do
 
     # shellcheck disable=SC2016
     LATEST_ALPINE=${latest_alpine} PREVIOUS_ALPINE=${previous_alpine} yq -i '
-        .matrix.include |= map(
+        .environments |= map(
             select(
                 (.OS_VERSION | tostring) == strenv(LATEST_ALPINE) or
                 (.OS_VERSION | tostring) == strenv(PREVIOUS_ALPINE)
