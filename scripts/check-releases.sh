@@ -47,7 +47,7 @@ validate_release_only_builds() {
 
     while IFS= read -r builder; do
         case $(basename "${builder}") in
-            monthly-release.yaml | manual-release-image.yaml) ;;
+            monthly-release.yaml | manual-release-image.yaml | manual-release-rebuild.yaml) ;;
             *)
                 echo "${builder} must not run scripts/build-release-images.sh" >&2
                 exit 1
@@ -59,13 +59,28 @@ validate_release_only_builds() {
 validate_release_triggers() {
     local manual_workflow
     local monthly_workflow
+    local rebuild_workflow
 
     monthly_workflow=$(yq -o=json '.' "${repository_root}/.crow/monthly-release.yaml")
     if ! jq -e '
         all(.when.event[]; . != "manual") and
-        all(.steps[].when.event[]?; . != "manual")
+        all(.steps[].when.event[]?; . != "manual") and
+        ([.steps[].environment.RELEASE_REBUILD? // empty] | length == 0)
     ' <<<"${monthly_workflow}" >/dev/null; then
-        echo ".crow/monthly-release.yaml must reserve full releases for cron events" >&2
+        echo ".crow/monthly-release.yaml must reserve full releases for cron events and never rebuild an archived month" >&2
+        exit 1
+    fi
+
+    rebuild_workflow=$(yq -o=json '.' "${repository_root}/.crow/manual-release-rebuild.yaml")
+    if ! jq -e '
+        def step_running(script): [.steps[] | select(any(.commands[]?; contains(script)))];
+        (.when.event == ["manual"]) and
+        (.when.branch == ["main"]) and
+        (.variables.RELEASE_MONTH.required == true) and
+        (step_running("scripts/build-release-images.sh") | map(.environment.RELEASE_REBUILD) == ["true"]) and
+        (step_running("scripts/publish-release.sh") | map(.environment.RELEASE_REBUILD) == ["true"])
+    ' <<<"${rebuild_workflow}" >/dev/null; then
+        echo ".crow/manual-release-rebuild.yaml must run its release scripts with RELEASE_REBUILD enabled for a required month" >&2
         exit 1
     fi
 

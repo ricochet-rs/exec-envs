@@ -1,0 +1,82 @@
+when:
+  event:
+    - manual
+  branch:
+    - main
+
+depends_on:
+  - lint
+
+# The rebuild probes need the Docker daemon on the multi-platform build host.
+labels:
+  agent: thumper
+
+variables:
+  RELEASE_MONTH:
+    description: Archived month to rebuild as YYYY-MM. A month that is not archived is refused.
+    required: true
+  RELEASE_ENVIRONMENT:
+    description: Environment ID printed by scripts/list-release-environments.sh, or all to rebuild every environment still in the build matrix.
+    default: all
+    required: true
+
+steps:
+  rebuild-and-scan-release:
+    image: reg.ricochet.rs/docker.io/library/alpine:3.24
+    environment:
+      RICOCHET_REGISTRY_TOKEN:
+        from_secret: ricochet_registry_token
+      DOCKERHUB_TOKEN:
+        from_secret: ricochet_dockerhub_token
+      RELEASE_REBUILD: 'true'
+    commands:
+      - apk add -q --no-cache bash docker-cli docker-cli-buildx jq yq
+      - export DOCKER_CONFIG="$${CI_WORKSPACE}/.release-docker"
+      - mkdir -p "$${DOCKER_CONFIG}"
+      - printf '%s' "$${RICOCHET_REGISTRY_TOKEN}" | docker login reg.ricochet.rs --username 'robot$ricochet' --password-stdin
+      - printf '%s' "$${DOCKERHUB_TOKEN}" | docker login docker.io --username ricochetbot --password-stdin
+      - |
+        if [ -z "$${RELEASE_MONTH:-}" ]; then
+          echo "Set RELEASE_MONTH to an archived month such as 2026-08" >&2
+          exit 1
+        fi
+      - |
+        if [ "$${RELEASE_ENVIRONMENT:-all}" = all ]; then
+          scripts/build-release-images.sh "$${RELEASE_MONTH}"
+        else
+          scripts/build-release-images.sh "$${RELEASE_MONTH}" "$${RELEASE_ENVIRONMENT}"
+        fi
+      - RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "$${RELEASE_MONTH}"
+      - scripts/scan-release.sh "$${RELEASE_MONTH}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  format-rebuilt-release:
+    image: reg.ricochet.rs/docker.io/oven/bun:1.3.14-alpine
+    commands:
+      - scripts/format-release.sh "$${RELEASE_MONTH}"
+
+  publish-and-archive-rebuild:
+    image: reg.ricochet.rs/docker.io/library/alpine:3.24
+    environment:
+      GH_TOKEN:
+        from_secret: exec_envs_release_token
+      RELEASE_REBUILD: 'true'
+    commands:
+      - apk add -q --no-cache bash docker-cli docker-cli-buildx github-cli git jq yq
+      - export DOCKER_CONFIG="$${CI_WORKSPACE}/.release-docker"
+      - scripts/publish-release.sh "$${RELEASE_MONTH}"
+      - scripts/check-releases.sh --remote
+      - git add README.md "releases/$${RELEASE_MONTH}"
+      - |
+        if git diff --cached --quiet; then
+          echo "Rebuild of $${RELEASE_MONTH} produced the same digests"
+          exit 0
+        fi
+      - git config user.name ricochet-release-bot
+      - git config user.email release-bot@ricochet.rs
+      - 'git commit -m "chore(releases): rebuild $${RELEASE_MONTH} environments"'
+      - gh auth setup-git
+      - 'git push origin "HEAD:$${CI_REPO_DEFAULT_BRANCH}"'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

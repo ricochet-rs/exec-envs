@@ -44,9 +44,27 @@ The token must belong to `ricochet-bot`, because a GitHub release carries the id
 `publish-release-notes.sh` refuses to publish under any other account, so a local run needs the bot token.
 `RELEASE_GITHUB_ACTOR` retargets that check at a different account and cannot switch it off.
 
-Publishing is additive and idempotent, so retrying a release reuses existing calendar tags and does not change an archived environment.
+Publishing is idempotent, so retrying a release reuses existing calendar tags and does not change an archived environment unless the run is an explicit rebuild.
 
-If a monthly archive is incorrect, leave its immutable files and tags in place for auditability, document the issue, and publish the corrected environment in the next release.
+If a monthly archive is incorrect, leave its files and tags in place for auditability, document the issue, and publish the corrected environment in the next release.
+A rebuild is not a correction mechanism, because it refuses any change to the recorded software versions.
+
+## Rebuilding an archived month
+
+The `manual-release-rebuild` Crow workflow rebuilds an archived month so its images pick up operating system security fixes.
+It requires `RELEASE_MONTH` and takes `RELEASE_ENVIRONMENT` as a single ID or `all`, and it runs every release script with `RELEASE_REBUILD` enabled.
+
+A rebuild moves the existing calendar tag onto the new digest in both registries, so consumers of `YYYY-MM-<version>-<os>` receive the patched image without changing anything.
+The archive then records the new digest, the new operating system string, and an updated wrapper Containerfile.
+
+The rebuild is refused when any environment reports a different R, Python, Julia, or Quarto version than the archive records.
+The failure names every environment and component that moved, and the archive is left untouched.
+A distro Python patch bump is enough to trigger this, which is intended: a month's recorded software stays fixed, and changed software belongs in the next month.
+
+The environment list for a rebuild comes from the archive rather than the build matrix, so a month keeps every environment it was released with.
+An environment that has since left the matrix cannot be rebuilt, because its build arguments are gone, so it keeps its original digest and passes through unchanged.
+
+The monthly cron never rebuilds, and `check-releases.sh` enforces that it never runs with `RELEASE_REBUILD` set.
 
 Create and validate a release locally with:
 
