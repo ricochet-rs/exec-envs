@@ -50,7 +50,8 @@ validate_generated_workflows() {
         fi
     done
 
-    for existing in "${repository_root}"/.crow/build-*.yaml "${repository_root}"/.crow/merge-*.yaml; do
+    for existing in "${repository_root}"/.crow/build-*.yaml "${repository_root}"/.crow/merge-*.yaml \
+        "${repository_root}"/.crow/publish.yaml; do
         if [[ ! -f ${rendered}/$(basename "${existing}") ]]; then
             echo "$(basename "${existing}") is not produced by scripts/render-release-workflows.sh" >&2
             rm -rf "${rendered}"
@@ -70,16 +71,17 @@ validate_plugin_builds() {
     local workflow
     local architecture
 
-    for pipeline in "${repository_root}"/.crow/build-*.yaml "${repository_root}"/.crow/merge-*.yaml; do
+    for pipeline in "${repository_root}"/.crow/build-*.yaml "${repository_root}"/.crow/merge-*.yaml \
+        "${repository_root}"/.crow/publish.yaml; do
         workflow=$(yq -o=json '.' "${pipeline}")
         architecture=$(basename "${pipeline}" .yaml)
         architecture=${architecture##*-}
-        if ! jq -e --arg architecture "${architecture}" '
+        if ! jq -e --arg name "$(basename "${pipeline}" .yaml)" '
             (.labels.backend == "docker") and
             (.variables.RELEASE_MONTH.required == true) and
             all(.steps[]; .image | startswith("codefloe.com/crow-plugins/docker-buildx:")) and
             all(.steps[]; .when.evaluate | contains("release_from") and contains("release_through")) and
-            (if $architecture == "arm64" then .labels.platform == "linux/arm64" else true end)
+            (if $name == "build-arm64" then .labels.platform == "linux/arm64" else true end)
         ' <<<"${workflow}" >/dev/null; then
             echo "${pipeline} must build through the buildx plugin on a matching Docker agent for a required month" >&2
             exit 1
@@ -91,6 +93,15 @@ validate_plugin_builds() {
         echo ".crow must not drive buildx directly; the plugin owns building and merging" >&2
         exit 1
     fi
+
+    # ricochet_dockerhub_token carries an image filter, which Crow honours only for
+    # plugin steps, so a normal step asking for it fails the pipeline.
+    while IFS= read -r consumer; do
+        if [[ $(basename "${consumer}") != publish.yaml ]]; then
+            echo "${consumer} must not use ricochet_dockerhub_token; only the plugin publish workflow may" >&2
+            exit 1
+        fi
+    done < <(grep -rl 'ricochet_dockerhub_token' "${repository_root}/.crow")
 }
 
 validate_release_triggers() {
@@ -104,7 +115,7 @@ validate_release_triggers() {
         (.when.event == ["manual"]) and
         (.when.branch == ["main"]) and
         (.variables.RELEASE_MONTH.required == true) and
-        ([.depends_on[] | select(startswith("merge-"))] | length > 0) and
+        (.depends_on | index("publish")) and
         ([.steps[].environment.RELEASE_REBUILD? // empty] | length == 0)
     ' <<<"${monthly_workflow}" >/dev/null; then
         echo ".crow/monthly-release.yaml must release a stated month and never rebuild an archived one" >&2
@@ -117,7 +128,7 @@ validate_release_triggers() {
         (.when.branch == ["main"]) and
         (.variables.RELEASE_MONTH.required == true) and
         (.variables | has("RELEASE_REBUILD")) and
-        ([.depends_on[] | select(startswith("merge-"))] | length > 0) and
+        (.depends_on | index("publish")) and
         any(.steps[].commands[]?; contains("RELEASE_REBUILD"))
     ' <<<"${rebuild_workflow}" >/dev/null; then
         echo ".crow/manual-release-rebuild.yaml must rebuild a stated month and refuse to run without RELEASE_REBUILD" >&2

@@ -23,10 +23,6 @@ list-release-environments release_month:
 prepare-next-release release_month:
     scripts/prepare-next-release.sh "{{release_month}}"
 
-# Publish the calendar tags for an existing monthly release
-publish-release release_month:
-    scripts/publish-release.sh "{{release_month}}"
-
 # Discard a month's archive and build it again from the current matrix
 re-release release_month:
     scripts/re-release.sh "{{release_month}}"
@@ -36,10 +32,6 @@ re-release release_month:
 rebuild-release release_month:
     RELEASE_REBUILD=true RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "{{release_month}}"
     scripts/format-release.sh "{{release_month}}"
-
-# Move the calendar tags of an archived month onto its rebuilt digests
-publish-rebuilt-release release_month:
-    RELEASE_REBUILD=true scripts/publish-release.sh "{{release_month}}"
 
 # Render the GitHub release notes for a monthly release
 release-notes release_month:

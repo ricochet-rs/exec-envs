@@ -7,7 +7,7 @@ when:
     - main
 
 depends_on:
-  - build-julia-alpine-amd64
+  - build-amd64
 
 # Composing an index reads registry metadata only, so it needs no builder.
 labels:
@@ -15,29 +15,37 @@ labels:
 
 variables:
   RELEASE_MONTH:
-    description: Calendar month to compose as YYYY-MM. Crow cron cannot supply it, so every release run states it.
+    description: Calendar month as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.
     required: true
 
 matrix:
   include:
-    - release_suffix: '1.12-3.24'
+    - name: 'julia-alpine'
+      release_suffix: '1.12-3.24'
       release_from: '2026-08'
       release_through: '9999-12'
+      R_VERSION: 'unused'
       JULIA_VERSION: '1.12'
       OS_VERSION: '3.24'
-    - release_suffix: '1.10-3.24'
+    - name: 'julia-alpine'
+      release_suffix: '1.10-3.24'
       release_from: '2026-08'
       release_through: '9999-12'
+      R_VERSION: 'unused'
       JULIA_VERSION: '1.10'
       OS_VERSION: '3.24'
-    - release_suffix: '1.12-3.23'
+    - name: 'julia-alpine'
+      release_suffix: '1.12-3.23'
       release_from: '0000-01'
       release_through: '9999-12'
+      R_VERSION: 'unused'
       JULIA_VERSION: '1.12'
       OS_VERSION: '3.23'
-    - release_suffix: '1.10-3.23'
+    - name: 'julia-alpine'
+      release_suffix: '1.10-3.23'
       release_from: '0000-01'
       release_through: '9999-12'
+      R_VERSION: 'unused'
       JULIA_VERSION: '1.10'
       OS_VERSION: '3.23'
 
@@ -48,10 +56,10 @@ steps:
     image: codefloe.com/crow-plugins/docker-buildx:2.5.0
     settings:
       manifest: true
-      repo: reg.ricochet.rs/exec-envs/julia-alpine
+      repo: reg.ricochet.rs/exec-envs/${name}
       tags: ${RELEASE_MONTH}-${release_suffix}
       manifest_sources:
-        - reg.ricochet.rs/exec-envs/julia-alpine:${RELEASE_MONTH}-${release_suffix}-amd64
+        - reg.ricochet.rs/exec-envs/${name}:${RELEASE_MONTH}-${release_suffix}-amd64
       logins:
         - registry: https://reg.ricochet.rs
           username: 'robot$ricochet'
