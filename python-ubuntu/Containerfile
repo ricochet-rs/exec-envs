@@ -3,18 +3,26 @@ FROM ghcr.io/astral-sh/uv:0.12.1 AS uv
 
 FROM ubuntu:${OS_VERSION}
 
+# renovate: datasource=github-releases depName=quarto-dev/quarto-cli
+ARG QUARTO_VERSION=1.10.18
+ARG TARGETARCH
+
 COPY --from=uv /uv /uvx /usr/local/bin/
 
 ENV UV_PYTHON_INSTALL_DIR=/opt/python
 ENV UV_PYTHON_PREFERENCE=only-managed
 ENV UV_CACHE_DIR=/opt/ricochet/cache/uv
+ENV PATH=/opt/quarto/bin:${PATH}
 
 WORKDIR /opt/ricochet
 
-RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/uv /opt/python && \
+RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/uv /opt/python /opt/quarto && \
     apt-get update && \
-    apt-get install --no-install-recommends -y ca-certificates git && \
+    apt-get install --no-install-recommends -y ca-certificates curl git && \
     rm -rf /var/lib/apt/lists/* && \
+    curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
+    tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
+    rm /tmp/quarto.tar.gz && \
     uv python install 3.12 3.13 3.14 && \
     ln -sf "$(uv python find 3.12)" /usr/local/bin/python3.12 && \
     ln -sf "$(uv python find 3.13)" /usr/local/bin/python3.13 && \

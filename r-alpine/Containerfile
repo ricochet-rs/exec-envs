@@ -2,16 +2,29 @@ ARG OS_VERSION=3.24
 ARG R_VERSION=4.5
 FROM reg.devxy.io/r/r-alpine:${R_VERSION}-${OS_VERSION}
 
+# renovate: datasource=github-releases depName=quarto-dev/quarto-cli
+ARG QUARTO_VERSION=1.10.18
+ARG TARGETARCH
+
 ENV RENV_PATHS_PREFIX_AUTO=TRUE
 ENV RENV_PATHS_ROOT=/opt/ricochet/cache/renv
 ENV RENV_PATHS_LIBRARY=/opt/ricochet/cache/renv/library
+ENV PATH=/opt/quarto/bin:${PATH}
+# Quarto ships a glibc-only Deno, so musl images use the Alpine build instead.
+ENV QUARTO_DENO=/usr/bin/deno
 
 WORKDIR /opt/ricochet
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+# The R base images expose only R, and the Quarto knitr engine resolves Rscript.
 RUN mkdir -p /opt/ricochet/data/content && \
     mkdir -p /opt/ricochet/renv/cache && \
-    apk add --no-cache g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev gmp-dev readline-dev zeromq-dev tzdata lsb-release libx11-dev libxt-dev libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake git && \
+    mkdir -p /opt/quarto && \
+    apk add --no-cache bash curl deno gcompat libstdc++ g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev gmp-dev readline-dev zeromq-dev tzdata lsb-release libx11-dev libxt-dev libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake git && \
+    curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
+    tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
+    rm /tmp/quarto.tar.gz && \
+    ln -sf "$(R RHOME)/bin/Rscript" /usr/local/bin/Rscript && \
     R -q -e 'install.packages("renv")'
 
 WORKDIR /opt/ricochet/data/content

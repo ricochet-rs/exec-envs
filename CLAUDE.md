@@ -16,3 +16,9 @@ Read their `SKILL.md` files directly from the shared checkout and follow them fo
 
 If authentication, synchronization, HEAD validation, or a required read fails, stop before modifying the repository and report the failure clearly.
 Do not silently continue with missing or stale shared instructions.
+
+## Base image notes
+
+The `reg.devxy.io/r/r-*` base images expose only `R` in `PATH`, so tooling that needs `Rscript` must link it from `$(R RHOME)/bin/Rscript`.
+The `r-alpine` base image builds R without the cairo, png, and jpeg devices, so knitr rendering and any other graphics output fails in that environment.
+Alpine environments cannot run the glibc-only binaries that upstream tools vendor, so prefer an Alpine-native package for the failing binary and rely on `gcompat` for the remainder.
