@@ -16,7 +16,7 @@ variables:
     description: Calendar month to build as YYYY-MM, defaulting to the current UTC month.
     default: ''
   RELEASE_ENVIRONMENT:
-    description: Environment ID printed by scripts/list-release-environments.sh, such as r-ubuntu-4.5.3-noble.
+    description: Environment ID printed by scripts/list-release-environments.sh, such as r-ubuntu-4.5.3-noble, or all to build every environment active in the month.
     required: true
 
 steps:
@@ -32,10 +32,15 @@ steps:
       - printf '%s' "$${RICOCHET_REGISTRY_TOKEN}" | docker login reg.ricochet.rs --username 'robot$ricochet' --password-stdin
       - |
         if [ -z "$${RELEASE_ENVIRONMENT:-}" ]; then
-          echo "Set RELEASE_ENVIRONMENT to an environment ID from scripts/list-release-environments.sh" >&2
+          echo "Set RELEASE_ENVIRONMENT to an environment ID from scripts/list-release-environments.sh, or to all" >&2
           exit 1
         fi
       - release_month="$${RELEASE_MONTH:-$$(date -u +%Y-%m)}"
-      - scripts/build-release-images.sh "$${release_month}" "$${RELEASE_ENVIRONMENT}"
+      - |
+        if [ "$${RELEASE_ENVIRONMENT}" = all ]; then
+          scripts/build-release-images.sh "$${release_month}"
+        else
+          scripts/build-release-images.sh "$${release_month}" "$${RELEASE_ENVIRONMENT}"
+        fi
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
