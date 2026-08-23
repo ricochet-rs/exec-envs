@@ -8,6 +8,7 @@ selected_environment=${2:-}
 docker_context=${DOCKER_CONTEXT:-default}
 release_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
 dry_run=${RELEASE_BUILD_DRY_RUN:-false}
+rebuild=${RELEASE_REBUILD:-false}
 
 if (( $# > 2 )); then
     echo "Usage: $0 [YYYY-MM [environment-id]]" >&2
@@ -26,8 +27,8 @@ for command in docker jq yq; do
     fi
 done
 
-if [[ -d ${repository_root}/releases/${release_month} ]]; then
-    echo "Release ${release_month} already exists; refusing to rebuild its immutable tags"
+if [[ -d ${repository_root}/releases/${release_month} && ${rebuild} != true ]]; then
+    echo "Release ${release_month} already exists; set RELEASE_REBUILD=true to rebuild its calendar tags"
     exit 0
 fi
 
@@ -64,7 +65,7 @@ while IFS= read -r environment; do
     release_reference="${release_registry}/${image}:${release_tag}"
     build_arguments=()
 
-    if [[ ${dry_run} != true ]] && manifest=$(inspect_manifest "${release_reference}"); then
+    if [[ ${dry_run} != true && ${rebuild} != true ]] && manifest=$(inspect_manifest "${release_reference}"); then
         platforms=$(jq -r '[.manifests[] | select(.platform.os != "unknown") | "\(.platform.os)/\(.platform.architecture)"] | unique | sort | join(",")' <<<"${manifest}")
         if [[ ${platforms} != "${expected_platforms}" ]]; then
             echo "Existing ${release_reference} has ${platforms}; expected ${expected_platforms}" >&2

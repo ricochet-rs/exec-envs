@@ -7,6 +7,7 @@ release_month=${1:-$(date -u +%Y-%m)}
 docker_context=${DOCKER_CONTEXT:-default}
 source_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
 cleanup_images=${RELEASE_CLEANUP_IMAGES:-false}
+rebuild=${RELEASE_REBUILD:-false}
 ci_pipeline_url=${CI_PIPELINE_URL:-}
 
 if [[ -z ${DOCKER_CONFIG:-} ]]; then
@@ -32,11 +33,29 @@ for command in docker jq yq; do
 done
 
 release_directory="${repository_root}/releases/${release_month}"
-if [[ -d ${release_directory} ]]; then
+archived_metadata=$(mktemp)
+version_changes=$(mktemp)
+remove_working_files() {
+    rm -f "${archived_metadata}" "${version_changes}"
+    if [[ -n ${temporary_release:-} ]]; then
+        rm -rf "${temporary_release}"
+    fi
+}
+trap remove_working_files EXIT
+
+if [[ -d ${release_directory} && ${rebuild} != true ]]; then
     echo "Release ${release_month} already exists; leaving its pinned digests unchanged"
     "${repository_root}/scripts/render-release-readme.sh" "${release_month}"
     "${repository_root}/scripts/render-release-index.sh"
     exit 0
+fi
+
+if [[ ${rebuild} == true ]]; then
+    if [[ ! -f ${release_directory}/release.json ]]; then
+        echo "Release ${release_month} is not archived, so there is nothing to rebuild" >&2
+        exit 1
+    fi
+    cp "${release_directory}/release.json" "${archived_metadata}"
 fi
 
 release_year=${release_month%%-*}
@@ -167,6 +186,24 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
         esac
     done <<<"${probe}"
 
+    if [[ ${rebuild} == true ]]; then
+        jq -r --arg id "${environment_id}" \
+            --arg r "${r_version}" \
+            --arg julia "${julia_version}" \
+            --arg quarto "${quarto_version}" \
+            --arg python "${python_versions}" \
+            '.environments[]
+                | select(.id == $id)
+                | {r: $r, julia: $julia, quarto: $quarto, python: ($python | split(",") | map(gsub("^ +| +$"; "")))} as $current
+                | .versions as $recorded
+                | [
+                    (if $recorded.r != $current.r then "  \($id) R \($recorded.r) became \($current.r)" else empty end),
+                    (if $recorded.julia != $current.julia then "  \($id) Julia \($recorded.julia) became \($current.julia)" else empty end),
+                    (if $recorded.quarto != $current.quarto then "  \($id) Quarto \($recorded.quarto) became \($current.quarto)" else empty end),
+                    (if $recorded.python != $current.python then "  \($id) Python \($recorded.python | join(", ")) became \($current.python | join(", "))" else empty end)
+                  ][]' "${archived_metadata}" >>"${version_changes}"
+    fi
+
     if [[ ${cleanup_images} == true ]]; then
         docker --context "${docker_context}" image rm "${source_reference}@${digest}" >/dev/null || \
             echo "Unable to remove the local probe image ${source_reference}@${digest}" >&2
@@ -211,7 +248,8 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
     cat >"${environment_directory}/README.md" <<EOF
 # ${environment_id}
 
-This exec environment is an immutable snapshot from the ${release_month} release and is retained through at least ${retention_until}.
+This exec environment is pinned to a digest from the ${release_month} release and is retained through at least ${retention_until}.
+A rebuild may move it to a digest carrying operating system security fixes, while its R, Python, Julia, and Quarto versions stay as recorded below.
 
 | Component | Version |
 | --- | --- |
@@ -222,7 +260,7 @@ This exec environment is an immutable snapshot from the ${release_month} release
 | Quarto | ${quarto_version} |
 | Platforms | ${platforms//,/; } |
 
-The [Containerfile](./Containerfile) pins the multi-platform image digest so repeated builds select the same environment.
+The [Containerfile](./Containerfile) pins the current multi-platform image digest so repeated builds select the same environment.
 
 - [Docker Hub](https://hub.docker.com/r/ricochetrs/${image}/tags?name=${release_tag})
 - [Ricochet Registry](https://reg.ricochet.rs/v2/exec-envs/${image}/manifests/${release_tag})
@@ -233,7 +271,21 @@ Build the snapshot locally with:
 docker build -t exec-env:${environment_id}-${release_month} releases/${release_month}/${environment_id}
 \`\`\`
 EOF
-done < <("${repository_root}/scripts/list-release-environments.sh" "${release_month}")
+done < <(
+    if [[ ${rebuild} == true ]]; then
+        jq -r --arg month "${release_month}" '.environments[]
+            | [.id, .image, (.sourceTag | ltrimstr($month + "-")), (.platforms | join(","))]
+            | @tsv' "${archived_metadata}"
+    else
+        "${repository_root}/scripts/list-release-environments.sh" "${release_month}"
+    fi
+)
+
+if [[ ${rebuild} == true && -s ${version_changes} ]]; then
+    echo "Rebuild of ${release_month} changes component versions that must stay fixed:" >&2
+    cat "${version_changes}" >&2
+    exit 1
+fi
 
 jq -n \
     --arg release "${release_month}" \
@@ -244,7 +296,18 @@ jq -n \
         + if $ciPipelineUrl == "" then {} else {ci: {status: "passed", url: $ciPipelineUrl}} end' \
     >"${temporary_release}/release.json"
 
-mv "${temporary_release}" "${release_directory}"
+if [[ -d ${release_directory} ]]; then
+    replaced_release=$(mktemp -d "${repository_root}/releases/.${release_month}.replaced.XXXXXX")
+    mv "${release_directory}" "${replaced_release}/archive"
+    mv "${temporary_release}" "${release_directory}"
+    rm -rf "${replaced_release}"
+else
+    mv "${temporary_release}" "${release_directory}"
+fi
 "${repository_root}/scripts/render-release-readme.sh" "${release_month}"
 "${repository_root}/scripts/render-release-index.sh"
-echo "Created release ${release_month}; its Docker Hub calendar tags have not been published"
+if [[ ${rebuild} == true ]]; then
+    echo "Rebuilt release ${release_month}; its Docker Hub calendar tags have not been moved"
+else
+    echo "Created release ${release_month}; its Docker Hub calendar tags have not been published"
+fi

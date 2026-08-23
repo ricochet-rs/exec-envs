@@ -6,7 +6,7 @@ set dotenv-load
 lint-docker:
     find . -type f \( -iname \*.containerfile -o -iname Containerfile \) -print0 | sort -z | xargs -0 hadolint
 
-# Create an immutable monthly release and inventory its contents
+# Create a monthly release and inventory its contents
 release release_month:
     scripts/build-release-images.sh "{{release_month}}"
     RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "{{release_month}}"
@@ -20,9 +20,19 @@ list-release-environments release_month:
 prepare-next-release release_month:
     scripts/prepare-next-release.sh "{{release_month}}"
 
-# Publish the immutable tags for an existing monthly release
+# Publish the calendar tags for an existing monthly release
 publish-release release_month:
     scripts/publish-release.sh "{{release_month}}"
+
+# Rebuild an archived month, keeping its recorded R, Python, Julia and Quarto versions
+rebuild-release release_month:
+    RELEASE_REBUILD=true scripts/build-release-images.sh "{{release_month}}"
+    RELEASE_REBUILD=true RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "{{release_month}}"
+    scripts/format-release.sh "{{release_month}}"
+
+# Move the calendar tags of an archived month onto its rebuilt digests
+publish-rebuilt-release release_month:
+    RELEASE_REBUILD=true scripts/publish-release.sh "{{release_month}}"
 
 # Render the GitHub release notes for a monthly release
 release-notes release_month:
