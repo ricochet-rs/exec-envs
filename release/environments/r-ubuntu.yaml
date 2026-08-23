@@ -1,0 +1,12 @@
+# Build matrix for the r-ubuntu exec environment.
+# Each entry becomes one immutable calendar tag in every monthly release it is active for.
+image: r-ubuntu
+platforms: linux/amd64,linux/arm64
+environments:
+  ### noble
+  - R_VERSION: 4.5
+    OS_VERSION: noble
+    release_suffix: 4.5.3-noble
+  - R_VERSION: 4.4
+    OS_VERSION: noble
+    release_suffix: 4.4.3-noble

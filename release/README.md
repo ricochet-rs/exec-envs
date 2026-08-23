@@ -1,13 +1,15 @@
 # Monthly release process
 
-The first successful cron pipeline in each UTC month builds and creates a `releases/YYYY-MM` archive from every active entry in the Crow build matrices.
+The first successful cron pipeline in each UTC month builds and creates a `releases/YYYY-MM` archive from every active entry in the build matrices under `release/environments/`.
+Each matrix file describes one image: its name, the platforms its calendar tags must advertise, and the environments it contributes, with optional `release_from` and `release_through` bounds.
 The main README lists each available month with its retention date, environment count, and recorded creation pipeline, while the monthly README contains the detailed component inventory.
 
 Each image is published only under its immutable `YYYY-MM-<version>-<os>` tag in the Ricochet Registry and Docker Hub.
 
 Legacy non-calendar tags may remain in the registries, but no workflow creates or updates them.
 
-The static build workflows perform dry-run validation without publishing tags.
+No workflow builds a Containerfile outside the release path.
+Pull requests lint the Containerfiles, and only `monthly-release` and `manual-release-image` run `scripts/build-release-images.sh`, which `check-releases.sh` enforces.
 
 Alpine releases keep exactly two OS minor versions active each month, so each May and November rollover adds the new minor, removes the oldest minor after its final archive, and preserves that archive for three years.
 
@@ -30,7 +32,11 @@ New release metadata records the successful Crow pipeline URL so the main releas
 
 Every later cron run verifies that both registry copies still resolve to the recorded digest until the release's three-year retention date.
 
-The Crow project must provide an `exec_envs_release_token` secret with permission to push the generated archive commit to the default branch.
+After the archive commit lands, `publish-release-notes.sh` creates a GitHub release tagged with the month, pointing the tag at the commit that archived it.
+The notes compare the month against the previous archive and classify every environment as added, removed, updated, or rebuilt with unchanged component versions.
+The script runs over every archived month, so it backfills a missing release and refreshes notes that no longer match the archive.
+
+The Crow project must provide an `exec_envs_release_token` secret with permission to push the generated archive commit to the default branch and to create GitHub releases.
 
 Publishing is additive and idempotent, so retrying a release reuses existing calendar tags and does not change an archived environment.
 
@@ -48,4 +54,11 @@ Publishing requires authenticated Docker clients for both registries:
 ```sh
 just publish-release 2026-09
 just check-releases-remote
+```
+
+Preview the GitHub release notes for a month, then publish or refresh every archived month:
+
+```sh
+just release-notes 2026-09
+just publish-release-notes
 ```

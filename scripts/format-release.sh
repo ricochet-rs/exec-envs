@@ -14,6 +14,6 @@ fi
 cd "${repository_root}"
 bunx prettier@3.2.5 --write --ignore-unknown \
     README.md \
-    .crow/alpine-build-static.yaml \
-    .crow/julia-alpine-build-static.yaml \
+    release/environments/r-alpine.yaml \
+    release/environments/julia-alpine.yaml \
     "releases/${release_month}"

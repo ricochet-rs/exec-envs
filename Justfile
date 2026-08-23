@@ -24,6 +24,14 @@ prepare-next-release release_month:
 publish-release release_month:
     scripts/publish-release.sh "{{release_month}}"
 
+# Render the GitHub release notes for a monthly release
+release-notes release_month:
+    scripts/render-release-notes.sh "{{release_month}}"
+
+# Publish or refresh the GitHub release for every archived month
+publish-release-notes:
+    scripts/publish-release-notes.sh
+
 # Validate archived files and generated links
 check-releases:
     scripts/check-releases.sh

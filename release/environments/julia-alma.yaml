@@ -1,0 +1,10 @@
+# Build matrix for the julia-alma exec environment.
+# Each entry becomes one immutable calendar tag in every monthly release it is active for.
+image: julia-alma
+platforms: linux/amd64,linux/arm64
+environments:
+  ### 9
+  - JULIA_VERSION: '1.12' # renovate: julia-current
+    OS_VERSION: 9
+  - JULIA_VERSION: '1.10'
+    OS_VERSION: 9

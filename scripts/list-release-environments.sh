@@ -24,26 +24,31 @@ for command in jq yq; do
     fi
 done
 
-for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
-    workflow=$(yq -o=json '.' "${pipeline}")
-    platforms=$(jq -r '[.steps[].settings.platforms // empty] | unique | if length == 1 then .[0] else empty end' <<<"${workflow}")
+for definition in "${repository_root}"/release/environments/*.yaml; do
+    matrix=$(yq -o=json '.' "${definition}")
 
-    if [[ -z ${platforms} ]]; then
-        echo "Build validation steps disagree on platforms in ${pipeline}" >&2
+    if ! jq -e '
+        (.image | type == "string" and length > 0) and
+        (.platforms | type == "string" and length > 0) and
+        (.environments | type == "array" and length > 0)
+    ' <<<"${matrix}" >/dev/null; then
+        echo "Environment definition must declare an image, platforms, and environments: ${definition}" >&2
         exit 1
     fi
 
-    if ! jq -e 'all(.matrix.include[];
+    if ! jq -e 'all(.environments[];
         ((.release_from // "0000-01") | test("^[0-9]{4}-(0[1-9]|1[0-2])$")) and
         ((.release_through // "9999-12") | test("^[0-9]{4}-(0[1-9]|1[0-2])$")) and
         ((.release_from // "0000-01") <= (.release_through // "9999-12"))
-    )' <<<"${workflow}" >/dev/null; then
-        echo "Invalid release lifecycle in ${pipeline}" >&2
+    )' <<<"${matrix}" >/dev/null; then
+        echo "Invalid release lifecycle in ${definition}" >&2
         exit 1
     fi
 
-    jq -r --arg output_format "${output_format}" --arg platforms "${platforms}" --arg release_month "${release_month}" '
-        .matrix.include[]
+    jq -r --arg output_format "${output_format}" --arg release_month "${release_month}" '
+        .image as $image
+        | .platforms as $platforms
+        | .environments[]
         | select(
             (.release_from // "0000-01") <= $release_month and
             (.release_through // "9999-12") >= $release_month
@@ -56,8 +61,8 @@ for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
             end
         ) as $version_suffix
         | {
-            id: (.name + "-" + $version_suffix),
-            image: .name,
+            id: ($image + "-" + $version_suffix),
+            image: $image,
             versionSuffix: $version_suffix,
             platforms: $platforms,
             buildArgs: {
@@ -71,5 +76,5 @@ for pipeline in "${repository_root}"/.crow/*-build-static.yaml; do
           else
             [.id, .image, .versionSuffix, .platforms] | @tsv
           end
-    ' <<<"${workflow}"
+    ' <<<"${matrix}"
 done | LC_ALL=C sort
