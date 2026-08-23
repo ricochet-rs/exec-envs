@@ -9,6 +9,7 @@ docker_context=${DOCKER_CONTEXT:-default}
 release_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
 dry_run=${RELEASE_BUILD_DRY_RUN:-false}
 rebuild=${RELEASE_REBUILD:-false}
+build_platform=${RELEASE_PLATFORM:-}
 
 if (( $# > 2 )); then
     echo "Usage: $0 [YYYY-MM [environment-id]]" >&2
@@ -19,6 +20,16 @@ if [[ ! ${release_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
     echo "Release must use YYYY-MM format: ${release_month}" >&2
     exit 1
 fi
+
+# Each architecture is built on an agent of that architecture, because emulating a
+# foreign one fails: under qemu-aarch64 these images clear dnf and then die
+# extracting the Julia tarball. One run therefore produces one architecture, and
+# merge-release-images.sh composes the calendar tag from the results.
+if [[ ! ${build_platform} =~ ^linux/(amd64|arm64)$ ]]; then
+    echo "Set RELEASE_PLATFORM to linux/amd64 or linux/arm64: ${build_platform:-unset}" >&2
+    exit 1
+fi
+build_architecture=${build_platform#linux/}
 
 for command in docker jq yq; do
     if ! command -v "${command}" >/dev/null; then
@@ -62,16 +73,23 @@ while IFS= read -r environment; do
     version_suffix=$(jq -r '.versionSuffix' <<<"${environment}")
     expected_platforms=$(jq -r '.platforms' <<<"${environment}")
     release_tag="${release_month}-${version_suffix}"
-    release_reference="${release_registry}/${image}:${release_tag}"
+    architecture_reference="${release_registry}/${image}:${release_tag}-${build_architecture}"
     build_arguments=()
 
-    if [[ ${dry_run} != true && ${rebuild} != true ]] && manifest=$(inspect_manifest "${release_reference}"); then
+    # An environment can be published for fewer platforms than the fleet offers, so
+    # julia-alpine simply has nothing to do on the arm64 agent.
+    if [[ ",${expected_platforms}," != *",${build_platform},"* ]]; then
+        echo "Skipping ${release_tag}: not published for ${build_platform}"
+        continue
+    fi
+
+    if [[ ${dry_run} != true && ${rebuild} != true ]] && manifest=$(inspect_manifest "${architecture_reference}"); then
         platforms=$(jq -r '[.manifests[] | select(.platform.os != "unknown") | "\(.platform.os)/\(.platform.architecture)"] | unique | sort | join(",")' <<<"${manifest}")
-        if [[ ${platforms} != "${expected_platforms}" ]]; then
-            echo "Existing ${release_reference} has ${platforms}; expected ${expected_platforms}" >&2
+        if [[ -n ${platforms} && ${platforms} != "${build_platform}" ]]; then
+            echo "Existing ${architecture_reference} has ${platforms}; expected ${build_platform}" >&2
             exit 1
         fi
-        echo "Reusing existing calendar tag ${release_reference}"
+        echo "Reusing existing architecture tag ${architecture_reference}"
         continue
     fi
 
@@ -82,10 +100,10 @@ while IFS= read -r environment; do
     build_command=(
         docker --context "${docker_context}" buildx build
         --file "${repository_root}/${image}/Containerfile"
-        --platform "${expected_platforms}"
+        --platform "${build_platform}"
         --provenance=true
         --sbom=true
-        --tag "${release_reference}"
+        --tag "${architecture_reference}"
         --push
         "${build_arguments[@]}"
         "${repository_root}"
@@ -96,7 +114,7 @@ while IFS= read -r environment; do
         printf ' %q' "${build_command[@]}"
         printf '\n'
     else
-        echo "Building calendar tag ${release_reference}"
+        echo "Building ${build_architecture} image ${architecture_reference}"
         "${build_command[@]}"
     fi
 done <"${environment_source}"

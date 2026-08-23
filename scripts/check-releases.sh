@@ -47,13 +47,37 @@ validate_release_only_builds() {
 
     while IFS= read -r builder; do
         case $(basename "${builder}") in
-            monthly-release.yaml | manual-release-image.yaml | manual-release-rebuild.yaml) ;;
+            release-build-amd64.yaml | release-build-arm64.yaml) ;;
             *)
                 echo "${builder} must not run scripts/build-release-images.sh" >&2
                 exit 1
                 ;;
         esac
     done < <(grep -rl 'scripts/build-release-images.sh' "${repository_root}/.crow")
+}
+
+validate_architecture_builds() {
+    local architecture
+    local pipeline
+    local workflow
+
+    for architecture in amd64 arm64; do
+        pipeline="${repository_root}/.crow/release-build-${architecture}.yaml"
+        workflow=$(yq -o=json '.' "${pipeline}")
+        # The agent label is the load-bearing part: an arm64 build that lands on an
+        # amd64 agent falls back to emulation, which cannot build these images.
+        if ! jq -e --arg platform "linux/${architecture}" --arg architecture "${architecture}" '
+            (.when.event | index("cron")) and
+            (.when.event | index("manual")) and
+            (.labels | length > 0) and
+            (if $architecture == "arm64" then .labels.platform == "linux/arm64" else true end) and
+            all(.steps[]; .environment.RELEASE_PLATFORM == $platform) and
+            any(.steps[].commands[]?; contains("scripts/build-release-images.sh"))
+        ' <<<"${workflow}" >/dev/null; then
+            echo "${pipeline} must build ${architecture} images on a matching agent for cron and manual runs" >&2
+            exit 1
+        fi
+    done
 }
 
 validate_release_triggers() {
@@ -73,14 +97,16 @@ validate_release_triggers() {
 
     rebuild_workflow=$(yq -o=json '.' "${repository_root}/.crow/manual-release-rebuild.yaml")
     if ! jq -e '
-        def step_running(script): [.steps[] | select(any(.commands[]?; contains(script)))];
         (.when.event == ["manual"]) and
         (.when.branch == ["main"]) and
         (.variables.RELEASE_MONTH.required == true) and
-        (step_running("scripts/build-release-images.sh") | map(.environment.RELEASE_REBUILD) == ["true"]) and
-        (step_running("scripts/publish-release.sh") | map(.environment.RELEASE_REBUILD) == ["true"])
+        (.variables | has("RELEASE_REBUILD")) and
+        (.depends_on | index("release-build-amd64")) and
+        (.depends_on | index("release-build-arm64")) and
+        any(.steps[].commands[]?; contains("scripts/merge-release-images.sh")) and
+        any(.steps[].commands[]?; contains("RELEASE_REBUILD"))
     ' <<<"${rebuild_workflow}" >/dev/null; then
-        echo ".crow/manual-release-rebuild.yaml must run its release scripts with RELEASE_REBUILD enabled for a required month" >&2
+        echo ".crow/manual-release-rebuild.yaml must merge a required month and refuse to run without RELEASE_REBUILD" >&2
         exit 1
     fi
 
@@ -89,9 +115,9 @@ validate_release_triggers() {
         (.when.event == ["manual"]) and
         (.when.branch == ["main"]) and
         any(.steps[].commands[]?; contains("RELEASE_ENVIRONMENT")) and
-        any(.steps[].commands[]?; contains("scripts/build-release-images.sh"))
+        any(.steps[].commands[]?; contains("scripts/merge-release-images.sh"))
     ' <<<"${manual_workflow}" >/dev/null; then
-        echo ".crow/manual-release-image.yaml must select one calendar build through Crow variables" >&2
+        echo ".crow/manual-release-image.yaml must compose one calendar tag through Crow variables" >&2
         exit 1
     fi
 }
@@ -171,6 +197,7 @@ validate_release_policy() {
 }
 
 validate_release_only_builds
+validate_architecture_builds
 validate_release_triggers
 validate_renovate_targets
 

@@ -15,6 +15,9 @@
 The top-level Containerfiles are built only by the monthly release pipeline, once per calendar month, for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
 Pull requests lint the Containerfiles but never build them, so no image is produced outside a monthly release.
 
+Each architecture is built on an agent of that architecture and the results are composed into one multi-platform tag, because these images cannot be emulated.
+Under `qemu-aarch64` an `arm64` build gets through `dnf` and then fails to extract the Julia tarball.
+
 Monthly releases pin every supported environment to a multi-platform digest and retain its registry tags for at least three years.  
 Each monthly directory contains the generated operating system, R, Python, Julia, and Quarto inventory for all environments in that release.
 Only calendar-versioned tags are published, and release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.

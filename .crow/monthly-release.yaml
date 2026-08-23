@@ -5,6 +5,8 @@ when:
 
 depends_on:
   - lint
+  - release-build-amd64
+  - release-build-arm64
 
 # The release probes need the Docker daemon on the multi-platform build host.
 labels:
@@ -19,7 +21,7 @@ steps:
       - apk add -q --no-cache bash jq yq
       - scripts/check-releases.sh
 
-  build-prepare-and-scan-release:
+  merge-prepare-and-scan-release:
     when:
       event:
         - cron
@@ -36,7 +38,7 @@ steps:
       - printf '%s' "$${RICOCHET_REGISTRY_TOKEN}" | docker login reg.ricochet.rs --username 'robot$ricochet' --password-stdin
       - printf '%s' "$${DOCKERHUB_TOKEN}" | docker login docker.io --username ricochetbot --password-stdin
       - release_month="$$(date -u +%Y-%m)"
-      - scripts/build-release-images.sh "$${release_month}"
+      - scripts/merge-release-images.sh "$${release_month}"
       - RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "$${release_month}"
       - scripts/prepare-next-release.sh "$${release_month}"
       - scripts/scan-release.sh "$${release_month}"

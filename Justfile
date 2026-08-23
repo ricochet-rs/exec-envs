@@ -6,9 +6,17 @@ set dotenv-load
 lint-docker:
     find . -type f \( -iname \*.containerfile -o -iname Containerfile \) -print0 | sort -z | xargs -0 hadolint
 
-# Create a monthly release and inventory its contents
+# Build one architecture's images for a monthly release, on an agent of that architecture
+build-release release_month platform:
+    RELEASE_PLATFORM="{{platform}}" scripts/build-release-images.sh "{{release_month}}"
+
+# Compose each environment's calendar tag from its per-architecture images
+merge-release release_month:
+    scripts/merge-release-images.sh "{{release_month}}"
+
+# Inventory a monthly release from its composed calendar tags
 release release_month:
-    scripts/build-release-images.sh "{{release_month}}"
+    scripts/merge-release-images.sh "{{release_month}}"
     RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "{{release_month}}"
     scripts/format-release.sh "{{release_month}}"
 
@@ -31,7 +39,7 @@ re-release release_month:
 
 # Rebuild an archived month, keeping its recorded R, Python, Julia and Quarto versions
 rebuild-release release_month:
-    RELEASE_REBUILD=true scripts/build-release-images.sh "{{release_month}}"
+    RELEASE_REBUILD=true scripts/merge-release-images.sh "{{release_month}}"
     RELEASE_REBUILD=true RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "{{release_month}}"
     scripts/format-release.sh "{{release_month}}"
 

@@ -1,16 +1,17 @@
 when:
   event:
+    - cron
     - manual
   branch:
     - main
 
 depends_on:
   - lint
-  - release-build-amd64
-  - release-build-arm64
 
-# Composing an index needs only registry metadata, so this runs anywhere; the
-# per-architecture images it merges are built by the two release-build workflows.
+# Foreign architectures cannot be emulated here: under qemu-aarch64 these images
+# clear dnf and then fail extracting the Julia tarball, so each architecture is
+# built on an agent of that architecture and merged afterwards.
+# thumper is the amd64 build host.
 labels:
   agent: thumper
 
@@ -19,31 +20,30 @@ variables:
     description: Calendar month to build as YYYY-MM, defaulting to the current UTC month.
     default: ''
   RELEASE_ENVIRONMENT:
-    description: Environment ID printed by scripts/list-release-environments.sh, such as r-ubuntu-4.5.3-noble, or all to build every environment active in the month.
-    required: true
+    description: Environment ID printed by scripts/list-release-environments.sh, or all to build every environment active in the month.
+    default: all
+  RELEASE_REBUILD:
+    description: Set to true to replace calendar tags that already exist, which a rebuild of an archived month needs.
+    default: 'false'
 
 steps:
-  merge-selected-calendar-image:
+  build-amd64-images:
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       RICOCHET_REGISTRY_TOKEN:
         from_secret: ricochet_registry_token
+      RELEASE_PLATFORM: linux/amd64
     commands:
       - apk add -q --no-cache bash docker-cli docker-cli-buildx jq yq
       - export DOCKER_CONFIG="$${CI_WORKSPACE}/.release-docker"
       - mkdir -p "$${DOCKER_CONFIG}"
       - printf '%s' "$${RICOCHET_REGISTRY_TOKEN}" | docker login reg.ricochet.rs --username 'robot$ricochet' --password-stdin
-      - |
-        if [ -z "$${RELEASE_ENVIRONMENT:-}" ]; then
-          echo "Set RELEASE_ENVIRONMENT to an environment ID from scripts/list-release-environments.sh, or to all" >&2
-          exit 1
-        fi
       - release_month="$${RELEASE_MONTH:-$$(date -u +%Y-%m)}"
       - |
-        if [ "$${RELEASE_ENVIRONMENT}" = all ]; then
-          scripts/merge-release-images.sh "$${release_month}"
+        if [ "$${RELEASE_ENVIRONMENT:-all}" = all ]; then
+          scripts/build-release-images.sh "$${release_month}"
         else
-          scripts/merge-release-images.sh "$${release_month}" "$${RELEASE_ENVIRONMENT}"
+          scripts/build-release-images.sh "$${release_month}" "$${RELEASE_ENVIRONMENT}"
         fi
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

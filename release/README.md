@@ -21,6 +21,22 @@ Renovate ignores `releases/**` and follows one `julia-current` marker per Julia 
 
 The monthly builder publishes the Ricochet Registry calendar tag, and the generator resolves it to a digest, verifies its advertised platforms, runs its `amd64` variant to inventory installed software, and writes an immutable wrapper Containerfile.
 
+## Per-architecture builds
+
+These images cannot be built under emulation.
+A `linux/arm64` build on an `amd64` agent gets through `dnf` and then fails in `tar` with `Cannot mkdir: Invalid argument`, and a single emulated layer takes minutes.
+
+So `release-build-amd64` and `release-build-arm64` each build one architecture on an agent of that architecture, pushing `YYYY-MM-<version>-<os>-<arch>`.
+`build-release-images.sh` takes the architecture from `RELEASE_PLATFORM`, and skips any environment that is not published for it, which is why `julia-alpine` has nothing to do on the `arm64` agent.
+`merge-release-images.sh` then composes `YYYY-MM-<version>-<os>` from those tags with `docker buildx imagetools create`, and verifies the resulting index advertises exactly the platforms the environment promises.
+
+The `arm64` agent is gaia, the only `arm64` Docker host in the fleet, deployed from `ansible/internal`.
+`check-releases.sh` enforces that the `arm64` workflow pins `platform: linux/arm64`, because losing that label would silently fall back to emulation.
+
+The two build workflows serve every release path, so the monthly cron, a manual single-environment preparation, and a rebuild all reuse them and differ only in which workflow consumes the result.
+A manual run therefore selects the two build workflows alongside the one that finishes the job.
+`RELEASE_REBUILD` is one pipeline input shared by all of them, and `manual-release-rebuild` refuses to continue when it is false, because the builds would then have reused the tags the rebuild exists to replace.
+
 The publisher verifies that exact digest in the Ricochet Registry and copies it to the matching calendar tag in Docker Hub without rebuilding it.
 
 The `manual-release-image` Crow workflow accepts `RELEASE_ENVIRONMENT` and optional `RELEASE_MONTH` pipeline variables to prepare Ricochet Registry calendar tags before the monthly release runs.
