@@ -14,9 +14,11 @@
 ## Release policy
 
 The top-level Containerfiles are validated on pull requests and built once per calendar-month release for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
-Monthly releases freeze every supported environment to an immutable multi-platform digest and retain its registry tags for at least three years.
+
+Monthly releases freeze every supported environment to an immutable multi-platform digest and retain its registry tags for at least three years.  
 Each monthly directory contains the generated operating system, R, Python, Julia, and Quarto inventory for all environments in that release.
 Only calendar-versioned tags are published, and release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
+
 Alpine monthly releases contain the newest two OS minor versions, and older minors leave the build matrix as soon as their final monthly archive is complete.
 
 ## Manual builds
