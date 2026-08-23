@@ -131,6 +131,12 @@ validate_renovate_targets() {
     done
 }
 
+list_release_metadata() {
+    if [[ -d ${repository_root}/releases ]]; then
+        find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print
+    fi
+}
+
 validate_release_policy() {
     local release_month=$1
     local environments
@@ -288,11 +294,11 @@ while IFS= read -r release_metadata; do
             done
         fi
     done
-done < <(find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print | sort)
+done < <(list_release_metadata | sort)
 
 if [[ ${release_count} == 0 ]]; then
-    echo "No monthly releases were found" >&2
-    exit 1
+    echo "No monthly releases are archived yet"
+    exit 0
 fi
 
 echo "Validated ${release_count} monthly release(s)"

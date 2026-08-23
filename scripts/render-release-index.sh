@@ -7,6 +7,12 @@ readme_path="${repository_root}/README.md"
 generated_section=$(mktemp)
 rendered_readme=$(mktemp)
 
+list_release_metadata() {
+    if [[ -d ${repository_root}/releases ]]; then
+        find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print
+    fi
+}
+
 if ! grep -Fxq '<!-- releases:start -->' "${readme_path}" || ! grep -Fxq '<!-- releases:end -->' "${readme_path}"; then
     echo "README.md is missing the release index markers" >&2
     exit 1
@@ -31,7 +37,7 @@ fi
 
         printf '| [%s](releases/%s/) | %s | %s | %s |\n' \
             "${release_month}" "${release_month}" "${retention_until}" "${environment_count}" "${ci}"
-    done < <(find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print | sort -r)
+    done < <(list_release_metadata | sort -r)
 } >"${generated_section}"
 
 sed -n '1,/^<!-- releases:start -->$/p' "${readme_path}" >"${rendered_readme}"

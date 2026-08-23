@@ -28,9 +28,19 @@ if [[ ${dry_run} != true ]]; then
     fi
 fi
 
-archived_months=$(find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print |
-    while IFS= read -r archived_metadata; do basename "$(dirname "${archived_metadata}")"; done |
-    LC_ALL=C sort)
+archived_months=$(
+    if [[ -d ${repository_root}/releases ]]; then
+        find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print |
+            while IFS= read -r archived_metadata; do basename "$(dirname "${archived_metadata}")"; done |
+            LC_ALL=C sort
+    fi
+)
+
+if [[ -z ${archived_months} ]]; then
+    echo "No monthly releases are archived yet"
+    exit 0
+fi
+
 newest_month=$(tail -n 1 <<<"${archived_months}")
 
 if [[ -n ${selected_month} ]]; then

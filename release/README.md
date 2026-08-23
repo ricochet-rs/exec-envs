@@ -49,6 +49,21 @@ Publishing is idempotent, so retrying a release reuses existing calendar tags an
 If a monthly archive is incorrect, leave its files and tags in place for auditability, document the issue, and publish the corrected environment in the next release.
 A rebuild is not a correction mechanism, because it refuses any change to the recorded software versions.
 
+## Re-releasing a month
+
+A rebuild deliberately cannot change a month's recorded software, so a month whose images were wrong from the start is discarded and built again instead.
+`re-release.sh` removes the archive, forces every calendar tag to be rebuilt rather than reused, and inventories the month from the current build matrix.
+
+```sh
+just re-release 2026-08
+just publish-rebuilt-release 2026-08
+```
+
+Publishing moves the calendar tags in both registries onto the new digests, so anyone already pulling that month receives the replacement images.
+
+Re-releasing takes its environment list from the build matrix rather than from the archive, so it also changes which environments the month contains.
+Adjust `release_from` and `release_through` in `release/environments/` before re-releasing a month whose matrix has moved on since it was archived.
+
 ## Rebuilding an archived month
 
 The `manual-release-rebuild` Crow workflow rebuilds an archived month so its images pick up operating system security fixes.

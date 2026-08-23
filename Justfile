@@ -24,6 +24,11 @@ prepare-next-release release_month:
 publish-release release_month:
     scripts/publish-release.sh "{{release_month}}"
 
+# Discard a month's archive and build it again from the current matrix
+re-release release_month:
+    scripts/re-release.sh "{{release_month}}"
+    scripts/format-release.sh "{{release_month}}"
+
 # Rebuild an archived month, keeping its recorded R, Python, Julia and Quarto versions
 rebuild-release release_month:
     RELEASE_REBUILD=true scripts/build-release-images.sh "{{release_month}}"
