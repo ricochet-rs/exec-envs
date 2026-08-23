@@ -125,9 +125,11 @@ jq -rn \
             + (if ($rebuilt | length) == 0 then [] else
                 ["### Rebuilt environments", ""]
                 + [
-                    (if ($rebuilt | length) == 1 then "- One environment rebuilds"
-                     else "- \($rebuilt | length) environments rebuild"
-                     end)
+                    (if ($rebuilt | length) == 1 then
+                        "- One environment rebuilds"
+                    else
+                        "- \($rebuilt | length) environments rebuild"
+                    end)
                     + " to a fresh digest with unchanged component versions: \($rebuilt | map(.id) | code_list)."
                   ]
                 + [""]
