@@ -25,6 +25,7 @@ The publisher verifies that exact digest in the Ricochet Registry and copies it 
 
 The `manual-release-image` Crow workflow accepts `RELEASE_ENVIRONMENT` and optional `RELEASE_MONTH` pipeline variables to prepare one Ricochet Registry calendar tag before the monthly release runs.
 The environment value must be an exact ID from `scripts/list-release-environments.sh YYYY-MM`, and the month defaults to the current UTC month.
+Both are declared in the workflow's `variables` block, which is what makes them appear as inputs in the manual-run dialog and injects them into the step.
 The manual workflow never publishes a rolling tag or bypasses the monthly scan, promotion, and archive steps.
 
 The release pipeline scans every pinned Ricochet Registry digest for fixable critical vulnerabilities before promotion to Docker Hub.

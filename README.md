@@ -38,6 +38,7 @@ crow pipeline create \
 
 `RELEASE_ENVIRONMENT` is required and must match an ID printed by `scripts/list-release-environments.sh YYYY-MM`.
 `RELEASE_MONTH` defaults to the current UTC month when omitted.
+The workflow declares both values, so the Crow manual-run dialog offers them as fields instead of requiring the CLI.
 The manual pipeline builds only the selected Ricochet Registry calendar tag, and the monthly cron pipeline later scans, promotes, and archives it with the rest of that month.
 
 ## DockerHub
