@@ -235,6 +235,10 @@ while IFS= read -r release_metadata; do
         echo "Release summary must omit its redundant Platforms column: ${release_directory}/README.md" >&2
         exit 1
     fi
+    if ! "${repository_root}/scripts/render-release-notes.sh" "${release_month}" | grep -Fq '## Environments'; then
+        echo "Release notes do not render for ${release_month}" >&2
+        exit 1
+    fi
 
     jq -c '.environments[]' "${release_metadata}" | while IFS= read -r environment; do
         environment_id=$(jq -r '.id' <<<"${environment}")

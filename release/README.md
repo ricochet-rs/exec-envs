@@ -32,7 +32,11 @@ New release metadata records the successful Crow pipeline URL so the main releas
 
 Every later cron run verifies that both registry copies still resolve to the recorded digest until the release's three-year retention date.
 
-The Crow project must provide an `exec_envs_release_token` secret with permission to push the generated archive commit to the default branch.
+After the archive commit lands, `publish-release-notes.sh` creates a GitHub release tagged with the month, pointing the tag at the commit that archived it.
+The notes compare the month against the previous archive and classify every environment as added, removed, updated, or rebuilt with unchanged component versions.
+The script runs over every archived month, so it backfills a missing release and refreshes notes that no longer match the archive.
+
+The Crow project must provide an `exec_envs_release_token` secret with permission to push the generated archive commit to the default branch and to create GitHub releases.
 
 Publishing is additive and idempotent, so retrying a release reuses existing calendar tags and does not change an archived environment.
 
@@ -50,4 +54,11 @@ Publishing requires authenticated Docker clients for both registries:
 ```sh
 just publish-release 2026-09
 just check-releases-remote
+```
+
+Preview the GitHub release notes for a month, then publish or refresh every archived month:
+
+```sh
+just release-notes 2026-09
+just publish-release-notes
 ```

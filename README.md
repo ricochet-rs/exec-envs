@@ -22,6 +22,8 @@ Only calendar-versioned tags are published, and release cutoffs remove deprecate
 
 Alpine monthly releases contain the newest two OS minor versions, and older minors leave the build matrix as soon as their final monthly archive is complete.
 
+Each archived month also gets a GitHub release tagged `YYYY-MM` whose notes list the environments added, removed, and updated since the previous month.
+
 ## Manual builds
 
 An individual environment can be prepared manually through Crow without publishing a rolling tag:
