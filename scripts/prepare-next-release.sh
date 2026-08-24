@@ -6,7 +6,7 @@ repository_root=${RELEASE_REPOSITORY_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/
 current_month=${1:-$(date -u +%Y-%m)}
 docker_context=${DOCKER_CONTEXT:-default}
 alpine_mirror=${ALPINE_IMAGE_REGISTRY:-reg.ricochet.rs/docker.io/library/alpine}
-r_base_registry=${R_ALPINE_BASE_REGISTRY:-reg.devxy.io/r/r-alpine}
+r_base_registry=${R_ALPINE_BASE_REGISTRY:-docker.io/devxygmbh/r-alpine}
 
 if [[ ! ${current_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
     echo "Release must use YYYY-MM format: ${current_month}" >&2
@@ -63,7 +63,7 @@ alpine_candidate_is_ready() {
             echo "Alpine ${candidate} exists, but ${r_base_registry}:${r_version}-${candidate} is not ready" >&2
             return 1
         fi
-    done < <(yq -r '.environments[].R_VERSION' "${repository_root}/release/environments/r-alpine.yaml" | sort -Vu)
+    done < <(sed -n 's/^ARG R_[0-9][0-9]_VERSION=//p' "${repository_root}/r-alpine/Containerfile" | sort -Vu)
 }
 
 target_month=$(month_after "${current_month}")

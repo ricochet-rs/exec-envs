@@ -109,9 +109,27 @@ probe_image() {
             os_version=${PRETTY_NAME:-${NAME:-Unknown}}
         fi
 
-        r_version="Not installed"
-        if command -v R >/dev/null 2>&1; then
-            r_version=$(R --version | sed -n "1s/^R version \([^ ]*\).*/\1/p")
+        r_versions=""
+        for executable in R4.4 R4.5 R4.6; do
+            if command -v "${executable}" >/dev/null 2>&1; then
+                version=$("${executable}" --version | sed -n "1s/^R version \([^ ]*\).*/\1/p")
+                case ",${r_versions}," in
+                    *",${version},"*) ;;
+                    *)
+                        if [ -n "${r_versions}" ]; then
+                            r_versions="${r_versions},${version}"
+                        else
+                            r_versions=${version}
+                        fi
+                        ;;
+                esac
+            fi
+        done
+        if [ -z "${r_versions}" ] && command -v R >/dev/null 2>&1; then
+            r_versions=$(R --version | sed -n "1s/^R version \([^ ]*\).*/\1/p")
+        fi
+        if [ -z "${r_versions}" ]; then
+            r_versions="Not installed"
         fi
 
         python_versions=""
@@ -145,7 +163,7 @@ probe_image() {
         fi
 
         printf "os\t%s\nr\t%s\npython\t%s\njulia\t%s\nquarto\t%s\n" \
-            "${os_version}" "${r_version}" "${python_versions}" "${julia_version}" "${quarto_version}"
+            "${os_version}" "${r_versions}" "${python_versions}" "${julia_version}" "${quarto_version}"
     '
 }
 
@@ -172,14 +190,14 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
 
     probe=$(probe_image "${source_reference}@${digest}")
     os_version=""
-    r_version=""
+    r_versions=""
     python_versions=""
     julia_version=""
     quarto_version=""
     while IFS=$'\t' read -r key value; do
         case "${key}" in
             os) os_version=${value} ;;
-            r) r_version=${value} ;;
+            r) r_versions=${value} ;;
             python) python_versions=${value} ;;
             julia) julia_version=${value} ;;
             quarto) quarto_version=${value} ;;
@@ -188,16 +206,16 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
 
     if [[ ${rebuild} == true ]]; then
         jq -r --arg id "${environment_id}" \
-            --arg r "${r_version}" \
+            --arg r "${r_versions}" \
             --arg julia "${julia_version}" \
             --arg quarto "${quarto_version}" \
             --arg python "${python_versions}" \
             '.environments[]
                 | select(.id == $id)
-                | {r: $r, julia: $julia, quarto: $quarto, python: ($python | split(",") | map(gsub("^ +| +$"; "")))} as $current
-                | .versions as $recorded
+                | {r: ($r | split(",") | map(gsub("^ +| +$"; ""))), julia: $julia, quarto: $quarto, python: ($python | split(",") | map(gsub("^ +| +$"; "")))} as $current
+                | (.versions | .r = (if .r | type == "array" then .r else [.r] end)) as $recorded
                 | [
-                    (if $recorded.r != $current.r then "  \($id) R \($recorded.r) became \($current.r)" else empty end),
+                    (if $recorded.r != $current.r then "  \($id) R \($recorded.r | join(", ")) became \($current.r | join(", "))" else empty end),
                     (if $recorded.julia != $current.julia then "  \($id) Julia \($recorded.julia) became \($current.julia)" else empty end),
                     (if $recorded.quarto != $current.quarto then "  \($id) Quarto \($recorded.quarto) became \($current.quarto)" else empty end),
                     (if $recorded.python != $current.python then "  \($id) Python \($recorded.python | join(", ")) became \($current.python | join(", "))" else empty end)
@@ -216,6 +234,7 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
 
     printf 'FROM %s@%s\n' "${docker_hub_reference}" "${digest}" >"${environment_directory}/Containerfile"
 
+    r_versions_json=$(jq -Rn --arg versions "${r_versions}" '$versions | split(",") | map(gsub("^ +| +$"; ""))')
     python_versions_json=$(jq -Rn --arg versions "${python_versions}" '$versions | split(",") | map(gsub("^ +| +$"; ""))')
     environment_record=$(jq -n \
         --arg id "${environment_id}" \
@@ -225,7 +244,7 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
         --arg digest "${digest}" \
         --arg platforms "${platforms}" \
         --arg os "${os_version}" \
-        --arg r "${r_version}" \
+        --argjson r "${r_versions_json}" \
         --argjson python "${python_versions_json}" \
         --arg julia "${julia_version}" \
         --arg quarto "${quarto_version}" \
@@ -254,7 +273,7 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | Component | Version |
 | --- | --- |
 | Operating system | ${os_version} |
-| R | ${r_version} |
+| R | ${r_versions//,/; } |
 | Python | ${python_versions//,/; } |
 | Julia | ${julia_version} |
 | Quarto | ${quarto_version} |

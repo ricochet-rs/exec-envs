@@ -4,9 +4,5 @@ image: r-ubuntu
 platforms: linux/amd64,linux/arm64
 environments:
   ### noble
-  - R_VERSION: 4.5
-    OS_VERSION: noble
-    release_suffix: 4.5.3-noble
-  - R_VERSION: 4.4
-    OS_VERSION: noble
-    release_suffix: 4.4.3-noble
+  - OS_VERSION: noble
+    release_suffix: noble
