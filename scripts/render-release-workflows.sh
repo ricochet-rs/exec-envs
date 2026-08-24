@@ -189,9 +189,8 @@ done < <(for definition in "${repository_root}"/release/environments/*.yaml; do
     yq -r '.platforms' "${definition}"
 done | sort -u)
 
-# Docker Hub is published by the plugin rather than by a docker login in a normal
-# step, because ricochet_dockerhub_token carries an image filter and Crow honours
-# those only for plugin steps.
+# Docker Hub is published by the plugin, while the release workflows use the same
+# filtered credential only to verify the published manifests.
 {
     banner
     cat <<YAML
