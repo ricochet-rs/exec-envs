@@ -94,13 +94,15 @@ validate_plugin_builds() {
         exit 1
     fi
 
-    # ricochet_dockerhub_token carries an image filter, which Crow honours only for
-    # plugin steps, so a normal step asking for it fails the pipeline.
+    # Keep the Docker Hub token limited to publishing and release verification.
     while IFS= read -r consumer; do
-        if [[ $(basename "${consumer}") != publish.yaml ]]; then
-            echo "${consumer} must not use ricochet_dockerhub_token; only the plugin publish workflow may" >&2
-            exit 1
-        fi
+        case $(basename "${consumer}") in
+            manual-release-rebuild.yaml | monthly-release.yaml | publish.yaml) ;;
+            *)
+                echo "${consumer} must not use ricochet_dockerhub_token; only release publishing and verification may" >&2
+                exit 1
+                ;;
+        esac
     done < <(grep -rl 'ricochet_dockerhub_token' "${repository_root}/.crow")
 }
 

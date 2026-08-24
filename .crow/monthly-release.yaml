@@ -46,11 +46,14 @@ steps:
   verify-and-archive-release:
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
+      DOCKERHUB_TOKEN:
+        from_secret: ricochet_dockerhub_token
       GH_TOKEN:
         from_secret: exec_envs_release_token
     commands:
       - apk add -q --no-cache bash docker-cli docker-cli-buildx github-cli git jq yq
       - export DOCKER_CONFIG="$${CI_WORKSPACE}/.release-docker"
+      - printf '%s' "$${DOCKERHUB_TOKEN}" | docker login docker.io --username ricochetbot --password-stdin
       # Both registry copies must already resolve to the recorded digest, which is
       # what replaces the old publish step's own verification.
       - scripts/check-releases.sh --remote
