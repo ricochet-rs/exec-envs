@@ -26,6 +26,7 @@ jq -c '.environments[]' "${release_metadata}" | while IFS= read -r environment; 
         --scanners vuln \
         --severity CRITICAL \
         --skip-dirs '/opt/julia/share/julia/base/JuliaSyntax/docs' \
+        --skip-dirs '/opt/julia/share/julia/stdlib/*/SparseArrays/gen' \
         --skip-dirs '/opt/julia/share/julia/stdlib/*/*/test' \
         --skip-dirs '/opt/julia/share/julia/test' \
         "${source_reference}"
