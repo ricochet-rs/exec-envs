@@ -88,7 +88,7 @@ Adjust `release_from` and `release_through` in `release/environments/` before re
 ## Rebuilding an archived month
 
 The `manual-release-rebuild` Crow workflow rebuilds an archived month so its images pick up operating system security fixes.
-It requires `RELEASE_MONTH` and takes `RELEASE_ENVIRONMENT` as a single ID or `all`, and it runs every release script with `RELEASE_REBUILD` enabled.
+Set `RELEASE_MONTH` to the archived month and `RELEASE_REBUILD` to `true` in the manual pipeline trigger so the build, merge, publish, and archive workflows replace its images.
 
 A rebuild moves the existing calendar tag onto the new digest in both registries, so consumers of `YYYY-MM-<version>-<os>` receive the patched image without changing anything.
 The archive then records the new digest, the new operating system string, and an updated wrapper Containerfile.

@@ -20,6 +20,9 @@ variables:
   RELEASE_MONTH:
     description: Calendar month as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.
     required: true
+  RELEASE_REBUILD:
+    description: Set to true to replace existing calendar tags during an archived release rebuild.
+    default: 'false'
 
 matrix:
   include:

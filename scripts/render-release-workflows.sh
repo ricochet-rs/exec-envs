@@ -28,6 +28,9 @@ month_variable() {
     printf '  RELEASE_MONTH:\n'
     printf '    description: Calendar month as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.\n'
     printf '    required: true\n'
+    printf '  RELEASE_REBUILD:\n'
+    printf '    description: Set to true to replace existing calendar tags during an archived release rebuild.\n'
+    printf "    default: 'false'\n"
 }
 
 ricochet_login() {

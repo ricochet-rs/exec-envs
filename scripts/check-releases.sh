@@ -79,6 +79,7 @@ validate_plugin_builds() {
         if ! jq -e --arg name "$(basename "${pipeline}" .yaml)" '
             (.labels.backend == "docker") and
             (.variables.RELEASE_MONTH.required == true) and
+            (.variables.RELEASE_REBUILD.default == "false") and
             all(.steps[]; .image | startswith("codefloe.com/crow-plugins/docker-buildx:")) and
             all(.steps[]; .when.evaluate | contains("release_from") and contains("release_through")) and
             (if $name == "build-arm64" then .labels.platform == "linux/arm64" else true end)
