@@ -61,6 +61,8 @@ The notes compare the month against the previous archive and classify every envi
 The script runs over every archived month, so it backfills a missing release and refreshes notes that no longer match the archive.
 
 The Crow project must provide an `exec_envs_release_token` secret with permission to push the generated archive commit to the default branch and to create GitHub releases.
+It must carry no image filter and must be available to `manual` events, because normal `commands` steps read it and Crow honours image filters only for plugin steps.
+`ricochet_dockerhub_token` is the opposite case: it is filtered to plugin images on purpose, which is why only the generated `publish` workflow may use it.
 The token must belong to `ricochet-bot`, because a GitHub release carries the identity of the token that creates it.
 `publish-release-notes.sh` refuses to publish under any other account, so a local run needs the bot token.
 `RELEASE_GITHUB_ACTOR` retargets that check at a different account and cannot switch it off.
