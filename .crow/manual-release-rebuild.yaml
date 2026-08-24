@@ -69,8 +69,8 @@ steps:
           echo "Rebuild of $${RELEASE_MONTH} produced the same digests"
           exit 0
         fi
-      - git config user.name ricochet-release-bot
-      - git config user.email release-bot@ricochet.rs
+      - git config user.name ricochet-bot
+      - git config user.email 234840592+ricochet-bot@users.noreply.github.com
       - 'git commit -m "chore(releases): rebuild $${RELEASE_MONTH} environments"'
       - gh auth setup-git
       - 'git push origin "HEAD:$${CI_REPO_DEFAULT_BRANCH}"'
