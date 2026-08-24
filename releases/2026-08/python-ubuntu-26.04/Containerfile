@@ -1,0 +1,1 @@
+FROM docker.io/ricochetrs/python-ubuntu:2026-08-26.04@sha256:20abda237bd0efac914d978eea2807d6749829f782841c5c1553af052969d1d5

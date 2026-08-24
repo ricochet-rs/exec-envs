@@ -1,0 +1,1 @@
+FROM docker.io/ricochetrs/julia-alma:2026-08-1.10-9@sha256:fdccee9d7d1b4618e741bfc466eb957afd76a8f3e019e0311c7a18d6be6aa394
