@@ -70,7 +70,7 @@ steps:
           exit 0
         fi
       - git config user.name ricochet-bot
-      - git config user.email 234840592+ricochet-bot@users.noreply.github.com
+      - git config user.email droid@ricochet.rs
       - 'git commit -m "chore(releases): rebuild $${RELEASE_MONTH} environments"'
       - gh auth setup-git
       - 'git push origin "HEAD:$${CI_REPO_DEFAULT_BRANCH}"'
