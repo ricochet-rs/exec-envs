@@ -4,9 +4,5 @@ image: r-alma
 platforms: linux/amd64,linux/arm64
 environments:
   ### 9
-  - R_VERSION: 4.5
-    OS_VERSION: 9
-    release_suffix: 4.5.3-9
-  - R_VERSION: 4.4
-    OS_VERSION: 9
-    release_suffix: 4.4.3-9
+  - OS_VERSION: 9
+    release_suffix: '9'

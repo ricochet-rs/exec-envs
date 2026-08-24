@@ -41,9 +41,8 @@ jq -rn \
         {os: "the operating system", r: "R", python: "Python", julia: "Julia", quarto: "Quarto"}[.];
 
     def component_version($environment; $component):
-        if $component == "python" then ($environment.versions.python | join(", "))
-        else ($environment.versions[$component] | tostring)
-        end;
+        ($environment.versions[$component]
+            | if type == "array" then join(", ") else tostring end);
 
     def sentence_list:
         if length == 1 then .[0]
@@ -142,7 +141,7 @@ jq -rn \
         "| Environment | Operating system | R | Python | Julia | Quarto |",
         "| --- | --- | --- | --- | --- | --- |"
       ]
-    + ($now | map("| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | \(.versions.os) | \(.versions.r) | \(.versions.python | join(", ")) | \(.versions.julia) | \(.versions.quarto) |"))
+    + ($now | map("| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | \(.versions.os) | \(.versions.r | if type == "array" then join(", ") else tostring end) | \(.versions.python | join(", ")) | \(.versions.julia) | \(.versions.quarto) |"))
     + [
         "",
         "## Pulling an environment",
