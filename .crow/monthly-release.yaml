@@ -40,6 +40,7 @@ steps:
   format-release:
     image: reg.ricochet.rs/docker.io/oven/bun:1.3.14-alpine
     commands:
+      - apk add -q --no-cache bash
       - scripts/format-release.sh "$${RELEASE_MONTH}"
 
   verify-and-archive-release:
