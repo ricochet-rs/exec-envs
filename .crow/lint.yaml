@@ -31,7 +31,7 @@ steps:
 
   lint-editorconfig:
     depends_on: []
-    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.11.1
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.11.2
     when:
       event: pull_request
 
