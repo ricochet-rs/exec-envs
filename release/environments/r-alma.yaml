@@ -1,6 +1,7 @@
 # Build matrix for the r-alma exec environment.
 # Each entry becomes one immutable calendar tag in every monthly release it is active for.
 image: r-alma
+containerfile: r/alma/Containerfile
 platforms: linux/amd64,linux/arm64
 environments:
   ### 9

@@ -1,6 +1,7 @@
 # Build matrix for the r-alpine exec environment.
 # Each entry becomes one immutable calendar tag in every monthly release it is active for.
 image: r-alpine
+containerfile: r/alpine/Containerfile
 platforms: linux/amd64,linux/arm64
 environments:
   ### 3.24

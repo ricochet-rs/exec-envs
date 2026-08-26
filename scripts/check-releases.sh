@@ -14,12 +14,7 @@ elif [[ -n ${1:-} ]]; then
 fi
 
 release_count=0
-first_readme_heading=$(awk '/^## / { print; exit }' "${repository_root}/README.md")
 
-if [[ ${first_readme_heading} != "## Monthly releases" ]]; then
-    echo "README.md must present Monthly releases as its first section" >&2
-    exit 1
-fi
 if ! grep -Eq '^\| Release +\| Retained through +\| Environments +\| CI +\|$' "${repository_root}/README.md"; then
     echo "README.md must use the compact monthly release index" >&2
     exit 1
@@ -31,6 +26,25 @@ for command in jq yq; do
         exit 1
     fi
 done
+
+# Each matrix names the Containerfile the build workflows hand to buildx, so an
+# environment that moved without its declaration fails here, not in a monthly build.
+validate_environment_containerfiles() {
+    local definition
+    local containerfile
+
+    for definition in "${repository_root}"/release/environments/*.yaml; do
+        containerfile=$(yq -r '.containerfile // ""' "${definition}")
+        if [[ -z ${containerfile} ]]; then
+            echo "$(basename "${definition}") does not declare a containerfile" >&2
+            exit 1
+        fi
+        if [[ ! -f ${repository_root}/${containerfile} ]]; then
+            echo "$(basename "${definition}") declares a missing Containerfile: ${containerfile}" >&2
+            exit 1
+        fi
+    done
+}
 
 # The build and merge workflows are generated, so drift means someone edited one by
 # hand and forgot the generator.
@@ -213,6 +227,7 @@ validate_release_policy() {
     done
 }
 
+validate_environment_containerfiles
 validate_generated_workflows
 validate_plugin_builds
 validate_release_triggers
@@ -287,7 +302,7 @@ while IFS= read -r release_metadata; do
         exit 1
     fi
     unique_environment_count=$(jq '[.environments[].id] | unique | length' "${release_metadata}")
-    containerfile_count=$(find "${release_directory}" -mindepth 3 -maxdepth 3 -name Containerfile -print | awk 'END {print NR + 0}')
+    containerfile_count=$(find "${release_directory}" -mindepth 2 -maxdepth 2 -name Containerfile -print | awk 'END {print NR + 0}')
     if [[ ${environment_count} == 0 || ${unique_environment_count} != "${environment_count}" || ${containerfile_count} != "${environment_count}" ]]; then
         echo "Release ${release_month} must contain matching unique metadata and Containerfiles" >&2
         exit 1

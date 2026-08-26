@@ -30,7 +30,8 @@ Exec-envs are rebuilt and released monthly.
 
 ## Release policy
 
-The top-level Containerfiles are built only by the monthly release pipeline, once per calendar month, for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
+Each environment is defined by a Containerfile under `<language>/<operating-system>/`, and its build matrix in `release/environments/` names that path.
+Those Containerfiles are built only by the monthly release pipeline, once per calendar month, for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
 Pull requests lint the Containerfiles but never build them, so no image is produced outside a monthly release.
 
 Monthly releases pin every supported environment to a multi-platform digest and retain its registry tags for at least three years.  
