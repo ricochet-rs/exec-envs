@@ -287,7 +287,7 @@ while IFS= read -r release_metadata; do
         exit 1
     fi
     unique_environment_count=$(jq '[.environments[].id] | unique | length' "${release_metadata}")
-    containerfile_count=$(find "${release_directory}" -mindepth 2 -maxdepth 2 -name Containerfile -print | awk 'END {print NR + 0}')
+    containerfile_count=$(find "${release_directory}" -mindepth 3 -maxdepth 3 -name Containerfile -print | awk 'END {print NR + 0}')
     if [[ ${environment_count} == 0 || ${unique_environment_count} != "${environment_count}" || ${containerfile_count} != "${environment_count}" ]]; then
         echo "Release ${release_month} must contain matching unique metadata and Containerfiles" >&2
         exit 1
