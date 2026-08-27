@@ -44,6 +44,12 @@ alpine_after() {
     printf '%d.%d\n' "${major}" "$((10#${minor} + 1))"
 }
 
+containerfile_for() {
+    local matrix_file=$1
+
+    printf '%s/%s\n' "${repository_root}" "$(yq -r '.containerfile' "${matrix_file}")"
+}
+
 image_exists() {
     local image_reference=$1
 
@@ -63,7 +69,7 @@ alpine_candidate_is_ready() {
             echo "Alpine ${candidate} exists, but ${r_base_registry}:${r_version}-${candidate} is not ready" >&2
             return 1
         fi
-    done < <(sed -n 's/^ARG R_[0-9][0-9]_VERSION=//p' "${repository_root}/r-alpine/Containerfile" | sort -Vu)
+    done < <(sed -n 's/^ARG R_[0-9][0-9]_VERSION=//p' "$(containerfile_for "${repository_root}/release/environments/r-alpine.yaml")" | sort -Vu)
 }
 
 target_month=$(month_after "${current_month}")
@@ -145,8 +151,8 @@ for matrix_file in "${matrix_files[@]}"; do
     ' "${matrix_file}"
 done
 
-for containerfile in "${repository_root}/r-alpine/Containerfile" "${repository_root}/julia-alpine/Containerfile"; do
-    sed -i -E "s/^ARG OS_VERSION=.*/ARG OS_VERSION=${latest_alpine}/" "${containerfile}"
+for matrix_file in "${matrix_files[@]}"; do
+    sed -i -E "s/^ARG OS_VERSION=.*/ARG OS_VERSION=${latest_alpine}/" "$(containerfile_for "${matrix_file}")"
 done
 
 active_alpine_versions=$("${repository_root}/scripts/list-release-environments.sh" "${target_month}" |

@@ -49,13 +49,36 @@ docker_hub_login() {
 }
 
 # Every entry carries its lifecycle window because a matrix cannot be filtered at run
-# time, and every entry carries all three build arguments so none is ever unset. An
-# argument its own Containerfile does not declare is unused by that build.
+# time. Only a build reads the Containerfile path and the build arguments, so merge
+# and publish entries stop at the identity and window they address an image by.
 emit_matrix() {
     local platform_filter=${1:-}
     local platform_set=${2:-}
+    local build_inputs=${3:-}
     local definition
     local platforms
+    local matrix_program
+
+    # shellcheck disable=SC2016  # the dollar names are jq bindings, not shell variables
+    matrix_program='
+            .image as $image
+            | .containerfile as $containerfile
+            | .environments[]
+            | (if has("release_suffix") then .release_suffix else (.JULIA_VERSION + "-" + (.OS_VERSION | tostring)) end) as $suffix
+            | "    - name: \($q)\($image)\($q)",
+              "      release_suffix: \($q)\($suffix)\($q)",
+              "      release_from: \($q)\(.release_from // "0000-01")\($q)",
+              "      release_through: \($q)\(.release_through // "9999-12")\($q)"'
+    # Every build entry states all three arguments so none is ever unset. An argument
+    # its own Containerfile does not declare is unused by that build.
+    if [[ -n ${build_inputs} ]]; then
+        # shellcheck disable=SC2016  # the dollar names are jq bindings, not shell variables
+        matrix_program+=',
+              "      containerfile: \($q)\($containerfile)\($q)",
+              "      R_VERSION: \($q)\(.R_VERSION // "unused")\($q)",
+              "      JULIA_VERSION: \($q)\(.JULIA_VERSION // "unused")\($q)",
+              "      OS_VERSION: \($q)\(.OS_VERSION)\($q)"'
+    fi
 
     printf 'matrix:\n  include:\n'
     for definition in "${repository_root}"/release/environments/*.yaml; do
@@ -67,18 +90,7 @@ emit_matrix() {
             [[ ${platforms} == "${platform_set}" ]] || continue
         fi
 
-        yq -o=json '.' "${definition}" | jq -r --arg q "'" '
-            .image as $image
-            | .environments[]
-            | (if has("release_suffix") then .release_suffix else (.JULIA_VERSION + "-" + (.OS_VERSION | tostring)) end) as $suffix
-            | "    - name: \($q)\($image)\($q)",
-              "      release_suffix: \($q)\($suffix)\($q)",
-              "      release_from: \($q)\(.release_from // "0000-01")\($q)",
-              "      release_through: \($q)\(.release_through // "9999-12")\($q)",
-              "      R_VERSION: \($q)\(.R_VERSION // "unused")\($q)",
-              "      JULIA_VERSION: \($q)\(.JULIA_VERSION // "unused")\($q)",
-              "      OS_VERSION: \($q)\(.OS_VERSION)\($q)"
-        '
+        yq -o=json '.' "${definition}" | jq -r --arg q "'" "${matrix_program}"
     done
 }
 
@@ -111,7 +123,7 @@ labels:
 YAML
         month_variable
         printf '\n'
-        emit_matrix "${platform}"
+        emit_matrix "${platform}" "" build-inputs
         cat <<YAML
 
 steps:
@@ -125,7 +137,7 @@ YAML
       platforms: ${platform}
       repo: ${release_registry}/\${name}
       tags: \${RELEASE_MONTH}-\${release_suffix}-${architecture}
-      dockerfile: \${name}/Containerfile
+      dockerfile: \${containerfile}
       provenance: true
       sbom: true
       build_args_from_env:

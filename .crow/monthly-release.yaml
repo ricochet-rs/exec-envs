@@ -57,7 +57,13 @@ steps:
       # Both registry copies must already resolve to the recorded digest, which is
       # what replaces the old publish step's own verification.
       - scripts/check-releases.sh --remote
-      - git add README.md "releases/$${RELEASE_MONTH}" release/environments/r-alpine.yaml release/environments/julia-alpine.yaml r-alpine/Containerfile julia-alpine/Containerfile
+      # prepare-next-release.sh rewrites the Alpine matrices and the Containerfiles
+      # they name, so both are staged from the declaration rather than a fixed path.
+      - |
+        git add README.md "releases/$${RELEASE_MONTH}"
+        for matrix_file in release/environments/r-alpine.yaml release/environments/julia-alpine.yaml; do
+          git add "$${matrix_file}" "$(yq -r '.containerfile' "$${matrix_file}")"
+        done
       - |
         if git diff --cached --quiet; then
           echo "Release $${RELEASE_MONTH} is already archived"

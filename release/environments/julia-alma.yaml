@@ -1,6 +1,7 @@
 # Build matrix for the julia-alma exec environment.
 # Each entry becomes one immutable calendar tag in every monthly release it is active for.
 image: julia-alma
+containerfile: julia/alma/Containerfile
 platforms: linux/amd64,linux/arm64
 environments:
   ### 9

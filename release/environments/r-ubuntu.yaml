@@ -1,6 +1,7 @@
 # Build matrix for the r-ubuntu exec environment.
 # Each entry becomes one immutable calendar tag in every monthly release it is active for.
 image: r-ubuntu
+containerfile: r/ubuntu/Containerfile
 platforms: linux/amd64,linux/arm64
 environments:
   ### noble
