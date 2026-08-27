@@ -8,4 +8,4 @@ environments:
     release_suffix: '10'
   - OS_VERSION: 9
     release_suffix: '9'
-    release_from: '2026-09'
+    release_from: '2026-08'

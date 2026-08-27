@@ -40,6 +40,8 @@ Only calendar-versioned tags are published, and release cutoffs remove deprecate
 
 Each R image bundles R 4.4, 4.5, and 4.6 without Python, with R 4.6 selected by the unversioned `R` and `Rscript` commands.
 Each Python image bundles Python 3.12, 3.13, and 3.14, with Python 3.14 selected by `python3`.
+Each Julia image bundles Julia 1.10 and 1.12, with Julia 1.12 selected by `julia`.
+Environment tags identify the operating system release, such as `julia-ubuntu:2026-08-resolute`, rather than repeating bundled language versions.
 
 Alpine monthly releases contain the newest two OS minor versions, and older minors leave the build matrix as soon as their final monthly archive is complete.
 

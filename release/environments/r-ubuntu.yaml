@@ -7,7 +7,7 @@ environments:
   ### resolute
   - OS_VERSION: resolute
     release_suffix: resolute
-    release_from: '2026-09'
+    release_from: '2026-08'
   ### noble
   - OS_VERSION: noble
     release_suffix: noble

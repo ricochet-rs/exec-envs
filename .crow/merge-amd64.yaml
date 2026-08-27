@@ -25,11 +25,11 @@ matrix:
   include:
     - name: 'julia-alpine'
       release_suffix: '3.24'
-      release_from: '2026-09'
+      release_from: '2026-08'
       release_through: '9999-12'
     - name: 'julia-alpine'
       release_suffix: '3.23'
-      release_from: '2026-09'
+      release_from: '2026-08'
       release_through: '9999-12'
 
 steps:
