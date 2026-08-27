@@ -76,6 +76,26 @@ validate_generated_workflows() {
     rm -rf "${rendered}"
 }
 
+validate_generated_environment_readmes() {
+    local definition
+    local rendered
+    local relative_readme
+
+    rendered=$(mktemp -d)
+    "${repository_root}/scripts/render-environment-readmes.sh" "" "${rendered}"
+
+    for definition in "${repository_root}"/release/environments/*.yaml; do
+        relative_readme=$(dirname "$(yq -r '.containerfile' "${definition}")")/README.md
+        if ! cmp -s "${rendered}/${relative_readme}" "${repository_root}/${relative_readme}"; then
+            echo "${relative_readme} does not match scripts/render-environment-readmes.sh" >&2
+            rm -rf "${rendered}"
+            exit 1
+        fi
+    done
+
+    rm -rf "${rendered}"
+}
+
 # Images must reach the registry through the plugin, and an arm64 build must stay on
 # an arm64 Docker agent: losing the platform label falls back to emulation these
 # images cannot survive, and losing the backend label lands on an agent that execs
@@ -229,6 +249,7 @@ validate_release_policy() {
 
 validate_environment_containerfiles
 validate_generated_workflows
+validate_generated_environment_readmes
 validate_plugin_builds
 validate_release_triggers
 validate_renovate_targets
@@ -266,6 +287,7 @@ while IFS= read -r release_metadata; do
     release_month=$(basename "${release_directory}")
     metadata_month=$(jq -r '.release' "${release_metadata}")
     retention_until=$(jq -r '.retentionUntil' "${release_metadata}")
+    rendered_release_notes=$(mktemp)
     release_year=${release_month%%-*}
     release_month_number=${release_month##*-}
     if [[ ${release_month_number} == 12 ]]; then
@@ -315,7 +337,11 @@ while IFS= read -r release_metadata; do
         echo "Release summary must omit its redundant Platforms column: ${release_directory}/README.md" >&2
         exit 1
     fi
-    if ! "${repository_root}/scripts/render-release-notes.sh" "${release_month}" | grep -Fq '## Environments'; then
+    if ! "${repository_root}/scripts/render-release-notes.sh" "${release_month}" >"${rendered_release_notes}"; then
+        echo "Release notes fail to render for ${release_month}" >&2
+        exit 1
+    fi
+    if ! grep -Fq '## Environments' "${rendered_release_notes}"; then
         echo "Release notes do not render for ${release_month}" >&2
         exit 1
     fi

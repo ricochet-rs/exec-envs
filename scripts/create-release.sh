@@ -47,6 +47,7 @@ if [[ -d ${release_directory} && ${rebuild} != true ]]; then
     echo "Release ${release_month} already exists; leaving its pinned digests unchanged"
     "${repository_root}/scripts/render-release-readme.sh" "${release_month}"
     "${repository_root}/scripts/render-release-index.sh"
+    "${repository_root}/scripts/render-environment-readmes.sh"
     exit 0
 fi
 
@@ -325,6 +326,7 @@ else
 fi
 "${repository_root}/scripts/render-release-readme.sh" "${release_month}"
 "${repository_root}/scripts/render-release-index.sh"
+"${repository_root}/scripts/render-environment-readmes.sh"
 if [[ ${rebuild} == true ]]; then
     echo "Rebuilt release ${release_month}; its Docker Hub calendar tags have not been moved"
 else

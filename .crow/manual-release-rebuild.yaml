@@ -63,7 +63,7 @@ steps:
       - export DOCKER_CONFIG="$${CI_WORKSPACE}/.release-docker"
       - printf '%s' "$${DOCKERHUB_TOKEN}" | docker login docker.io --username ricochetbot --password-stdin
       - scripts/check-releases.sh --remote
-      - git add README.md "releases/$${RELEASE_MONTH}"
+      - git add README.md r/*/README.md python/*/README.md julia/*/README.md "releases/$${RELEASE_MONTH}"
       - |
         if git diff --cached --quiet; then
           echo "Rebuild of $${RELEASE_MONTH} produced the same digests"
