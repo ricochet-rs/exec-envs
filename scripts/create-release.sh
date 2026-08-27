@@ -153,9 +153,22 @@ probe_image() {
             python_versions="Not installed"
         fi
 
-        julia_version="Not installed"
-        if command -v julia >/dev/null 2>&1; then
+        julia_version=""
+        for executable in julia1.10 julia1.12; do
+            if command -v "${executable}" >/dev/null 2>&1; then
+                version=$("${executable}" --version | awk "{print \$3}")
+                if [ -n "${julia_version}" ]; then
+                    julia_version="${julia_version},${version}"
+                else
+                    julia_version=${version}
+                fi
+            fi
+        done
+        if [ -z "${julia_version}" ] && command -v julia >/dev/null 2>&1; then
             julia_version=$(julia --version | awk "{print \$3}")
+        fi
+        if [ -z "${julia_version}" ]; then
+            julia_version="Not installed"
         fi
 
         quarto_version="Not installed"
@@ -213,11 +226,14 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
             --arg python "${python_versions}" \
             '.environments[]
                 | select(.id == $id)
-                | {r: ($r | split(",") | map(gsub("^ +| +$"; ""))), julia: $julia, quarto: $quarto, python: ($python | split(",") | map(gsub("^ +| +$"; "")))} as $current
-                | (.versions | .r = (if .r | type == "array" then .r else [.r] end)) as $recorded
+                | {r: ($r | split(",") | map(gsub("^ +| +$"; ""))), julia: ($julia | split(",") | map(gsub("^ +| +$"; ""))), quarto: $quarto, python: ($python | split(",") | map(gsub("^ +| +$"; "")))} as $current
+                | (.versions
+                    | .r = (if .r | type == "array" then .r else [.r] end)
+                    | .julia = (if .julia | type == "array" then .julia else [.julia] end)
+                  ) as $recorded
                 | [
                     (if $recorded.r != $current.r then "  \($id) R \($recorded.r | join(", ")) became \($current.r | join(", "))" else empty end),
-                    (if $recorded.julia != $current.julia then "  \($id) Julia \($recorded.julia) became \($current.julia)" else empty end),
+                    (if $recorded.julia != $current.julia then "  \($id) Julia \($recorded.julia | join(", ")) became \($current.julia | join(", "))" else empty end),
                     (if $recorded.quarto != $current.quarto then "  \($id) Quarto \($recorded.quarto) became \($current.quarto)" else empty end),
                     (if $recorded.python != $current.python then "  \($id) Python \($recorded.python | join(", ")) became \($current.python | join(", "))" else empty end)
                   ][]' "${archived_metadata}" >>"${version_changes}"
@@ -237,6 +253,7 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
 
     r_versions_json=$(jq -Rn --arg versions "${r_versions}" '$versions | split(",") | map(gsub("^ +| +$"; ""))')
     python_versions_json=$(jq -Rn --arg versions "${python_versions}" '$versions | split(",") | map(gsub("^ +| +$"; ""))')
+    julia_versions_json=$(jq -Rn --arg versions "${julia_version}" '$versions | split(",") | map(gsub("^ +| +$"; ""))')
     environment_record=$(jq -n \
         --arg id "${environment_id}" \
         --arg image "${image}" \
@@ -247,7 +264,7 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
         --arg os "${os_version}" \
         --argjson r "${r_versions_json}" \
         --argjson python "${python_versions_json}" \
-        --arg julia "${julia_version}" \
+        --argjson julia "${julia_versions_json}" \
         --arg quarto "${quarto_version}" \
         --arg dockerHub "${docker_hub_reference}" \
         --arg registry "${registry_reference}" \

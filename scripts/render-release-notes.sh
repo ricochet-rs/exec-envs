@@ -141,7 +141,7 @@ jq -rn \
         "| Environment | Operating system | R | Python | Julia | Quarto |",
         "| --- | --- | --- | --- | --- | --- |"
       ]
-    + ($now | map("| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | \(.versions.os) | \(.versions.r | if type == "array" then join(", ") else tostring end) | \(.versions.python | join(", ")) | \(.versions.julia) | \(.versions.quarto) |"))
+    + ($now | map("| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | \(.versions.os) | \(.versions.r | if type == "array" then join(", ") else tostring end) | \(.versions.python | join(", ")) | \(.versions.julia | if type == "array" then join(", ") else tostring end) | \(.versions.quarto) |"))
     + [
         "",
         "## Pulling an environment",

@@ -1,13 +1,15 @@
 ARG OS_VERSION=10
 FROM almalinux:${OS_VERSION}
 
-ARG JULIA_VERSION=1.11
+ARG JULIA_110_VERSION=1.10
+# renovate: julia-current
+ARG JULIA_112_VERSION=1.12
 # renovate: datasource=github-releases depName=quarto-dev/quarto-cli
 ARG QUARTO_VERSION=1.10.18
 ARG TARGETARCH
 
 ENV JULIA_DEPOT_PATH=/opt/ricochet/cache/julia
-ENV PATH=/opt/julia/bin:/opt/quarto/bin:${PATH}
+ENV PATH=/opt/quarto/bin:${PATH}
 
 WORKDIR /opt/ricochet
 
@@ -20,9 +22,14 @@ RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /op
         arm64) JARCH=aarch64; JDIR=aarch64 ;; \
         *) echo "Unsupported architecture: ${TARGETARCH}" >&2 && exit 1 ;; \
     esac && \
-    curl -fsSLo /tmp/julia.tar.gz "https://julialang-s3.julialang.org/bin/linux/${JDIR}/${JULIA_VERSION}/julia-${JULIA_VERSION}-latest-linux-${JARCH}.tar.gz" && \
-    tar -xzf /tmp/julia.tar.gz -C /opt/julia --strip-components=1 && \
+    for JULIA_VERSION in "${JULIA_110_VERSION}" "${JULIA_112_VERSION}"; do \
+        mkdir -p "/opt/julia/${JULIA_VERSION}"; \
+        curl -fsSLo /tmp/julia.tar.gz "https://julialang-s3.julialang.org/bin/linux/${JDIR}/${JULIA_VERSION}/julia-${JULIA_VERSION}-latest-linux-${JARCH}.tar.gz"; \
+        tar -xzf /tmp/julia.tar.gz -C "/opt/julia/${JULIA_VERSION}" --strip-components=1; \
+        ln -s "/opt/julia/${JULIA_VERSION}/bin/julia" "/usr/local/bin/julia${JULIA_VERSION}"; \
+    done && \
     rm /tmp/julia.tar.gz && \
+    ln -s "/opt/julia/${JULIA_112_VERSION}/bin/julia" /usr/local/bin/julia && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
     rm /tmp/quarto.tar.gz

@@ -26,9 +26,10 @@ An architecture is built on an agent of that architecture because these images c
 
 A matrix cannot be filtered at run time, so every entry carries `release_from` and `release_through` and the step guards itself with `when: evaluate`.
 
-R and Python versions are bundled by language family, so their matrix entries vary by operating system rather than language minor version.
+R, Python, and Julia versions are bundled by language family, so their matrix entries vary by operating system rather than language minor version.
 R images contain R 4.4, 4.5, and 4.6 and expose no Python executable.
 Python images contain Python 3.12, 3.13, and 3.14.
+Julia images contain Julia 1.10 and 1.12.
 
 `RELEASE_MONTH` is required on every release workflow, because a Crow cron cannot pass a variable and exposes no date.
 A monthly release is therefore a stated action: either a manual run, or an external scheduler calling the Crow API with the month.
@@ -41,7 +42,7 @@ Alpine releases keep exactly two OS minor versions active each month, so each Ma
 
 The same rollover removes expired matrix entries immediately and updates both Alpine Containerfile defaults.
 
-Renovate ignores `releases/**` and follows one `julia-current` marker per Julia matrix, while the Alpine rollover moves that marker to the newest monthly environment and leaves older definitions fixed.
+Renovate ignores `releases/**` and follows the `julia-current` marker on the current Julia build argument in each Julia Containerfile.
 
 The monthly builder publishes the Ricochet Registry calendar tag, and the generator resolves it to a digest, verifies its advertised platforms, runs its `amd64` variant to inventory installed software, and writes an immutable wrapper Containerfile.
 The latest archived metadata also generates each language and operating system README so its `ricochet-exec-env.toml` snippets follow the current calendar tags and installed language versions.

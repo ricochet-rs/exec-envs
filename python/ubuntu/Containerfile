@@ -1,4 +1,4 @@
-ARG OS_VERSION=26.04
+ARG OS_VERSION=resolute
 FROM ghcr.io/astral-sh/uv:0.12.1 AS uv
 
 FROM ubuntu:${OS_VERSION}
