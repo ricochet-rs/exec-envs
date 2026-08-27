@@ -287,6 +287,7 @@ while IFS= read -r release_metadata; do
     release_month=$(basename "${release_directory}")
     metadata_month=$(jq -r '.release' "${release_metadata}")
     retention_until=$(jq -r '.retentionUntil' "${release_metadata}")
+    rendered_release_notes=$(mktemp)
     release_year=${release_month%%-*}
     release_month_number=${release_month##*-}
     if [[ ${release_month_number} == 12 ]]; then
@@ -336,7 +337,11 @@ while IFS= read -r release_metadata; do
         echo "Release summary must omit its redundant Platforms column: ${release_directory}/README.md" >&2
         exit 1
     fi
-    if ! "${repository_root}/scripts/render-release-notes.sh" "${release_month}" | grep -Fq '## Environments'; then
+    if ! "${repository_root}/scripts/render-release-notes.sh" "${release_month}" >"${rendered_release_notes}"; then
+        echo "Release notes fail to render for ${release_month}" >&2
+        exit 1
+    fi
+    if ! grep -Fq '## Environments' "${rendered_release_notes}"; then
         echo "Release notes do not render for ${release_month}" >&2
         exit 1
     fi
