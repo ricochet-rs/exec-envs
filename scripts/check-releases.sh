@@ -173,41 +173,6 @@ validate_release_triggers() {
     fi
 }
 
-validate_renovate_targets() {
-    local definition
-    local marked_entries
-    local marked_entry_count
-    local marked_julia
-    local latest_julia
-    local marked_os
-    local latest_os
-
-    for definition in "${repository_root}"/release/environments/julia-*.yaml; do
-        marked_entries=$(mktemp)
-        yq -r '.environments[]
-            | select((.JULIA_VERSION | line_comment) == "renovate: julia-current")
-            | [.JULIA_VERSION, .OS_VERSION]
-            | @tsv' "${definition}" >"${marked_entries}"
-        marked_entry_count=$(awk 'END {print NR + 0}' "${marked_entries}")
-        latest_julia=$(yq -r '.environments[].JULIA_VERSION' "${definition}" | sort -Vu | tail -n 1)
-        marked_julia=$(cut -f1 "${marked_entries}")
-
-        if [[ ${marked_entry_count} != 1 || ${marked_julia} != "${latest_julia}" ]]; then
-            echo "${definition} must mark exactly its newest Julia definition as renovate: julia-current" >&2
-            exit 1
-        fi
-
-        if [[ $(basename "${definition}") == julia-alpine.yaml ]]; then
-            latest_os=$(yq -r '.environments[].OS_VERSION' "${definition}" | sort -Vu | tail -n 1)
-            marked_os=$(cut -f2 "${marked_entries}")
-            if [[ ${marked_os} != "${latest_os}" ]]; then
-                echo "${definition} must restrict Renovate to its newest Alpine definition" >&2
-                exit 1
-            fi
-        fi
-    done
-}
-
 list_release_metadata() {
     if [[ -d ${repository_root}/releases ]]; then
         find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print
@@ -252,7 +217,6 @@ validate_generated_workflows
 validate_generated_environment_readmes
 validate_plugin_builds
 validate_release_triggers
-validate_renovate_targets
 
 current_month=$(date -u +%Y-%m)
 current_year=${current_month%%-*}

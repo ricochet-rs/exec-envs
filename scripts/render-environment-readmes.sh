@@ -97,10 +97,17 @@ render_environment() {
             echo ']'
             ;;
         Julia)
-            julia_version=$(jq -r '.versions.julia' <<<"${environment}")
-            julia_series=$(cut -d. -f1,2 <<<"${julia_version}")
-            printf 'description = "Julia %s execution environment for %s"\n' "${julia_series}" "${os_name}"
-            printf 'julia = [{ version = "%s", bin = "/opt/julia/bin/julia" }]\n' "${julia_version}"
+            if [[ $(jq -r '.versions.julia | type' <<<"${environment}") == array ]]; then
+                printf 'description = "Julia execution environment for %s"\n' "${os_name}"
+                echo 'julia = ['
+                jq -r '.versions.julia[] | "  { version = \"\(.)\", bin = \"/usr/local/bin/julia\(. | split(".")[0:2] | join("."))\" },"' <<<"${environment}"
+                echo ']'
+            else
+                julia_version=$(jq -r '.versions.julia' <<<"${environment}")
+                julia_series=$(cut -d. -f1,2 <<<"${julia_version}")
+                printf 'description = "Julia %s execution environment for %s"\n' "${julia_series}" "${os_name}"
+                printf 'julia = [{ version = "%s", bin = "/opt/julia/bin/julia" }]\n' "${julia_version}"
+            fi
             ;;
     esac
 }

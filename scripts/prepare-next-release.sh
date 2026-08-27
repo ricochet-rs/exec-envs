@@ -115,29 +115,12 @@ for matrix_file in "${matrix_files[@]}"; do
                     | .release_from = strenv(TARGET_MONTH)
                     | del(.release_through)
                     | with(select(has("release_suffix"));
-                        .release_suffix |= sub("-[0-9]+\\.[0-9]+$"; "-" + strenv(NEW_ALPINE))
+                        .release_suffix = strenv(NEW_ALPINE)
                       )
                 ] + .environments
             )
         ' "${matrix_file}"
         echo "Added Alpine ${latest_alpine} to $(basename "${matrix_file}") for ${target_month}"
-    fi
-
-    if [[ $(basename "${matrix_file}") == julia-alpine.yaml ]]; then
-        latest_julia=$(yq -r '.environments[].JULIA_VERSION' "${matrix_file}" | sort -Vu | tail -n 1)
-        # shellcheck disable=SC2016
-        LATEST_ALPINE=${latest_alpine} LATEST_JULIA=${latest_julia} yq -i '
-            with(.environments[];
-                .JULIA_VERSION line_comment = ""
-            )
-            | with(.environments[]
-                | select(
-                    (.OS_VERSION | tostring) == strenv(LATEST_ALPINE) and
-                    .JULIA_VERSION == strenv(LATEST_JULIA)
-                );
-                .JULIA_VERSION line_comment = "renovate: julia-current"
-            )
-        ' "${matrix_file}"
     fi
 
     # shellcheck disable=SC2016

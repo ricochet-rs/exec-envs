@@ -4,6 +4,10 @@ image: r-ubuntu
 containerfile: r/ubuntu/Containerfile
 platforms: linux/amd64,linux/arm64
 environments:
+  ### resolute
+  - OS_VERSION: resolute
+    release_suffix: resolute
+    release_from: '2026-09'
   ### noble
   - OS_VERSION: noble
     release_suffix: noble

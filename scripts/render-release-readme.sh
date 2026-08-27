@@ -21,7 +21,7 @@ retention_until=$(jq -r '.retentionUntil' "${release_metadata}")
     echo '| Environment | Operating system | R | Python | Julia | Quarto |'
     echo '| --- | --- | --- | --- | --- | --- |'
     jq -r 'def version_list: if type == "array" then join(", ") else tostring end;
-        .environments[] | "| [\(.id)](./\(.id)/) | \(.versions.os) | \(.versions.r | version_list) | \(.versions.python | version_list) | \(.versions.julia) | \(.versions.quarto) |"' \
+        .environments[] | "| [\(.id)](./\(.id)/) | \(.versions.os) | \(.versions.r | version_list) | \(.versions.python | version_list) | \(.versions.julia | version_list) | \(.versions.quarto) |"' \
         "${release_metadata}"
 } >"${rendered_readme}"
 

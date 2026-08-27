@@ -4,8 +4,11 @@ image: julia-ubuntu
 containerfile: julia/ubuntu/Containerfile
 platforms: linux/amd64,linux/arm64
 environments:
+  ### resolute
+  - OS_VERSION: resolute
+    release_suffix: resolute
+    release_from: '2026-09'
   ### noble
-  - JULIA_VERSION: '1.12' # renovate: julia-current
-    OS_VERSION: noble
-  - JULIA_VERSION: '1.10'
-    OS_VERSION: noble
+  - OS_VERSION: noble
+    release_suffix: noble
+    release_from: '2026-09'

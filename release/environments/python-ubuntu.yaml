@@ -6,5 +6,5 @@ platforms: linux/amd64,linux/arm64
 environments:
   - OS_VERSION: noble
     release_suffix: noble
-  - OS_VERSION: 26.04
-    release_suffix: '26.04'
+  - OS_VERSION: resolute
+    release_suffix: resolute

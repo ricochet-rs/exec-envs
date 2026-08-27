@@ -6,3 +6,6 @@ platforms: linux/amd64,linux/arm64
 environments:
   - OS_VERSION: 10
     release_suffix: '10'
+  - OS_VERSION: 9
+    release_suffix: '9'
+    release_from: '2026-09'
