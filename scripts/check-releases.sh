@@ -152,10 +152,13 @@ validate_release_triggers() {
         (.when.event == ["manual"]) and
         (.when.branch == ["main"]) and
         (.variables.RELEASE_MONTH.required == true) and
+        (.variables.RELEASE_REBUILD.default == "false") and
+        (.variables.RELEASE_RERELEASE.default == "false") and
         (.depends_on | index("publish")) and
-        ([.steps[].environment.RELEASE_REBUILD? // empty] | length == 0)
+        all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE")) and
+        any(.steps[].commands[]?; contains("scripts/re-release.sh"))
     ' <<<"${monthly_workflow}" >/dev/null; then
-        echo ".crow/monthly-release.yaml must release a stated month and never rebuild an archived one" >&2
+        echo ".crow/monthly-release.yaml must release a stated month and isolate explicit re-releases" >&2
         exit 1
     fi
 
@@ -165,7 +168,9 @@ validate_release_triggers() {
         (.when.branch == ["main"]) and
         (.variables.RELEASE_MONTH.required == true) and
         (.variables | has("RELEASE_REBUILD")) and
+        (.variables.RELEASE_RERELEASE.default == "false") and
         (.depends_on | index("publish")) and
+        all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE")) and
         any(.steps[].commands[]?; contains("RELEASE_REBUILD"))
     ' <<<"${rebuild_workflow}" >/dev/null; then
         echo ".crow/manual-release-rebuild.yaml must rebuild a stated month and refuse to run without RELEASE_REBUILD" >&2

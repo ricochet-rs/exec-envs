@@ -20,9 +20,14 @@ variables:
   RELEASE_REBUILD:
     description: Must be true to rebuild. The build and merge workflows read the same input, so one value drives the whole pipeline.
     default: 'false'
+  RELEASE_RERELEASE:
+    description: Set to true to replace the archive from the current matrix through monthly-release instead.
+    default: 'false'
 
 steps:
   rebuild-and-scan-release:
+    when:
+      evaluate: "RELEASE_RERELEASE != 'true'"
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       RICOCHET_REGISTRY_TOKEN:
@@ -46,6 +51,8 @@ steps:
       - /var/run/docker.sock:/var/run/docker.sock
 
   format-rebuilt-release:
+    when:
+      evaluate: "RELEASE_RERELEASE != 'true'"
     depends_on:
       - rebuild-and-scan-release
     image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
@@ -54,6 +61,8 @@ steps:
       - scripts/format-release.sh "$${RELEASE_MONTH}"
 
   publish-and-archive-rebuild:
+    when:
+      evaluate: "RELEASE_RERELEASE != 'true'"
     depends_on:
       - format-rebuilt-release
     image: reg.ricochet.rs/docker.io/library/alpine:3.24

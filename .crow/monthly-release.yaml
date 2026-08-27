@@ -17,9 +17,17 @@ variables:
   RELEASE_MONTH:
     description: Calendar month to release as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.
     required: true
+  RELEASE_REBUILD:
+    description: Set to true with RELEASE_RERELEASE to replace existing calendar tags.
+    default: 'false'
+  RELEASE_RERELEASE:
+    description: Set with RELEASE_REBUILD to replace an archive from the current environment matrix.
+    default: 'false'
 
 steps:
   create-prepare-and-scan-release:
+    when:
+      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       RICOCHET_REGISTRY_TOKEN:
@@ -31,13 +39,24 @@ steps:
       # Only the Ricochet Registry is read here. Docker Hub is written by the publish
       # workflow, because its token carries a plugin-only image filter.
       - printf '%s' "$${RICOCHET_REGISTRY_TOKEN}" | docker login reg.ricochet.rs --username 'robot$ricochet' --password-stdin
-      - RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "$${RELEASE_MONTH}"
+      - |
+        if [ "$${RELEASE_RERELEASE:-false}" = true ]; then
+          if [ "$${RELEASE_REBUILD:-false}" != true ]; then
+            echo "Set RELEASE_REBUILD=true so build and publish workflows replace the existing tags" >&2
+            exit 1
+          fi
+          RELEASE_CLEANUP_IMAGES=true scripts/re-release.sh "$${RELEASE_MONTH}"
+        else
+          RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "$${RELEASE_MONTH}"
+        fi
       - scripts/prepare-next-release.sh "$${RELEASE_MONTH}"
       - scripts/scan-release.sh "$${RELEASE_MONTH}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
   format-release:
+    when:
+      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     depends_on:
       - create-prepare-and-scan-release
     image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
@@ -46,6 +65,8 @@ steps:
       - scripts/format-release.sh "$${RELEASE_MONTH}"
 
   verify-and-archive-release:
+    when:
+      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     depends_on:
       - format-release
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
