@@ -80,12 +80,17 @@ A rebuild is not a correction mechanism, because it refuses any change to the re
 ## Re-releasing a month
 
 A rebuild deliberately cannot change a month's recorded software, so a month whose images were wrong from the start is discarded and built again instead.
-`re-release.sh` removes the archive, forces every calendar tag to be rebuilt rather than reused, and inventories the month from the current build matrix.
+Trigger a manual Crow pipeline with `RELEASE_MONTH=2026-08`, `RELEASE_REBUILD=true`, and `RELEASE_RERELEASE=true` to re-release a month.
+The build, merge, and publish workflows replace every calendar tag, while the monthly release workflow discards the old archive and inventories the current build matrix.
+
+For local recovery after the replacement images have already been published, recreate and format the archive with:
 
 ```sh
 just re-release 2026-08
-just publish-rebuilt-release 2026-08
 ```
+
+The local command only inventories images that are already present in the Ricochet Registry.
+It does not rebuild or publish them.
 
 Publishing moves the calendar tags in both registries onto the new digests, so anyone already pulling that month receives the replacement images.
 
@@ -95,7 +100,7 @@ Adjust `release_from` and `release_through` in `release/environments/` before re
 ## Rebuilding an archived month
 
 The `manual-release-rebuild` Crow workflow rebuilds an archived month so its images pick up operating system security fixes.
-Set `RELEASE_MONTH` to the archived month and `RELEASE_REBUILD` to `true` in the manual pipeline trigger so the build, merge, publish, and archive workflows replace its images.
+Set `RELEASE_MONTH` to the archived month and `RELEASE_REBUILD` to `true` in the manual pipeline trigger, leaving `RELEASE_RERELEASE` unset or false, so the build, merge, publish, and archive workflows replace its images.
 
 A rebuild moves the existing calendar tag onto the new digest in both registries, so consumers of `YYYY-MM-<environment-suffix>` receive the patched image without changing anything.
 The archive then records the new digest, the new operating system string, and an updated wrapper Containerfile.
@@ -107,7 +112,7 @@ A distro Python patch bump is enough to trigger this, which is intended: a month
 The environment list for a rebuild comes from the archive rather than the build matrix, so a month keeps every environment it was released with.
 An environment that has since left the matrix cannot be rebuilt, because its build arguments are gone, so it keeps its original digest and passes through unchanged.
 
-The monthly cron never rebuilds, and `check-releases.sh` enforces that it never runs with `RELEASE_REBUILD` set.
+The monthly release workflow only handles `RELEASE_REBUILD` when `RELEASE_RERELEASE` is also true, and `check-releases.sh` enforces that separation.
 
 Create and validate a release locally with:
 
