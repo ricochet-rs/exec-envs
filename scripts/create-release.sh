@@ -76,10 +76,17 @@ inspect_image() {
     local inspect_attempt
     local manifest
     local manifest_digest
+    local repository
+    local repository_digest
+
+    repository=${image_reference%:*}
 
     for inspect_attempt in 1 2 3; do
-        if manifest=$(docker --context "${docker_context}" buildx imagetools inspect --raw "${image_reference}"); then
-            manifest_digest=$(printf '%s' "${manifest}" | sha256sum | cut -d' ' -f1)
+        if manifest=$(docker --context "${docker_context}" manifest inspect "${image_reference}") &&
+            docker --context "${docker_context}" pull "${image_reference}" >/dev/null &&
+            repository_digest=$(docker --context "${docker_context}" image inspect "${image_reference}" --format '{{json .RepoDigests}}' |
+                jq -r --arg repository "${repository}" '.[] | select(startswith($repository + "@sha256:"))' | head -n 1); then
+            manifest_digest=${repository_digest##*@sha256:}
             jq --arg digest "sha256:${manifest_digest}" '. + {digest: $digest}' <<<"${manifest}"
             return
         fi
