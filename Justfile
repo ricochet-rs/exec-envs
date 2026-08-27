@@ -6,6 +6,10 @@ set dotenv-load
 render-release-workflows:
     scripts/render-release-workflows.sh
 
+# Render language and operating system configuration snippets from the latest release
+render-environment-readmes:
+    scripts/render-environment-readmes.sh
+
 # Lint Containerfiles
 lint-docker:
     find . -type f \( -iname \*.containerfile -o -iname Containerfile \) -print0 | sort -z | xargs -0 hadolint

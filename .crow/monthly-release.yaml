@@ -60,7 +60,7 @@ steps:
       # prepare-next-release.sh rewrites the Alpine matrices and the Containerfiles
       # they name, so both are staged from the declaration rather than a fixed path.
       - |
-        git add README.md "releases/$${RELEASE_MONTH}"
+        git add README.md r/*/README.md python/*/README.md julia/*/README.md "releases/$${RELEASE_MONTH}"
         for matrix_file in release/environments/r-alpine.yaml release/environments/julia-alpine.yaml; do
           git add "$${matrix_file}" "$(yq -r '.containerfile' "$${matrix_file}")"
         done
