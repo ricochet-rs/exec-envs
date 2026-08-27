@@ -232,10 +232,12 @@ inspect_digest() {
     local image_reference=$1
     local inspect_attempt
     local manifest
+    local manifest_digest
 
     for inspect_attempt in 1 2 3; do
-        if manifest=$(docker --context "${docker_context}" buildx imagetools inspect "${image_reference}" --format '{{json .Manifest}}'); then
-            jq -r '.digest' <<<"${manifest}"
+        if manifest=$(docker --context "${docker_context}" buildx imagetools inspect --raw "${image_reference}"); then
+            manifest_digest=$(printf '%s' "${manifest}" | sha256sum | cut -d' ' -f1)
+            printf 'sha256:%s\n' "${manifest_digest}"
             return
         fi
         echo "Retrying ${image_reference} after inspect attempt ${inspect_attempt}" >&2
