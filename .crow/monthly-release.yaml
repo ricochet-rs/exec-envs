@@ -38,12 +38,16 @@ steps:
       - /var/run/docker.sock:/var/run/docker.sock
 
   format-release:
+    depends_on:
+      - create-prepare-and-scan-release
     image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
     commands:
       - apk add -q --no-cache bash
       - scripts/format-release.sh "$${RELEASE_MONTH}"
 
   verify-and-archive-release:
+    depends_on:
+      - format-release
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       DOCKERHUB_TOKEN:
