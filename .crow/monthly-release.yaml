@@ -29,11 +29,17 @@ variables:
       - 'false'
       - 'true'
     default: 'false'
+  RELEASE_METADATA_ONLY:
+    description: Set to true to archive images that are already published without building or promoting them.
+    options:
+      - 'false'
+      - 'true'
+    default: 'false'
 
 steps:
   create-and-prepare-release:
     when:
-      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
+      evaluate: "RELEASE_METADATA_ONLY == 'true' || RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       RICOCHET_REGISTRY_TOKEN:
@@ -46,7 +52,9 @@ steps:
       # workflow, because its token carries a plugin-only image filter.
       - printf '%s' "$${RICOCHET_REGISTRY_TOKEN}" | docker login reg.ricochet.rs --username 'robot$ricochet' --password-stdin
       - |
-        if [ "$${RELEASE_RERELEASE:-false}" = true ]; then
+        if [ "$${RELEASE_METADATA_ONLY:-false}" = true ]; then
+          RELEASE_CLEANUP_IMAGES=true scripts/re-release.sh "$${RELEASE_MONTH}"
+        elif [ "$${RELEASE_RERELEASE:-false}" = true ]; then
           if [ "$${RELEASE_REBUILD:-false}" != true ]; then
             echo "Set RELEASE_REBUILD=true so build and publish workflows replace the existing tags" >&2
             exit 1
@@ -61,7 +69,7 @@ steps:
 
   format-release:
     when:
-      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
+      evaluate: "RELEASE_METADATA_ONLY == 'true' || RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     depends_on:
       - create-and-prepare-release
     image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
@@ -71,7 +79,7 @@ steps:
 
   verify-and-archive-release:
     when:
-      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
+      evaluate: "RELEASE_METADATA_ONLY == 'true' || RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     depends_on:
       - format-release
     image: reg.ricochet.rs/docker.io/library/alpine:3.24

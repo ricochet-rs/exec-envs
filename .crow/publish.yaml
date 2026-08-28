@@ -5,6 +5,7 @@ when:
     - manual
   branch:
     - main
+  evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
   - merge-amd64-arm64
@@ -19,6 +20,12 @@ variables:
     required: true
   RELEASE_REBUILD:
     description: Set to true to replace existing calendar tags during an archived release rebuild.
+    options:
+      - 'false'
+      - 'true'
+    default: 'false'
+  RELEASE_METADATA_ONLY:
+    description: Set to true to archive images that are already published without building or promoting them.
     options:
       - 'false'
       - 'true'
