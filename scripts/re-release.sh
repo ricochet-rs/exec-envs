@@ -16,6 +16,6 @@ rm -rf "${repository_root:?}/releases/${release_month}"
 
 # The images themselves come from the generated build and merge workflows, which must
 # have run for this month first. This step only re-inventories what they published.
-"${repository_root}/scripts/create-release.sh" "${release_month}"
+RELEASE_REBUILD=false "${repository_root}/scripts/create-release.sh" "${release_month}"
 
-echo "Re-created release ${release_month}; publish it with RELEASE_REBUILD=true to move its calendar tags"
+echo "Re-created release ${release_month} from the current build matrix"
