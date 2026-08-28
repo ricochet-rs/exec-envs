@@ -31,7 +31,7 @@ variables:
     default: 'false'
 
 steps:
-  rebuild-and-scan-release:
+  rebuild-release:
     when:
       evaluate: "RELEASE_RERELEASE != 'true'"
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
@@ -52,7 +52,6 @@ steps:
           exit 1
         fi
       - RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "$${RELEASE_MONTH}"
-      - scripts/scan-release.sh "$${RELEASE_MONTH}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -60,7 +59,7 @@ steps:
     when:
       evaluate: "RELEASE_RERELEASE != 'true'"
     depends_on:
-      - rebuild-and-scan-release
+      - rebuild-release
     image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
     commands:
       - apk add -q --no-cache bash
