@@ -54,9 +54,7 @@ The environment value must be an exact ID from `scripts/list-release-environment
 The month defaults to the current UTC month, and an already-archived month is refused because its calendar tags are immutable.
 `all` stays an explicit word rather than an empty field, so leaving the input blank cannot start a full multi-platform build by accident.
 Both are declared in the workflow's `variables` block, which is what makes them appear as inputs in the manual-run dialog and injects them into the step.
-The manual workflow never publishes a rolling tag or bypasses the monthly scan, promotion, and archive steps.
-
-The release pipeline scans every pinned Ricochet Registry digest for fixable critical vulnerabilities before promotion to Docker Hub.
+The manual workflow never publishes a rolling tag or bypasses the monthly promotion and archive steps.
 New release metadata records the successful Crow pipeline URL so the main release index links each month to its creation status.
 
 Every later cron run verifies that both registry copies still resolve to the recorded digest until the release's three-year retention date.

@@ -66,5 +66,5 @@ crow pipeline create \
 `RELEASE_ENVIRONMENT` is required and must match an ID printed by `scripts/list-release-environments.sh YYYY-MM`, or be the literal `all`.
 `RELEASE_MONTH` defaults to the current UTC month when omitted.
 The workflow declares both values, so the Crow manual-run dialog offers them as fields instead of requiring the CLI.
-The manual pipeline builds the selected Ricochet Registry calendar tags, and the monthly cron pipeline later scans, promotes, and archives them with the rest of that month.
+The manual pipeline builds the selected Ricochet Registry calendar tags, and the monthly release pipeline later promotes and archives them with the rest of that month.
 A month that is already archived is refused, because its calendar tags are immutable.
