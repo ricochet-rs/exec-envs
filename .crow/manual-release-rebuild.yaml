@@ -3,6 +3,7 @@ when:
     - manual
   branch:
     - main
+  evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
   - lint
@@ -25,6 +26,12 @@ variables:
     default: 'false'
   RELEASE_RERELEASE:
     description: Set to true to replace the archive from the current matrix through monthly-release instead.
+    options:
+      - 'false'
+      - 'true'
+    default: 'false'
+  RELEASE_METADATA_ONLY:
+    description: Set to true to archive images that are already published through monthly-release instead.
     options:
       - 'false'
       - 'true'

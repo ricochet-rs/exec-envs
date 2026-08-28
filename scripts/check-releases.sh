@@ -114,6 +114,8 @@ validate_plugin_builds() {
             (.labels.backend == "docker") and
             (.variables.RELEASE_MONTH.required == true) and
             (.variables.RELEASE_REBUILD.default == "false") and
+            (.variables.RELEASE_METADATA_ONLY.default == "false") and
+            (.when.evaluate | contains("RELEASE_METADATA_ONLY")) and
             all(.steps[]; .image | startswith("codefloe.com/crow-plugins/docker-buildx:")) and
             all(.steps[]; .when.evaluate | contains("release_from") and contains("release_through")) and
             (if $name == "build-arm64" then .labels.platform == "linux/arm64" else true end)
@@ -154,8 +156,9 @@ validate_release_triggers() {
         (.variables.RELEASE_MONTH.required == true) and
         (.variables.RELEASE_REBUILD.default == "false") and
         (.variables.RELEASE_RERELEASE.default == "false") and
+        (.variables.RELEASE_METADATA_ONLY.default == "false") and
         (.depends_on | index("publish")) and
-        all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE")) and
+        all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE") and contains("RELEASE_METADATA_ONLY")) and
         any(.steps[].commands[]?; contains("scripts/re-release.sh"))
     ' <<<"${monthly_workflow}" >/dev/null; then
         echo ".crow/monthly-release.yaml must release a stated month and isolate explicit re-releases" >&2
@@ -169,6 +172,8 @@ validate_release_triggers() {
         (.variables.RELEASE_MONTH.required == true) and
         (.variables | has("RELEASE_REBUILD")) and
         (.variables.RELEASE_RERELEASE.default == "false") and
+        (.variables.RELEASE_METADATA_ONLY.default == "false") and
+        (.when.evaluate | contains("RELEASE_METADATA_ONLY")) and
         (.depends_on | index("publish")) and
         all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE")) and
         any(.steps[].commands[]?; contains("RELEASE_REBUILD"))

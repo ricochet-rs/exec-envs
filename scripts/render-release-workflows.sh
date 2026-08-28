@@ -34,6 +34,12 @@ month_variable() {
     printf "      - 'false'\n"
     printf "      - 'true'\n"
     printf "    default: 'false'\n"
+    printf '  RELEASE_METADATA_ONLY:\n'
+    printf '    description: Set to true to archive images that are already published without building or promoting them.\n'
+    printf '    options:\n'
+    printf "      - 'false'\n"
+    printf "      - 'true'\n"
+    printf "    default: 'false'\n"
 }
 
 ricochet_login() {
@@ -112,6 +118,7 @@ when:
     - manual
   branch:
     - main
+  evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
   - lint
@@ -165,6 +172,7 @@ when:
     - manual
   branch:
     - main
+  evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
 YAML
@@ -217,6 +225,7 @@ when:
     - manual
   branch:
     - main
+  evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
 YAML
