@@ -3,35 +3,22 @@ when:
     - manual
   branch:
     - main
-  evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  evaluate: "RELEASE_METADATA_ONLY == 'true'"
 
 depends_on:
   - lint
-  - publish
 
-# The release probes run each image to inventory it, so this needs a Docker daemon.
+# Inventory probes run each image, so this needs a Docker daemon.
 labels:
   backend: docker
   agent: thumper
 
 variables:
   RELEASE_MONTH:
-    description: Calendar month to release as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.
+    description: Published month to archive as YYYY-MM.
     required: true
-  RELEASE_REBUILD:
-    description: Set to true with RELEASE_RERELEASE to replace existing calendar tags.
-    options:
-      - 'false'
-      - 'true'
-    default: 'false'
-  RELEASE_RERELEASE:
-    description: Set with RELEASE_REBUILD to replace an archive from the current environment matrix.
-    options:
-      - 'false'
-      - 'true'
-    default: 'false'
   RELEASE_METADATA_ONLY:
-    description: Set to true to archive images that are already published without building or promoting them.
+    description: Must be true to archive images without building or promoting them.
     options:
       - 'false'
       - 'true'
@@ -39,8 +26,6 @@ variables:
 
 steps:
   create-and-prepare-release:
-    when:
-      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     environment:
       RICOCHET_REGISTRY_TOKEN:
@@ -49,26 +34,13 @@ steps:
       - apk add -q --no-cache bash docker-cli docker-cli-buildx jq yq
       - export DOCKER_CONFIG="$${CI_WORKSPACE}/.release-docker"
       - mkdir -p "$${DOCKER_CONFIG}"
-      # Only the Ricochet Registry is read here. Docker Hub is written by the publish
-      # workflow, because its token carries a plugin-only image filter.
       - printf '%s' "$${RICOCHET_REGISTRY_TOKEN}" | docker login reg.ricochet.rs --username 'robot$ricochet' --password-stdin
-      - |
-        if [ "$${RELEASE_RERELEASE:-false}" = true ]; then
-          if [ "$${RELEASE_REBUILD:-false}" != true ]; then
-            echo "Set RELEASE_REBUILD=true so build and publish workflows replace the existing tags" >&2
-            exit 1
-          fi
-          RELEASE_CLEANUP_IMAGES=true scripts/re-release.sh "$${RELEASE_MONTH}"
-        else
-          RELEASE_CLEANUP_IMAGES=true scripts/create-release.sh "$${RELEASE_MONTH}"
-        fi
+      - RELEASE_CLEANUP_IMAGES=true scripts/re-release.sh "$${RELEASE_MONTH}"
       - scripts/prepare-next-release.sh "$${RELEASE_MONTH}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
   format-release:
-    when:
-      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     depends_on:
       - create-and-prepare-release
     image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
@@ -77,8 +49,6 @@ steps:
       - scripts/format-release.sh "$${RELEASE_MONTH}"
 
   verify-and-archive-release:
-    when:
-      evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     depends_on:
       - format-release
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
@@ -91,11 +61,7 @@ steps:
       - apk add -q --no-cache bash docker-cli docker-cli-buildx github-cli git jq yq
       - export DOCKER_CONFIG="$${CI_WORKSPACE}/.release-docker"
       - printf '%s' "$${DOCKERHUB_TOKEN}" | docker login docker.io --username ricochetbot --password-stdin
-      # Both registry copies must already resolve to the recorded digest, which is
-      # what replaces the old publish step's own verification.
       - scripts/check-releases.sh --remote
-      # prepare-next-release.sh rewrites the Alpine matrices and the Containerfiles
-      # they name, so both are staged from the declaration rather than a fixed path.
       - |
         git add README.md r/*/README.md python/*/README.md julia/*/README.md "releases/$${RELEASE_MONTH}"
         for matrix_file in release/environments/r-alpine.yaml release/environments/julia-alpine.yaml; do
