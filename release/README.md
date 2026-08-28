@@ -96,7 +96,7 @@ Re-releasing takes its environment list from the build matrix rather than from t
 Adjust `release_from` and `release_through` in `release/environments/` before re-releasing a month whose matrix has moved on since it was archived.
 
 If the replacement images are already present in both registries, set `RELEASE_MONTH=2026-08` and `RELEASE_METADATA_ONLY=true` in a manual Crow pipeline.
-This skips every build, merge, publish, and archived-rebuild workflow, then recreates, verifies, and commits the archive from the current matrix.
+The dedicated metadata-only workflow skips the publication dependency graph, then recreates, verifies, and commits the archive from the current matrix.
 
 ## Rebuilding an archived month
 

@@ -134,7 +134,7 @@ validate_plugin_builds() {
     # Keep the Docker Hub token limited to publishing and release verification.
     while IFS= read -r consumer; do
         case $(basename "${consumer}") in
-            manual-release-rebuild.yaml | monthly-release.yaml | publish.yaml) ;;
+            manual-release-rebuild.yaml | metadata-only-release.yaml | monthly-release.yaml | publish.yaml) ;;
             *)
                 echo "${consumer} must not use ricochet_dockerhub_token; only release publishing and verification may" >&2
                 exit 1
@@ -144,6 +144,7 @@ validate_plugin_builds() {
 }
 
 validate_release_triggers() {
+    local metadata_workflow
     local monthly_workflow
     local rebuild_workflow
 
@@ -157,11 +158,27 @@ validate_release_triggers() {
         (.variables.RELEASE_REBUILD.default == "false") and
         (.variables.RELEASE_RERELEASE.default == "false") and
         (.variables.RELEASE_METADATA_ONLY.default == "false") and
+        (.when.evaluate | contains("RELEASE_METADATA_ONLY")) and
         (.depends_on | index("publish")) and
-        all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE") and contains("RELEASE_METADATA_ONLY")) and
+        all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE")) and
         any(.steps[].commands[]?; contains("scripts/re-release.sh"))
     ' <<<"${monthly_workflow}" >/dev/null; then
         echo ".crow/monthly-release.yaml must release a stated month and isolate explicit re-releases" >&2
+        exit 1
+    fi
+
+    metadata_workflow=$(yq -o=json '.' "${repository_root}/.crow/metadata-only-release.yaml")
+    if ! jq -e '
+        (.when.event == ["manual"]) and
+        (.when.branch == ["main"]) and
+        (.when.evaluate | contains("RELEASE_METADATA_ONLY")) and
+        (.variables.RELEASE_MONTH.required == true) and
+        (.variables.RELEASE_METADATA_ONLY.default == "false") and
+        (.depends_on == ["lint"]) and
+        any(.steps[].commands[]?; contains("scripts/re-release.sh")) and
+        any(.steps[].commands[]?; contains("scripts/check-releases.sh --remote"))
+    ' <<<"${metadata_workflow}" >/dev/null; then
+        echo ".crow/metadata-only-release.yaml must archive published images independently of publication" >&2
         exit 1
     fi
 
