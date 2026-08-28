@@ -1,0 +1,1 @@
+FROM docker.io/ricochetrs/julia-ubuntu:2026-08-resolute@sha256:ffa459c31ef8e253f1bc3146d8bddb0b319092940b2b8fae685b838bdb3a91f2

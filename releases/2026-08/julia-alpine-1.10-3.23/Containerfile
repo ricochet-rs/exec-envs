@@ -1,1 +1,0 @@
-FROM docker.io/ricochetrs/julia-alpine:2026-08-1.10-3.23@sha256:d9b5a0dfc18ade9917546119f297a8bbe30dfd092d48096fe0829abe48ffb688
