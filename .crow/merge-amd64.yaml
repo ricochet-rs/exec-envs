@@ -19,6 +19,9 @@ variables:
     required: true
   RELEASE_REBUILD:
     description: Set to true to replace existing calendar tags during an archived release rebuild.
+    options:
+      - 'false'
+      - 'true'
     default: 'false'
 
 matrix:

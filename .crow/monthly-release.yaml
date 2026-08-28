@@ -19,9 +19,15 @@ variables:
     required: true
   RELEASE_REBUILD:
     description: Set to true with RELEASE_RERELEASE to replace existing calendar tags.
+    options:
+      - 'false'
+      - 'true'
     default: 'false'
   RELEASE_RERELEASE:
     description: Set with RELEASE_REBUILD to replace an archive from the current environment matrix.
+    options:
+      - 'false'
+      - 'true'
     default: 'false'
 
 steps:

@@ -19,9 +19,15 @@ variables:
     required: true
   RELEASE_REBUILD:
     description: Must be true to rebuild. The build and merge workflows read the same input, so one value drives the whole pipeline.
+    options:
+      - 'false'
+      - 'true'
     default: 'false'
   RELEASE_RERELEASE:
     description: Set to true to replace the archive from the current matrix through monthly-release instead.
+    options:
+      - 'false'
+      - 'true'
     default: 'false'
 
 steps:

@@ -30,6 +30,9 @@ month_variable() {
     printf '    required: true\n'
     printf '  RELEASE_REBUILD:\n'
     printf '    description: Set to true to replace existing calendar tags during an archived release rebuild.\n'
+    printf '    options:\n'
+    printf "      - 'false'\n"
+    printf "      - 'true'\n"
     printf "    default: 'false'\n"
 }
 
