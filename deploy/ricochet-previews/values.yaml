@@ -91,4 +91,3 @@ execEnv:
       { version = "4.6.1", bin = "/usr/local/bin/R4.6" },
     ]
     quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
-

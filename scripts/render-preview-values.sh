@@ -110,6 +110,8 @@ while IFS= read -r environment; do
     echo >>"${rendered_toml}"
 done < <(jq -c '.[]' "${selected_environments}")
 
+sed -i '${/^$/d;}' "${rendered_toml}"
+
 {
     echo 'config:'
     echo '  backend:'
