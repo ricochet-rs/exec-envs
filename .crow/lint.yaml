@@ -27,7 +27,7 @@ steps:
     image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
     depends_on: []
     commands:
-      - bunx prettier@3.2.5 --check .
+      - bunx prettier@latest --check .
 
   lint-editorconfig:
     depends_on: []

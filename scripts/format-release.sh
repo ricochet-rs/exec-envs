@@ -12,7 +12,7 @@ if [[ ! -d ${release_directory} ]]; then
 fi
 
 cd "${repository_root}"
-bunx prettier@3.2.5 --write --ignore-unknown \
+bunx prettier@latest --write --ignore-unknown \
     README.md \
     r/*/README.md \
     python/*/README.md \
