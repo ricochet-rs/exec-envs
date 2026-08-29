@@ -33,11 +33,15 @@ remove_working_files() {
 trap remove_working_files EXIT
 
 jq -c '
-    [.environments[]
-        | select(
-            (.id | test("^(r|python|julia)-ubuntu-resolute$")) or
-            (.id | test("^(r|julia)-alpine-"))
-        )]
+    .environments as $environments
+    | (($environments
+            | map(select(.id | test("^(r|python|julia)-ubuntu-resolute$"))))
+        + [($environments
+            | map(select(.id | test("^r-alpine-")))
+            | max_by(.id | capture("-(?<major>[0-9]+)\\.(?<minor>[0-9]+)$") | [(.major | tonumber), (.minor | tonumber)]))]
+        + [($environments
+            | map(select(.id | test("^julia-alpine-")))
+            | max_by(.id | capture("-(?<major>[0-9]+)\\.(?<minor>[0-9]+)$") | [(.major | tonumber), (.minor | tonumber)]))])
     | sort_by(.id)
 ' "${release_metadata}" >"${selected_environments}"
 
@@ -48,10 +52,12 @@ for required in r-ubuntu-resolute python-ubuntu-resolute julia-ubuntu-resolute; 
     fi
 done
 
-if [[ $(jq '[.[] | select(.id | test("-alpine-"))] | length' "${selected_environments}") -lt 2 ]]; then
-    echo "Latest release does not contain Alpine preview environments" >&2
-    exit 1
-fi
+for required_language in r julia; do
+    if ! jq -e --arg prefix "${required_language}-alpine-" 'any(.[]; .id | startswith($prefix))' "${selected_environments}" >/dev/null; then
+        echo "Latest release does not contain a ${required_language} Alpine preview environment" >&2
+        exit 1
+    fi
+done
 
 normalize_os() {
     local recorded_os=$1
