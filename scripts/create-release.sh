@@ -48,6 +48,7 @@ if [[ -d ${release_directory} && ${rebuild} != true ]]; then
     "${repository_root}/scripts/render-release-readme.sh" "${release_month}"
     "${repository_root}/scripts/render-release-index.sh"
     "${repository_root}/scripts/render-environment-readmes.sh"
+    "${repository_root}/scripts/render-preview-values.sh"
     exit 0
 fi
 
@@ -353,6 +354,7 @@ fi
 "${repository_root}/scripts/render-release-readme.sh" "${release_month}"
 "${repository_root}/scripts/render-release-index.sh"
 "${repository_root}/scripts/render-environment-readmes.sh"
+"${repository_root}/scripts/render-preview-values.sh"
 if [[ ${rebuild} == true ]]; then
     echo "Rebuilt release ${release_month}; its Docker Hub calendar tags have not been moved"
 else

@@ -96,6 +96,19 @@ validate_generated_environment_readmes() {
     rm -rf "${rendered}"
 }
 
+validate_generated_preview_values() {
+    local rendered
+
+    rendered=$(mktemp)
+    "${repository_root}/scripts/render-preview-values.sh" "" "${rendered}"
+    if ! cmp -s "${rendered}" "${repository_root}/deploy/ricochet-previews/values.yaml"; then
+        echo "deploy/ricochet-previews/values.yaml does not match scripts/render-preview-values.sh" >&2
+        rm -f "${rendered}"
+        exit 1
+    fi
+    rm -f "${rendered}"
+}
+
 # Images must reach the registry through the plugin, and an arm64 build must stay on
 # an arm64 Docker agent: losing the platform label falls back to emulation these
 # images cannot survive, and losing the backend label lands on an agent that execs
@@ -242,6 +255,7 @@ validate_release_policy() {
 validate_environment_containerfiles
 validate_generated_workflows
 validate_generated_environment_readmes
+validate_generated_preview_values
 validate_plugin_builds
 validate_release_triggers
 
