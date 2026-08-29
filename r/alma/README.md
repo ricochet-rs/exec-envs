@@ -10,9 +10,9 @@ os = "alma-10"
 arch = ["linux/amd64", "linux/arm64"]
 description = "R execution environment for AlmaLinux 10"
 r = [
-  { version = "4.4.3", bin = "/usr/local/bin/R4.4" },
-  { version = "4.5.3", bin = "/usr/local/bin/R4.5" },
-  { version = "4.6.1", bin = "/usr/local/bin/R4.6" },
+  { version = "4.4.3", bin = "/opt/R/4.4.3/bin/R" },
+  { version = "4.5.3", bin = "/opt/R/4.5.3/bin/R" },
+  { version = "4.6.1", bin = "/opt/R/4.6.1/bin/R" },
 ]
 
 [image.r-alma-9]
@@ -21,8 +21,8 @@ os = "alma-9"
 arch = ["linux/amd64", "linux/arm64"]
 description = "R execution environment for AlmaLinux 9"
 r = [
-  { version = "4.4.3", bin = "/usr/local/bin/R4.4" },
-  { version = "4.5.3", bin = "/usr/local/bin/R4.5" },
-  { version = "4.6.1", bin = "/usr/local/bin/R4.6" },
+  { version = "4.4.3", bin = "/opt/R/4.4.3/bin/R" },
+  { version = "4.5.3", bin = "/opt/R/4.5.3/bin/R" },
+  { version = "4.6.1", bin = "/opt/R/4.6.1/bin/R" },
 ]
 ```
