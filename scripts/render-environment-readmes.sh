@@ -87,7 +87,7 @@ render_environment() {
         R)
             printf 'description = "R execution environment for %s"\n' "${os_name}"
             echo 'r = ['
-            jq -r '.versions.r[] | "  { version = \"\(.)\", bin = \"/usr/local/bin/R\(. | split(".")[0:2] | join("."))\" },"' <<<"${environment}"
+            jq -r '.versions.r[] | "  { version = \"\(.)\", bin = \"/opt/R/\(.)/bin/R\" },"' <<<"${environment}"
             echo ']'
             ;;
         Python)

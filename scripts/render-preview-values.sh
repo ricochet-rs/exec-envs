@@ -94,7 +94,7 @@ while IFS= read -r environment; do
     case ${language} in
         r)
             echo 'r = [' >>"${rendered_toml}"
-            jq -r '.versions.r[] | "  { version = \"" + . + "\", bin = \"/usr/local/bin/R" + (split(".")[0:2] | join(".")) + "\" },"' <<<"${environment}" >>"${rendered_toml}"
+            jq -r '.versions.r[] | "  { version = \"" + . + "\", bin = \"/opt/R/" + . + "/bin/R\" },"' <<<"${environment}" >>"${rendered_toml}"
             echo ']' >>"${rendered_toml}"
             ;;
         python)
