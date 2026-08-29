@@ -1,0 +1,94 @@
+config:
+  backend:
+    default_image: r-ubuntu-resolute
+    allowed_images:
+      - julia-alpine-3-23
+      - julia-alpine-3-24
+      - julia-ubuntu-resolute
+      - python-ubuntu-resolute
+      - r-alpine-3-23
+      - r-alpine-3-24
+      - r-ubuntu-resolute
+execEnv:
+  config: |
+    [image.julia-alpine-3-23]
+    image = "reg.ricochet.rs/exec-envs/julia-alpine:2026-08-3.23@sha256:d81245da329ccdc2c4d16365bdd63dbbf9cd49868038dabba2e204096694141f"
+    os = "alpine-3.23"
+    description = "Latest julia preview environment from release 2026-08"
+    arch = ["linux/amd64"]
+    julia = [
+      { version = "1.10.10", bin = "/usr/local/bin/julia1.10" },
+      { version = "1.12.0-rc1", bin = "/usr/local/bin/julia1.12" },
+    ]
+    quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+
+    [image.julia-alpine-3-24]
+    image = "reg.ricochet.rs/exec-envs/julia-alpine:2026-08-3.24@sha256:66c071101dc87d7f53e8cfb1c6acd006bff6bbf0539212258818d43e17b2be7e"
+    os = "alpine-3.24"
+    description = "Latest julia preview environment from release 2026-08"
+    arch = ["linux/amd64"]
+    julia = [
+      { version = "1.10.10", bin = "/usr/local/bin/julia1.10" },
+      { version = "1.12.0-rc1", bin = "/usr/local/bin/julia1.12" },
+    ]
+    quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+
+    [image.julia-ubuntu-resolute]
+    image = "reg.ricochet.rs/exec-envs/julia-ubuntu:2026-08-resolute@sha256:ffa459c31ef8e253f1bc3146d8bddb0b319092940b2b8fae685b838bdb3a91f2"
+    os = "ubuntu-26.04"
+    description = "Latest julia preview environment from release 2026-08"
+    arch = ["linux/amd64", "linux/arm64"]
+    julia = [
+      { version = "1.10.12", bin = "/usr/local/bin/julia1.10" },
+      { version = "1.12.7", bin = "/usr/local/bin/julia1.12" },
+    ]
+    quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+
+    [image.python-ubuntu-resolute]
+    image = "reg.ricochet.rs/exec-envs/python-ubuntu:2026-08-resolute@sha256:15d0a07412cd5ec999a740e9a9bed8b45efd15cf16d6ba7173642efd101a0c32"
+    os = "ubuntu-26.04"
+    description = "Latest python preview environment from release 2026-08"
+    arch = ["linux/amd64", "linux/arm64"]
+    python = [
+      { version = "3.12.13", bin = "/usr/local/bin/python3.12" },
+      { version = "3.13.14", bin = "/usr/local/bin/python3.13" },
+      { version = "3.14.6", bin = "/usr/local/bin/python3.14" },
+    ]
+    quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+
+    [image.r-alpine-3-23]
+    image = "reg.ricochet.rs/exec-envs/r-alpine:2026-08-3.23@sha256:6bfe19804fdf081d8c135a27ae665b4401996a01225d9ef573105360d1e7f612"
+    os = "alpine-3.23"
+    description = "Latest r preview environment from release 2026-08"
+    arch = ["linux/amd64", "linux/arm64"]
+    r = [
+      { version = "4.4.3", bin = "/usr/local/bin/R4.4" },
+      { version = "4.5.3", bin = "/usr/local/bin/R4.5" },
+      { version = "4.6.1", bin = "/usr/local/bin/R4.6" },
+    ]
+    quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+
+    [image.r-alpine-3-24]
+    image = "reg.ricochet.rs/exec-envs/r-alpine:2026-08-3.24@sha256:30fe165d3f22f3cfc166005ec2867537c4906cf586878b8c5ca3ed1c22544665"
+    os = "alpine-3.24"
+    description = "Latest r preview environment from release 2026-08"
+    arch = ["linux/amd64", "linux/arm64"]
+    r = [
+      { version = "4.4.3", bin = "/usr/local/bin/R4.4" },
+      { version = "4.5.3", bin = "/usr/local/bin/R4.5" },
+      { version = "4.6.1", bin = "/usr/local/bin/R4.6" },
+    ]
+    quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+
+    [image.r-ubuntu-resolute]
+    image = "reg.ricochet.rs/exec-envs/r-ubuntu:2026-08-resolute@sha256:ebffd3776a8843950ed8b2efb1db129858eb33f46b6c4f71f956b22c425f6690"
+    os = "ubuntu-26.04"
+    description = "Latest r preview environment from release 2026-08"
+    arch = ["linux/amd64", "linux/arm64"]
+    r = [
+      { version = "4.4.3", bin = "/usr/local/bin/R4.4" },
+      { version = "4.5.3", bin = "/usr/local/bin/R4.5" },
+      { version = "4.6.1", bin = "/usr/local/bin/R4.6" },
+    ]
+    quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+

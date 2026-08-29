@@ -19,4 +19,5 @@ bunx prettier@3.2.5 --write --ignore-unknown \
     julia/*/README.md \
     release/environments/r-alpine.yaml \
     release/environments/julia-alpine.yaml \
+    deploy/ricochet-previews/values.yaml \
     "releases/${release_month}"

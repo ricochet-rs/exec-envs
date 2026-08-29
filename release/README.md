@@ -46,6 +46,7 @@ Renovate ignores `releases/**` and follows the `julia-current` marker on the cur
 
 The monthly builder publishes the Ricochet Registry calendar tag, and the generator resolves it to a digest, verifies its advertised platforms, runs its `amd64` variant to inventory installed software, and writes an immutable wrapper Containerfile.
 The latest archived metadata also generates each language and operating system README so its `ricochet-exec-env.toml` snippets follow the current calendar tags and installed language versions.
+It also generates `deploy/ricochet-previews/values.yaml` for Flux consumers, containing every R, Python, and Julia Resolute environment and every available Alpine environment from the newest archive.
 
 The publisher verifies that exact digest in the Ricochet Registry and copies it to the matching calendar tag in Docker Hub without rebuilding it.
 

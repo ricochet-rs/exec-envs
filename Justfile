@@ -10,6 +10,10 @@ render-release-workflows:
 render-environment-readmes:
     scripts/render-environment-readmes.sh
 
+# Render Flux values for Ricochet pull request previews from the latest release
+render-preview-values:
+    scripts/render-preview-values.sh
+
 # Lint Containerfiles
 lint-docker:
     find . -type f \( -iname \*.containerfile -o -iname Containerfile \) -print0 | sort -z | xargs -0 hadolint
