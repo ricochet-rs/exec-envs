@@ -16,7 +16,7 @@ ENV QUARTO_DENO=/usr/bin/deno
 WORKDIR /opt/ricochet
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /opt/quarto && \
+RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /opt/quarto && \
     apk add --no-cache ca-certificates curl git bash gcc g++ gfortran make libc-dev linux-headers deno gcompat libstdc++ && \
     case "${TARGETARCH}" in \
         amd64) JARCH=x86_64; JDIR=x64 ;; \
@@ -33,6 +33,10 @@ RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /op
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
     rm /tmp/quarto.tar.gz
+
+# Ricochet spawns these images under an arbitrary uid whose only group is 0.
+RUN chgrp -R 0 /var/lib/ricochet /opt/ricochet && \
+    chmod -R g=u /var/lib/ricochet /opt/ricochet
 
 WORKDIR /opt/ricochet/data/content
 

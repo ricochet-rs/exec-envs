@@ -24,7 +24,7 @@ COPY --from=r45 /opt/R/4.5.3 /opt/R/4.5.3
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 # The Quarto knitr engine resolves the unversioned Rscript command.
-RUN mkdir -p /opt/ricochet/data/content && \
+RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     mkdir -p /opt/ricochet/renv/cache && \
     mkdir -p /opt/quarto && \
     apk add --no-cache bash curl deno gcompat libstdc++ g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev gmp-dev readline-dev zeromq-dev tzdata lsb-release libx11-dev libxt-dev libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake git && \
@@ -42,6 +42,10 @@ RUN mkdir -p /opt/ricochet/data/content && \
     R4.5 -q -e 'install.packages("renv")' && \
     R4.6 -q -e 'install.packages("renv")' && \
     find /usr/bin /usr/local/bin -maxdepth 1 -name 'python*' -delete
+
+# Ricochet spawns these images under an arbitrary uid whose only group is 0.
+RUN chgrp -R 0 /var/lib/ricochet /opt/ricochet && \
+    chmod -R g=u /var/lib/ricochet /opt/ricochet
 
 WORKDIR /opt/ricochet/data/content
 

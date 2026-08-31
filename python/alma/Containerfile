@@ -16,7 +16,7 @@ ENV PATH=/opt/quarto/bin:${PATH}
 
 WORKDIR /opt/ricochet
 
-RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/uv /opt/python /opt/quarto && \
+RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content /opt/ricochet/cache/uv /opt/python /opt/quarto && \
     dnf install -q -y --nodocs ca-certificates git which && \
     dnf clean all && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
@@ -27,6 +27,10 @@ RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/uv /opt/python /opt/
     ln -sf "$(uv python find 3.13)" /usr/local/bin/python3.13 && \
     ln -sf "$(uv python find 3.14)" /usr/local/bin/python3.14 && \
     ln -sf /usr/local/bin/python3.14 /usr/local/bin/python3
+
+# Ricochet spawns these images under an arbitrary uid whose only group is 0.
+RUN chgrp -R 0 /var/lib/ricochet /opt/ricochet && \
+    chmod -R g=u /var/lib/ricochet /opt/ricochet
 
 WORKDIR /opt/ricochet/data/content
 
