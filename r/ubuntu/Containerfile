@@ -21,7 +21,7 @@ COPY --from=r44 /opt/R/4.4.3 /opt/R/4.4.3
 COPY --from=r45 /opt/R/4.5.3 /opt/R/4.5.3
 
 # The Quarto knitr engine resolves the unversioned Rscript command.
-RUN mkdir -p /opt/ricochet/data/content && \
+RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     mkdir -p /opt/ricochet/renv/cache && \
     mkdir -p /opt/quarto && \
     apt-get update && \
@@ -41,6 +41,10 @@ RUN mkdir -p /opt/ricochet/data/content && \
     R4.5 -q -e 'install.packages("renv")' && \
     R4.6 -q -e 'install.packages("renv")' && \
     find /usr/bin /usr/local/bin -maxdepth 1 -name 'python*' -delete
+
+# Ricochet spawns these images under an arbitrary uid whose only group is 0.
+RUN chgrp -R 0 /var/lib/ricochet /opt/ricochet && \
+    chmod -R g=u /var/lib/ricochet /opt/ricochet
 
 WORKDIR /opt/ricochet/data/content
 

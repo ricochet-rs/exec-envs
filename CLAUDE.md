@@ -22,3 +22,5 @@ Do not silently continue with missing or stale shared instructions.
 The `reg.devxy.io/r/r-*` base images expose only `R` in `PATH`, so tooling that needs `Rscript` must link it from `$(R RHOME)/bin/Rscript`.
 The `r-alpine` base image builds R without the cairo, png, and jpeg devices, so knitr rendering and any other graphics output fails in that environment.
 Alpine environments cannot run the glibc-only binaries that upstream tools vendor, so prefer an Alpine-native package for the failing binary and rely on `gcompat` for the remainder.
+Ricochet spawns these images under an arbitrary uid whose only group is 0, so every runtime-writable path needs `chgrp -R 0` and `chmod -R g=u`.
+`/var/lib/ricochet/data` is the spawned pod's `HOME` and the parent of the content and cache volume mounts, so each environment creates it even though nothing in the image lives there.

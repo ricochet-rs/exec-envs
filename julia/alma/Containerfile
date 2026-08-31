@@ -13,7 +13,7 @@ ENV PATH=/opt/quarto/bin:${PATH}
 
 WORKDIR /opt/ricochet
 
-RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /opt/quarto && \
+RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /opt/quarto && \
     dnf update -y && \
     dnf install -q -y --nodocs ca-certificates git which gcc gcc-c++ gcc-gfortran make tar gzip && \
     dnf clean all && \
@@ -33,6 +33,10 @@ RUN mkdir -p /opt/ricochet/data/content /opt/ricochet/cache/julia /opt/julia /op
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
     rm /tmp/quarto.tar.gz
+
+# Ricochet spawns these images under an arbitrary uid whose only group is 0.
+RUN chgrp -R 0 /var/lib/ricochet /opt/ricochet && \
+    chmod -R g=u /var/lib/ricochet /opt/ricochet
 
 WORKDIR /opt/ricochet/data/content
 
