@@ -35,6 +35,11 @@
   ],
   "packageRules": [
     {
+      "description": "Prepare runtime dependency updates in the middle of the month",
+      "matchFileNames": ["**/Containerfile*", "release/environments/*.yaml"],
+      "schedule": ["* * 15 * *"]
+    },
+    {
       "matchDepNames": ["JuliaLang/julia"],
       "groupName": "julia stable"
     }

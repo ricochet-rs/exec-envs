@@ -1,9 +1,13 @@
 when:
-  event:
-    - manual
-  branch:
-    - main
-  evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: manual
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: cron
+    cron: monthly release
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
   - lint
@@ -17,7 +21,7 @@ labels:
 variables:
   RELEASE_MONTH:
     description: Calendar month to release as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.
-    required: true
+    default: '2026-09'
   RELEASE_REBUILD:
     description: Set to true with RELEASE_RERELEASE to replace existing calendar tags.
     options:

@@ -1,0 +1,32 @@
+when:
+  event: cron
+  cron: prepare monthly release
+  branch:
+    - main
+
+depends_on:
+  - lint
+
+labels:
+  backend: docker
+
+steps:
+  prepare-release:
+    image: reg.ricochet.rs/docker.io/library/alpine:3.24
+    environment:
+      GH_TOKEN:
+        from_secret: exec_envs_release_token
+    commands:
+      - apk add -q --no-cache bash github-cli git jq yq
+      - scripts/prepare-scheduled-release.sh
+      - git add release/next-month .crow/monthly-release.yaml .crow/build-*.yaml .crow/merge-*.yaml .crow/publish.yaml
+      - |
+        if git diff --cached --quiet; then
+          echo "Scheduled release is already prepared"
+          exit 0
+        fi
+      - git config user.name ricochet-bot
+      - git config user.email droid@ricochet.rs
+      - 'git commit -m "chore(releases): prepare scheduled monthly release"'
+      - gh auth setup-git
+      - 'git push origin "HEAD:$${CI_REPO_DEFAULT_BRANCH}"'
