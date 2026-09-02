@@ -144,9 +144,12 @@ probe_image() {
         fi
 
         python_versions=""
+        # Only the interpreters an image links into /usr/local/bin are offered runtimes.
+        # A base image such as AlmaLinux 9 carries its own python3.9 on PATH, and
+        # recording it would publish a runtime that has no /usr/local/bin/python3.9.
         for executable in python3.8 python3.9 python3.10 python3.11 python3.12 python3.13 python3.14 python3.15; do
-            if command -v "${executable}" >/dev/null 2>&1; then
-                version=$("${executable}" --version 2>&1 | awk "{print \$2}")
+            if [ -x "/usr/local/bin/${executable}" ]; then
+                version=$("/usr/local/bin/${executable}" --version 2>&1 | awk "{print \$2}")
                 case ",${python_versions}," in
                     *",${version},"*) ;;
                     *)
