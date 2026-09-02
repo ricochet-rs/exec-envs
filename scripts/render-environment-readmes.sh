@@ -106,7 +106,7 @@ render_environment() {
                 julia_version=$(jq -r '.versions.julia' <<<"${environment}")
                 julia_series=$(cut -d. -f1,2 <<<"${julia_version}")
                 printf 'description = "Julia %s execution environment for %s"\n' "${julia_series}" "${os_name}"
-                printf 'julia = [{ version = "%s", bin = "/opt/julia/bin/julia" }]\n' "${julia_version}"
+                printf 'julia = [{ version = "%s", bin = "/opt/julia/%s/bin/julia" }]\n' "${julia_version}" "${julia_series}"
             fi
             ;;
     esac

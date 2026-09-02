@@ -7,7 +7,7 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | ---------------- | ---------------------------- |
 | Operating system | AlmaLinux 9.8 (Olive Jaguar) |
 | R                | Not installed                |
-| Python           | 3.9.25                       |
+| Python           | Not installed                |
 | Julia            | 1.10.12,1.12.7               |
 | Quarto           | 1.10.18                      |
 | Platforms        | linux/amd64; linux/arm64     |
