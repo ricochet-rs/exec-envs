@@ -31,8 +31,10 @@ R images contain R 4.4, 4.5, and 4.6 and expose no Python executable.
 Python images contain Python 3.12, 3.13, and 3.14.
 Julia images contain Julia 1.10 and 1.12.
 
-`RELEASE_MONTH` is required on every release workflow, because a Crow cron cannot pass a variable and exposes no date.
-A monthly release is therefore a stated action: either a manual run, or an external scheduler calling the Crow API with the month.
+`RELEASE_MONTH` defaults to the value in `release/next-month`, because a Crow cron cannot pass a variable and exposes no date during matrix expansion.
+The `prepare monthly release` cron runs on the fifteenth, computes the following UTC month, writes that default into every release workflow, and commits it to `main`.
+The `monthly release` cron runs on the first and builds, publishes, and archives that stated month, while a manual run may override it for recovery.
+Configure those named Crow schedules as `0 5 15 * *` and `0 5 1 * *`, respectively.
 Selecting which workflows to run in the manual dialog replaces the old `RELEASE_ENVIRONMENT` input, so `manual-release-image` is gone.
 The workflows are grouped rather than split per image so the manual dialog stays short: one matrix per architecture, one merge per platform set, and one publish.
 
@@ -50,12 +52,8 @@ It also generates `deploy/ricochet-previews/values.yaml` for Flux consumers, con
 
 The publisher verifies that exact digest in the Ricochet Registry and copies it to the matching calendar tag in Docker Hub without rebuilding it.
 
-The `manual-release-image` Crow workflow accepts `RELEASE_ENVIRONMENT` and optional `RELEASE_MONTH` pipeline variables to prepare Ricochet Registry calendar tags before the monthly release runs.
-The environment value must be an exact ID from `scripts/list-release-environments.sh YYYY-MM`, or `all` to build every environment active in that month.
-The month defaults to the current UTC month, and an already-archived month is refused because its calendar tags are immutable.
-`all` stays an explicit word rather than an empty field, so leaving the input blank cannot start a full multi-platform build by accident.
-Both are declared in the workflow's `variables` block, which is what makes them appear as inputs in the manual-run dialog and injects them into the step.
-The manual workflow never publishes a rolling tag or bypasses the monthly promotion and archive steps.
+Renovate opens runtime dependency updates on the fifteenth, leaving the rest of the month for their builds and automerge before the next release.
+The repository-specific schedule overrides the shared first-of-month runtime dependency schedule, which would otherwise prepare updates too late for that month's release.
 New release metadata records the successful Crow pipeline URL so the main release index links each month to its creation status.
 
 Every later cron run verifies that both registry copies still resolve to the recorded digest until the release's three-year retention date.

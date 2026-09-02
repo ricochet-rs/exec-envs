@@ -7,6 +7,12 @@ output_directory=${1:-${repository_root}/.crow}
 plugin_image=${RELEASE_BUILDX_PLUGIN:-codefloe.com/crow-plugins/docker-buildx:2.5.0}
 release_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
 docker_hub_namespace=${RELEASE_DOCKER_HUB_NAMESPACE:-docker.io/ricochetrs}
+next_release_month=$(<"${repository_root}/release/next-month")
+
+if [[ ! ${next_release_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
+    echo "Next release must use YYYY-MM format: ${next_release_month}" >&2
+    exit 1
+fi
 
 for command in jq yq; do
     if ! command -v "${command}" >/dev/null; then
@@ -27,7 +33,7 @@ month_variable() {
     printf 'variables:\n'
     printf '  RELEASE_MONTH:\n'
     printf '    description: Calendar month as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.\n'
-    printf '    required: true\n'
+    printf "    default: '%s'\n" "${next_release_month}"
     printf '  RELEASE_REBUILD:\n'
     printf '    description: Set to true to replace existing calendar tags during an archived release rebuild.\n'
     printf '    options:\n'
@@ -114,11 +120,15 @@ for platform in linux/amd64 linux/arm64; do
         banner
         cat <<YAML
 when:
-  event:
-    - manual
-  branch:
-    - main
-  evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: manual
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: cron
+    cron: monthly release
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
   - lint
@@ -168,11 +178,15 @@ while IFS= read -r platforms; do
         banner
         cat <<YAML
 when:
-  event:
-    - manual
-  branch:
-    - main
-  evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: manual
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: cron
+    cron: monthly release
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
 YAML
@@ -221,11 +235,15 @@ done | sort -u)
     banner
     cat <<YAML
 when:
-  event:
-    - manual
-  branch:
-    - main
-  evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: manual
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
+  - event: cron
+    cron: monthly release
+    branch:
+      - main
+    evaluate: "RELEASE_METADATA_ONLY != 'true'"
 
 depends_on:
 YAML

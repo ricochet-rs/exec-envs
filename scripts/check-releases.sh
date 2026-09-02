@@ -123,12 +123,13 @@ validate_plugin_builds() {
         workflow=$(yq -o=json '.' "${pipeline}")
         architecture=$(basename "${pipeline}" .yaml)
         architecture=${architecture##*-}
-        if ! jq -e --arg name "$(basename "${pipeline}" .yaml)" '
+        if ! jq -e --arg name "$(basename "${pipeline}" .yaml)" --arg month "$(<"${repository_root}/release/next-month")" '
             (.labels.backend == "docker") and
-            (.variables.RELEASE_MONTH.required == true) and
+            (.variables.RELEASE_MONTH.default == $month) and
             (.variables.RELEASE_REBUILD.default == "false") and
             (.variables.RELEASE_METADATA_ONLY.default == "false") and
-            (.when.evaluate | contains("RELEASE_METADATA_ONLY")) and
+            (any(.when[]; .event == "manual" and .branch == ["main"] and (.evaluate | contains("RELEASE_METADATA_ONLY")))) and
+            (any(.when[]; .event == "cron" and .cron == "monthly release" and .branch == ["main"] and (.evaluate | contains("RELEASE_METADATA_ONLY")))) and
             all(.steps[]; .image | startswith("codefloe.com/crow-plugins/docker-buildx:")) and
             all(.steps[]; .when.evaluate | contains("release_from") and contains("release_through")) and
             (if $name == "build-arm64" then .labels.platform == "linux/arm64" else true end)
@@ -159,24 +160,44 @@ validate_plugin_builds() {
 validate_release_triggers() {
     local metadata_workflow
     local monthly_workflow
+    local next_release_month
+    local prepare_workflow
     local rebuild_workflow
 
-    # Crow cron cannot pass a variable and offers no date, so a release states its
-    # month explicitly rather than deriving it from the clock.
+    next_release_month=$(<"${repository_root}/release/next-month")
+    if [[ ! ${next_release_month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
+        echo "release/next-month must contain one YYYY-MM value" >&2
+        exit 1
+    fi
+
+    # Crow cron cannot pass a variable and offers no date during matrix expansion,
+    # so the preparation cron writes the next explicit month before release day.
     monthly_workflow=$(yq -o=json '.' "${repository_root}/.crow/monthly-release.yaml")
-    if ! jq -e '
-        (.when.event == ["manual"]) and
-        (.when.branch == ["main"]) and
-        (.variables.RELEASE_MONTH.required == true) and
+    if ! jq -e --arg month "${next_release_month}" '
+        (any(.when[]; .event == "manual" and .branch == ["main"] and (.evaluate | contains("RELEASE_METADATA_ONLY")))) and
+        (any(.when[]; .event == "cron" and .cron == "monthly release" and .branch == ["main"] and (.evaluate | contains("RELEASE_METADATA_ONLY")))) and
+        (.variables.RELEASE_MONTH.default == $month) and
         (.variables.RELEASE_REBUILD.default == "false") and
         (.variables.RELEASE_RERELEASE.default == "false") and
         (.variables.RELEASE_METADATA_ONLY.default == "false") and
-        (.when.evaluate | contains("RELEASE_METADATA_ONLY")) and
         (.depends_on | index("publish")) and
         all(.steps[]; .when.evaluate | contains("RELEASE_RERELEASE")) and
         any(.steps[].commands[]?; contains("scripts/re-release.sh"))
     ' <<<"${monthly_workflow}" >/dev/null; then
         echo ".crow/monthly-release.yaml must release a stated month and isolate explicit re-releases" >&2
+        exit 1
+    fi
+
+    prepare_workflow=$(yq -o=json '.' "${repository_root}/.crow/prepare-monthly-release.yaml")
+    if ! jq -e '
+        (.when.event == "cron") and
+        (.when.cron == "prepare monthly release") and
+        (.when.branch == ["main"]) and
+        (.depends_on == ["lint"]) and
+        any(.steps[].commands[]?; contains("scripts/prepare-scheduled-release.sh")) and
+        any(.steps[].commands[]?; contains("release/next-month"))
+    ' <<<"${prepare_workflow}" >/dev/null; then
+        echo ".crow/prepare-monthly-release.yaml must prepare the explicit month on its named cron" >&2
         exit 1
     fi
 
