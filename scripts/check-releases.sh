@@ -106,6 +106,16 @@ validate_generated_preview_values() {
         rm -f "${rendered}"
         exit 1
     fi
+    if [[ $(yq -r '.apps.deployment.imagePullPolicy' "${rendered}") != "Always" ]]; then
+        echo "Preview execution environments must always pull release tags" >&2
+        rm -f "${rendered}"
+        exit 1
+    fi
+    if yq -r '.execEnv.config' "${rendered}" | grep -q '@sha256:'; then
+        echo "Preview execution environments must track release tags without digest pins" >&2
+        rm -f "${rendered}"
+        exit 1
+    fi
     rm -f "${rendered}"
 }
 
