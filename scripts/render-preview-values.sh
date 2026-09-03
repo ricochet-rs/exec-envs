@@ -77,7 +77,7 @@ normalize_os() {
 
 while IFS= read -r environment; do
     environment_id=$(jq -r '.id | gsub("\\."; "-")' <<<"${environment}")
-    image=$(jq -r '.images.ricochetRegistry + "@" + .digest' <<<"${environment}")
+    image=$(jq -r '.images.ricochetRegistry' <<<"${environment}")
     recorded_os=$(jq -r '.versions.os' <<<"${environment}")
     os=$(normalize_os "${recorded_os}")
     platforms=$(jq -r '.platforms | map("\"" + . + "\"") | join(", ")' <<<"${environment}")
@@ -119,6 +119,9 @@ done < <(jq -c '.[]' "${selected_environments}")
 sed -i '${/^$/d;}' "${rendered_toml}"
 
 {
+    echo 'apps:'
+    echo '  deployment:'
+    echo '    imagePullPolicy: Always'
     echo 'config:'
     echo '  backend:'
     echo '    default_image: r-ubuntu-resolute'
