@@ -75,7 +75,7 @@ steps:
       evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
     depends_on:
       - create-and-prepare-release
-    image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
+    image: reg.ricochet.rs/docker.io/oven/bun:1.4.2-alpine
     commands:
       - apk add -q --no-cache bash
       - scripts/format-release.sh "$${RELEASE_MONTH}"
