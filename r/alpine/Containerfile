@@ -16,6 +16,8 @@ ENV RENV_PATHS_LIBRARY=/opt/ricochet/cache/renv/library
 ENV PATH=/opt/quarto/bin:${PATH}
 # Quarto ships a glibc-only Deno, so musl images use the Alpine build instead.
 ENV QUARTO_DENO=/usr/bin/deno
+ENV QUARTO_PANDOC=/usr/bin/pandoc
+ENV QUARTO_TYPST=/usr/bin/typst
 
 WORKDIR /opt/ricochet
 
@@ -33,6 +35,9 @@ RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     sh /opt/ricochet/install-sysreqs.sh && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
+    apk add --no-cache pandoc typst && \
+    pandoc --version && \
+    typst --version && \
     rm /tmp/quarto.tar.gz && \
     ln -sf /opt/R/4.4.3/bin/R /usr/local/bin/R4.4 && \
     ln -sf /opt/R/4.4.3/bin/Rscript /usr/local/bin/Rscript4.4 && \

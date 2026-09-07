@@ -12,6 +12,8 @@ ENV JULIA_DEPOT_PATH=/opt/ricochet/cache/julia
 ENV PATH=/opt/quarto/bin:${PATH}
 # Quarto ships a glibc-only Deno, so musl images use the Alpine build instead.
 ENV QUARTO_DENO=/usr/bin/deno
+ENV QUARTO_PANDOC=/usr/bin/pandoc
+ENV QUARTO_TYPST=/usr/bin/typst
 
 WORKDIR /opt/ricochet
 
@@ -32,6 +34,9 @@ RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content /opt/ricochet/cac
     ln -s "/opt/julia/${JULIA_112_VERSION}/bin/julia" /usr/local/bin/julia && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
+    apk add --no-cache pandoc typst && \
+    pandoc --version && \
+    typst --version && \
     rm /tmp/quarto.tar.gz
 
 # Ricochet spawns these images under an arbitrary uid whose only group is 0.
