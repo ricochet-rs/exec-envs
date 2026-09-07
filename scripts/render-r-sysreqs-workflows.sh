@@ -42,7 +42,7 @@ EOF
 
 steps:
   build-image:
-    image: codefloe.com/crow-plugins/docker-buildx:2.5.0
+    image: codefloe.com/crow-plugins/docker-buildx:2.5.1
     settings:
       mtu: 1350
       platforms: linux/${architecture}
