@@ -158,6 +158,9 @@ steps:
       dockerfile: ${containerfile}
       provenance: true
       sbom: true
+      # Large R dependency catalogs require BuildKit's 80 MiB attestation limit.
+      buildkit_driveropt:
+        - image=moby/buildkit:v0.33.0
       build_args_from_env:
         - R_VERSION
         - JULIA_VERSION
