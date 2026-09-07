@@ -24,14 +24,14 @@ steps:
       path: '*.{md,markdown}'
 
   prettier:
-    image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
+    image: reg.ricochet.rs/docker.io/oven/bun:1.4.2-alpine
     depends_on: []
     commands:
       - bunx prettier@latest --check .
 
   lint-editorconfig:
     depends_on: []
-    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.11.2
+    image: reg.ricochet.rs/docker.io/mstruebing/editorconfig-checker:v3.11.3
     when:
       event: pull_request
 
