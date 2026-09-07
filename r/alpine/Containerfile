@@ -27,7 +27,7 @@ SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     mkdir -p /opt/ricochet/renv/cache && \
     mkdir -p /opt/quarto && \
-    apk add --no-cache bash curl deno gcompat libstdc++ g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev gmp-dev readline-dev zeromq-dev tzdata lsb-release libx11-dev libxt-dev libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake git && \
+    apk add --no-cache bash curl deno gcompat libstdc++ g++ gfortran unzip zip bzip2-dev xz-dev pcre2-dev pcre-dev openblas-dev blas-dev lapack-dev icu-dev cairo-dev fribidi-dev harfbuzz-dev jpeg libpng-dev libpng tiff-dev fontconfig-dev freetype-dev mesa-dev librsvg-dev gdal-dev gdal geos-dev netcdf-dev netcdf udunits-dev gsl-dev mpfr-dev glpk-dev openssl-dev libsodium-dev postgresql-dev sqlite-dev unixodbc-dev freetds libgit2-dev openjdk17 libxml2-dev libxslt-dev gmp-dev readline-dev zeromq-dev tzdata lsb-release libx11-dev libxt-dev libsecret-dev poppler-utils imagemagick-dev qpdf tcl-dev tk-dev cargo rust cmake onetbb-dev git && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
     rm /tmp/quarto.tar.gz && \
