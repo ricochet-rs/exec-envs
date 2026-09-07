@@ -102,7 +102,7 @@ steps:
   publish-manifest:
     when:
       evaluate: 'RELEASE_MONTH >= release_from && RELEASE_MONTH <= release_through'
-    image: codefloe.com/crow-plugins/docker-buildx:2.5.0
+    image: codefloe.com/crow-plugins/docker-buildx:2.5.1
     settings:
       manifest: true
       repo: docker.io/ricochetrs/${name}

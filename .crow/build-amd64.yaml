@@ -165,7 +165,7 @@ steps:
   build-image:
     when:
       evaluate: 'RELEASE_MONTH >= release_from && RELEASE_MONTH <= release_through'
-    image: codefloe.com/crow-plugins/docker-buildx:2.5.0
+    image: codefloe.com/crow-plugins/docker-buildx:2.5.1
     settings:
       mtu: 1350
       platforms: linux/amd64
@@ -175,8 +175,6 @@ steps:
       provenance: true
       sbom: true
       # Large R dependency catalogs require BuildKit's 80 MiB attestation limit.
-      buildkit_driveropt:
-        - image=moby/buildkit:v0.33.0
       build_args_from_env:
         - R_VERSION
         - JULIA_VERSION

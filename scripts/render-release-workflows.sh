@@ -4,7 +4,7 @@ set -euo pipefail
 
 repository_root=${RELEASE_REPOSITORY_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)}
 output_directory=${1:-${repository_root}/.crow}
-plugin_image=${RELEASE_BUILDX_PLUGIN:-codefloe.com/crow-plugins/docker-buildx:2.5.0}
+plugin_image=${RELEASE_BUILDX_PLUGIN:-codefloe.com/crow-plugins/docker-buildx:2.5.1}
 release_registry=${RELEASE_SOURCE_REGISTRY:-reg.ricochet.rs/exec-envs}
 docker_hub_namespace=${RELEASE_DOCKER_HUB_NAMESPACE:-docker.io/ricochetrs}
 next_release_month=$(<"${repository_root}/release/next-month")
@@ -161,8 +161,6 @@ YAML
       provenance: true
       sbom: true
       # Large R dependency catalogs require BuildKit's 80 MiB attestation limit.
-      buildkit_driveropt:
-        - image=moby/buildkit:v0.33.0
       build_args_from_env:
         - R_VERSION
         - JULIA_VERSION
