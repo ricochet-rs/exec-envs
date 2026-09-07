@@ -39,7 +39,8 @@ Monthly releases pin every supported environment to a multi-platform digest and 
 Each monthly directory contains the generated operating system, R, Python, Julia, and Quarto inventory for all environments in that release.
 Only calendar-versioned tags are published, and release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
 
-Each R image bundles R 4.4, 4.5, and 4.6 without Python, with R 4.6 selected by the unversioned `R` and `Rscript` commands.
+Each R image bundles R 4.4, 4.5, and 4.6, with R 4.6 selected by the unversioned `R` and `Rscript` commands.
+R images include [generated Linux system dependencies](r/sysreqs/README.md) and retain the distro Python executables needed by dependency tools.
 Each Python image bundles Python 3.12, 3.13, and 3.14, with Python 3.14 selected by `python3`.
 Each Julia image bundles Julia 1.10 and 1.12, with Julia 1.12 selected by `julia`.
 Environment tags identify the operating system release, such as `julia-ubuntu:2026-08-resolute`, rather than repeating bundled language versions.

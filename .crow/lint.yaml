@@ -9,6 +9,14 @@ labels:
   agent: thumper
 
 steps:
+  check-r-sysreqs:
+    image: reg.ricochet.rs/docker.io/library/alpine:3.24
+    depends_on: []
+    commands:
+      - apk add --no-cache bash curl jq ripgrep
+      - scripts/test-r-sysreqs.sh
+      - scripts/update-r-sysreqs.sh --check
+
   lint-dockerfile:
     image: reg.ricochet.rs/docker.io/hadolint/hadolint:v2.15.1-alpine
     depends_on: []
