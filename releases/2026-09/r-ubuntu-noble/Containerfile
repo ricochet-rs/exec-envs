@@ -1,0 +1,1 @@
+FROM docker.io/ricochetrs/r-ubuntu:2026-09-noble@sha256:69f966b95029c5702307ec2d8a5fa29ca26c27f8f30530f03889ce55f72d185c

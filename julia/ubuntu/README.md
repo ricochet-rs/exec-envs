@@ -5,7 +5,7 @@ The calendar-versioned tags keep the configured Julia and Ubuntu versions reprod
 
 ```toml
 [image.julia-ubuntu-noble]
-image = "docker.io/ricochetrs/julia-ubuntu:2026-08-noble"
+image = "docker.io/ricochetrs/julia-ubuntu:2026-09-noble"
 os = "ubuntu-24.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Julia execution environment for Ubuntu 24.04"
@@ -15,7 +15,7 @@ julia = [
 ]
 
 [image.julia-ubuntu-resolute]
-image = "docker.io/ricochetrs/julia-ubuntu:2026-08-resolute"
+image = "docker.io/ricochetrs/julia-ubuntu:2026-09-resolute"
 os = "ubuntu-26.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Julia execution environment for Ubuntu 26.04"

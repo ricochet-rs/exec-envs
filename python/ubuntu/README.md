@@ -5,7 +5,7 @@ The calendar-versioned tags keep the configured Python and Ubuntu versions repro
 
 ```toml
 [image.python-ubuntu-noble]
-image = "docker.io/ricochetrs/python-ubuntu:2026-08-noble"
+image = "docker.io/ricochetrs/python-ubuntu:2026-09-noble"
 os = "ubuntu-24.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for Ubuntu 24.04"
@@ -16,7 +16,7 @@ python = [
 ]
 
 [image.python-ubuntu-resolute]
-image = "docker.io/ricochetrs/python-ubuntu:2026-08-resolute"
+image = "docker.io/ricochetrs/python-ubuntu:2026-09-resolute"
 os = "ubuntu-26.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for Ubuntu 26.04"

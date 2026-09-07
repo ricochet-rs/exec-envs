@@ -5,7 +5,7 @@ The calendar-versioned tags keep the configured R and AlmaLinux versions reprodu
 
 ```toml
 [image.r-alma-10]
-image = "docker.io/ricochetrs/r-alma:2026-08-10"
+image = "docker.io/ricochetrs/r-alma:2026-09-10"
 os = "alma-10"
 arch = ["linux/amd64", "linux/arm64"]
 description = "R execution environment for AlmaLinux 10"
@@ -16,7 +16,7 @@ r = [
 ]
 
 [image.r-alma-9]
-image = "docker.io/ricochetrs/r-alma:2026-08-9"
+image = "docker.io/ricochetrs/r-alma:2026-09-9"
 os = "alma-9"
 arch = ["linux/amd64", "linux/arm64"]
 description = "R execution environment for AlmaLinux 9"

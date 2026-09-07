@@ -1,0 +1,325 @@
+{
+  "release": "2026-09",
+  "retentionUntil": "2029-10-01",
+  "environments": [
+    {
+      "id": "julia-alma-9",
+      "image": "julia-alma",
+      "sourceTag": "2026-09-9",
+      "releaseTag": "2026-09-9",
+      "digest": "sha256:4273ad3e03791e269d1f753fdba8f8633a4f00ff8f6bb88cdc5f01a9f1809b3d",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "AlmaLinux 9.8 (Olive Jaguar)",
+        "r": ["Not installed"],
+        "python": ["Not installed"],
+        "julia": ["1.10.12", "1.12.7"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/julia-alma:2026-09-9",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/julia-alma:2026-09-9"
+      }
+    },
+    {
+      "id": "julia-alpine-3.23",
+      "image": "julia-alpine",
+      "sourceTag": "2026-09-3.23",
+      "releaseTag": "2026-09-3.23",
+      "digest": "sha256:732b67965c0c6ffe8786ad7974f0b889c34f8714de78e2c04ce7e2cd1af7f166",
+      "platforms": ["linux/amd64"],
+      "versions": {
+        "os": "Alpine Linux v3.23",
+        "r": ["Not installed"],
+        "python": ["Not installed"],
+        "julia": ["1.10.10", "1.12.0-rc1"],
+        "quarto": "1.10.18",
+        "pandoc": "3.8.2.1",
+        "typst": "0.14.2"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/julia-alpine:2026-09-3.23",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/julia-alpine:2026-09-3.23"
+      }
+    },
+    {
+      "id": "julia-alpine-3.24",
+      "image": "julia-alpine",
+      "sourceTag": "2026-09-3.24",
+      "releaseTag": "2026-09-3.24",
+      "digest": "sha256:30cf9790d69ab901f6040e19b04391b3f076b1a390c1d4658f3bbd0da7b9d394",
+      "platforms": ["linux/amd64"],
+      "versions": {
+        "os": "Alpine Linux v3.24",
+        "r": ["Not installed"],
+        "python": ["Not installed"],
+        "julia": ["1.10.10", "1.12.0-rc1"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.14.2"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/julia-alpine:2026-09-3.24",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/julia-alpine:2026-09-3.24"
+      }
+    },
+    {
+      "id": "julia-ubuntu-noble",
+      "image": "julia-ubuntu",
+      "sourceTag": "2026-09-noble",
+      "releaseTag": "2026-09-noble",
+      "digest": "sha256:ba361f4dcaf3df4d0b5c6d817e56882fec0181a8633ec5fa4dccb1568d7d1265",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Ubuntu 24.04.4 LTS",
+        "r": ["Not installed"],
+        "python": ["Not installed"],
+        "julia": ["1.10.12", "1.12.7"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/julia-ubuntu:2026-09-noble",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/julia-ubuntu:2026-09-noble"
+      }
+    },
+    {
+      "id": "julia-ubuntu-resolute",
+      "image": "julia-ubuntu",
+      "sourceTag": "2026-09-resolute",
+      "releaseTag": "2026-09-resolute",
+      "digest": "sha256:61bc24275d0478c61397a45334641d8f0739cc466631b1d2fef178a5e10ff188",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Ubuntu 26.04 LTS",
+        "r": ["Not installed"],
+        "python": ["Not installed"],
+        "julia": ["1.10.12", "1.12.7"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/julia-ubuntu:2026-09-resolute",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/julia-ubuntu:2026-09-resolute"
+      }
+    },
+    {
+      "id": "python-alma-10",
+      "image": "python-alma",
+      "sourceTag": "2026-09-10",
+      "releaseTag": "2026-09-10",
+      "digest": "sha256:7971a7a109b556a1de56e1c6bd97b879984fe3b7143c48653ea40f5ccea5d8d9",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "AlmaLinux 10.2 (Lavender Lion)",
+        "r": ["Not installed"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/python-alma:2026-09-10",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/python-alma:2026-09-10"
+      }
+    },
+    {
+      "id": "python-alma-9",
+      "image": "python-alma",
+      "sourceTag": "2026-09-9",
+      "releaseTag": "2026-09-9",
+      "digest": "sha256:c4bfc141783062fbd160434f87d51bc93ae62515d85e69aeacd317659e09571f",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "AlmaLinux 9.8 (Olive Jaguar)",
+        "r": ["Not installed"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/python-alma:2026-09-9",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/python-alma:2026-09-9"
+      }
+    },
+    {
+      "id": "python-ubuntu-noble",
+      "image": "python-ubuntu",
+      "sourceTag": "2026-09-noble",
+      "releaseTag": "2026-09-noble",
+      "digest": "sha256:ee53e48ac079e1e7648f4723333592465e1df695b8ef188add7ff1d0fe1ec17a",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Ubuntu 24.04.4 LTS",
+        "r": ["Not installed"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/python-ubuntu:2026-09-noble",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/python-ubuntu:2026-09-noble"
+      }
+    },
+    {
+      "id": "python-ubuntu-resolute",
+      "image": "python-ubuntu",
+      "sourceTag": "2026-09-resolute",
+      "releaseTag": "2026-09-resolute",
+      "digest": "sha256:77863311eff365b6515f02faa4d61946a4b63676891a38751a321513dcb95383",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Ubuntu 26.04 LTS",
+        "r": ["Not installed"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/python-ubuntu:2026-09-resolute",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/python-ubuntu:2026-09-resolute"
+      }
+    },
+    {
+      "id": "r-alma-10",
+      "image": "r-alma",
+      "sourceTag": "2026-09-10",
+      "releaseTag": "2026-09-10",
+      "digest": "sha256:83287ca2176fabfd068892a6c4886bb7e723ae27bccdedb9a455dc37f0a22ad0",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "AlmaLinux 10.2 (Lavender Lion)",
+        "r": ["4.4.3", "4.5.3", "4.6.1"],
+        "python": ["Not installed"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/r-alma:2026-09-10",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/r-alma:2026-09-10"
+      }
+    },
+    {
+      "id": "r-alma-9",
+      "image": "r-alma",
+      "sourceTag": "2026-09-9",
+      "releaseTag": "2026-09-9",
+      "digest": "sha256:ff538d7b79e8a8a107c09e2ce222315576e59a75e30dc3620df784ae0a58a84f",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "AlmaLinux 9.8 (Olive Jaguar)",
+        "r": ["4.4.3", "4.5.3", "4.6.1"],
+        "python": ["Not installed"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/r-alma:2026-09-9",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/r-alma:2026-09-9"
+      }
+    },
+    {
+      "id": "r-alpine-3.23",
+      "image": "r-alpine",
+      "sourceTag": "2026-09-3.23",
+      "releaseTag": "2026-09-3.23",
+      "digest": "sha256:fdba46725bc32e6ae8c2a6d49cf9b2f0a0fbbc8bedc2627cf6bc1c4f5916c189",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Alpine Linux v3.23",
+        "r": ["4.4.3", "4.5.3", "4.6.1"],
+        "python": ["Not installed"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.8.2.1",
+        "typst": "0.14.2"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/r-alpine:2026-09-3.23",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/r-alpine:2026-09-3.23"
+      }
+    },
+    {
+      "id": "r-alpine-3.24",
+      "image": "r-alpine",
+      "sourceTag": "2026-09-3.24",
+      "releaseTag": "2026-09-3.24",
+      "digest": "sha256:455b27904d1289a805642f76b9abf42ce0cfc872b725945b3b9514b74e15206a",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Alpine Linux v3.24",
+        "r": ["4.4.3", "4.5.3", "4.6.1"],
+        "python": ["Not installed"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.14.2"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/r-alpine:2026-09-3.24",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/r-alpine:2026-09-3.24"
+      }
+    },
+    {
+      "id": "r-ubuntu-noble",
+      "image": "r-ubuntu",
+      "sourceTag": "2026-09-noble",
+      "releaseTag": "2026-09-noble",
+      "digest": "sha256:69f966b95029c5702307ec2d8a5fa29ca26c27f8f30530f03889ce55f72d185c",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Ubuntu 24.04.4 LTS",
+        "r": ["4.4.3", "4.5.3", "4.6.1"],
+        "python": ["Not installed"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/r-ubuntu:2026-09-noble",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/r-ubuntu:2026-09-noble"
+      }
+    },
+    {
+      "id": "r-ubuntu-resolute",
+      "image": "r-ubuntu",
+      "sourceTag": "2026-09-resolute",
+      "releaseTag": "2026-09-resolute",
+      "digest": "sha256:79194239679f9596f8b456e4bba0fc4ec13857512641b49d1a37df8160b3326d",
+      "platforms": ["linux/amd64", "linux/arm64"],
+      "versions": {
+        "os": "Ubuntu 26.04 LTS",
+        "r": ["4.4.3", "4.5.3", "4.6.1"],
+        "python": ["Not installed"],
+        "julia": ["Not installed"],
+        "quarto": "1.10.18",
+        "pandoc": "3.10",
+        "typst": "0.15.1"
+      },
+      "images": {
+        "dockerHub": "docker.io/ricochetrs/r-ubuntu:2026-09-resolute",
+        "ricochetRegistry": "reg.ricochet.rs/exec-envs/r-ubuntu:2026-09-resolute"
+      }
+    }
+  ],
+  "ci": {
+    "status": "passed",
+    "url": "https://ci.ricochet.rs/repos/7/pipeline/522"
+  }
+}

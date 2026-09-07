@@ -5,7 +5,7 @@ The calendar-versioned tags keep the configured Julia and Alpine Linux versions 
 
 ```toml
 [image.julia-alpine-3-23]
-image = "docker.io/ricochetrs/julia-alpine:2026-08-3.23"
+image = "docker.io/ricochetrs/julia-alpine:2026-09-3.23"
 os = "alpine-3.23"
 arch = ["linux/amd64"]
 description = "Julia execution environment for Alpine Linux 3.23"
@@ -15,7 +15,7 @@ julia = [
 ]
 
 [image.julia-alpine-3-24]
-image = "docker.io/ricochetrs/julia-alpine:2026-08-3.24"
+image = "docker.io/ricochetrs/julia-alpine:2026-09-3.24"
 os = "alpine-3.24"
 arch = ["linux/amd64"]
 description = "Julia execution environment for Alpine Linux 3.24"

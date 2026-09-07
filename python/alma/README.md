@@ -5,7 +5,7 @@ The calendar-versioned tags keep the configured Python and AlmaLinux versions re
 
 ```toml
 [image.python-alma-10]
-image = "docker.io/ricochetrs/python-alma:2026-08-10"
+image = "docker.io/ricochetrs/python-alma:2026-09-10"
 os = "alma-10"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for AlmaLinux 10"
@@ -16,7 +16,7 @@ python = [
 ]
 
 [image.python-alma-9]
-image = "docker.io/ricochetrs/python-alma:2026-08-9"
+image = "docker.io/ricochetrs/python-alma:2026-09-9"
 os = "alma-9"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for AlmaLinux 9"

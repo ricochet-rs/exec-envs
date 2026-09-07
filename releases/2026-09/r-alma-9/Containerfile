@@ -1,0 +1,1 @@
+FROM docker.io/ricochetrs/r-alma:2026-09-9@sha256:ff538d7b79e8a8a107c09e2ce222315576e59a75e30dc3620df784ae0a58a84f
