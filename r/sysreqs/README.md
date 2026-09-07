@@ -7,6 +7,25 @@ The catalog is curated, and some requirements have no mapping for a particular d
 
 ## Updating
 
+The existing `prepare monthly release` Crow cron runs on the fifteenth and invokes `.crow/update-r-sysreqs.yaml` alongside release preparation.
+It checks the latest upstream commit, regenerates the manifests and installers, and opens `chore/r-sysreqs-YYYY-MM` using the existing `exec_envs_release_token` secret.
+That token must be able to push repository branches and create pull requests.
+No additional cron registration is needed.
+An unchanged revision opens no PR, and repeat runs preserve the month's existing PR, including a closed one.
+If a push succeeds but PR creation fails, the next run reuses the remote branch to create its PR.
+The job preserves exclusions and overrides and does not enable automerge.
+
+R-related PRs build every target in `config.json` on native AMD64 and ARM64 workers through generated `.crow/r-sysreqs-build-*.yaml` workflows.
+These validation builds do not publish images or receive registry credentials.
+Review their results and the dependency diff before merging ahead of the first-of-month release.
+
+To trigger the preparation manually, run the following in a clean checkout with GitHub CLI authentication and Bun available:
+
+```sh
+scripts/prepare-r-sysreqs-update.sh
+```
+
+For a manually selected upstream revision, use the following workflow.
 The upstream commit, target platforms, baseline packages, exclusions, and overrides live in [config.json](config.json).
 Change `revision` to a reviewed full upstream commit, then regenerate from the repository root:
 
@@ -14,9 +33,11 @@ Change `revision` to a reviewed full upstream commit, then regenerate from the r
 scripts/update-r-sysreqs.sh
 scripts/update-r-sysreqs.sh --check
 scripts/test-r-sysreqs.sh
+scripts/test-r-sysreqs-update.sh
 ```
 
 The updater requires Bash, curl, tar, and jq; image builds do not fetch the database or need R tooling to resolve requirements.
+The scheduled-update tests additionally require Git and ripgrep and use a temporary local remote with mocked GitHub calls.
 Each target directory contains a generated `manifest.json` with rule-to-package mappings, unmapped rules, exclusions, overrides, and pre/post-install commands, alongside the `install.sh` used by its Containerfile.
 Review both outputs when updating, especially new setup commands and changes to the unmapped list.
 Upstream script actions deliberately stop generation for review instead of being silently omitted.

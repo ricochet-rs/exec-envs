@@ -1,0 +1,21 @@
+when:
+  event: cron
+  cron: prepare monthly release
+  branch:
+    - main
+
+depends_on:
+  - lint
+
+labels:
+  backend: docker
+
+steps:
+  open-update-pr:
+    image: reg.ricochet.rs/docker.io/oven/bun:1.4.0-alpine
+    environment:
+      GH_TOKEN:
+        from_secret: exec_envs_release_token
+    commands:
+      - apk add -q --no-cache bash curl github-cli git jq ripgrep
+      - scripts/prepare-r-sysreqs-update.sh

@@ -9,6 +9,7 @@ if [[ ${mode} != update && ${mode} != --check ]]; then
   echo "Usage: $0 [--check]" >&2
   exit 1
 fi
+
 revision=$(jq -r '.revision' "${config}")
 if [[ ! ${revision} =~ ^[a-f0-9]{40}$ ]]; then
   echo "Pin a full upstream commit in r/sysreqs/config.json" >&2
@@ -68,3 +69,5 @@ if [[ ${mode} == update ]]; then
     cp "${temporary}/${id}/manifest.json" "${temporary}/${id}/install.sh" "${repository_root}/r/sysreqs/${id}/"
   done < <(jq -r '.platforms[].id' "${config}")
 fi
+
+"${repository_root}/scripts/render-r-sysreqs-workflows.sh" "${mode}"

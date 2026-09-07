@@ -13,8 +13,9 @@ steps:
     image: reg.ricochet.rs/docker.io/library/alpine:3.24
     depends_on: []
     commands:
-      - apk add --no-cache bash curl jq ripgrep
+      - apk add --no-cache bash curl git jq ripgrep
       - scripts/test-r-sysreqs.sh
+      - scripts/test-r-sysreqs-update.sh
       - scripts/update-r-sysreqs.sh --check
 
   lint-dockerfile:

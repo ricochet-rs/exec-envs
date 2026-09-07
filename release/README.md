@@ -8,8 +8,9 @@ Each image is published only under its immutable `YYYY-MM-<environment-suffix>` 
 
 Legacy non-calendar tags may remain in the registries, but no workflow creates or updates them.
 
-No workflow builds a Containerfile outside the release path.
-Pull requests lint the Containerfiles, and building happens only through the generated `build-*` workflows, which `check-releases.sh` enforces.
+Only release workflows publish images.
+Release builds run through the generated `build-*` workflows, which `check-releases.sh` enforces.
+R-related pull requests also run the generated `r-sysreqs-build-*` workflows on native AMD64 and ARM64 workers without publishing images.
 
 ## Generated build and merge workflows
 
@@ -33,6 +34,7 @@ Julia images contain Julia 1.10 and 1.12.
 
 `RELEASE_MONTH` defaults to the value in `release/next-month`, because a Crow cron cannot pass a variable and exposes no date during matrix expansion.
 The `prepare monthly release` cron runs on the fifteenth, computes the following UTC month, writes that default into every release workflow, and commits it to `main`.
+That cron also runs `update-r-sysreqs`, which opens a reviewed dependency update PR for the next release when the upstream R system requirements catalog changes.
 The `monthly release` cron runs on the first and builds, publishes, and archives that stated month, while a manual run may override it for recovery.
 Configure those named Crow schedules as `0 5 15 * *` and `0 5 1 * *`, respectively.
 Selecting which workflows to run in the manual dialog replaces the old `RELEASE_ENVIRONMENT` input, so `manual-release-image` is gone.
