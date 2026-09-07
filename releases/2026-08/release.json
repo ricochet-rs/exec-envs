@@ -7,7 +7,7 @@
       "image": "julia-alma",
       "sourceTag": "2026-08-9",
       "releaseTag": "2026-08-9",
-      "digest": "sha256:5c26c38fd8a19b113c664ae82e9f7ecfbc075ba70e34fb918c7561db4eb2a23e",
+      "digest": "sha256:13cb3932881a462c97a44ff95082bf53c9b5c82a280d301451fc51f9adf15e5f",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "AlmaLinux 9.8 (Olive Jaguar)",
@@ -26,7 +26,7 @@
       "image": "julia-alpine",
       "sourceTag": "2026-08-3.23",
       "releaseTag": "2026-08-3.23",
-      "digest": "sha256:d81245da329ccdc2c4d16365bdd63dbbf9cd49868038dabba2e204096694141f",
+      "digest": "sha256:e27da83fe25e4e3d68af1f3c3f924b762f40e3f16e4b7ab68598809ca9b0503b",
       "platforms": ["linux/amd64"],
       "versions": {
         "os": "Alpine Linux v3.23",
@@ -45,7 +45,7 @@
       "image": "julia-alpine",
       "sourceTag": "2026-08-3.24",
       "releaseTag": "2026-08-3.24",
-      "digest": "sha256:66c071101dc87d7f53e8cfb1c6acd006bff6bbf0539212258818d43e17b2be7e",
+      "digest": "sha256:2c65ce65b7bbdacdcae6f26a161228e84baf2aafd16b66201f59c496e82b4996",
       "platforms": ["linux/amd64"],
       "versions": {
         "os": "Alpine Linux v3.24",
@@ -64,7 +64,7 @@
       "image": "julia-ubuntu",
       "sourceTag": "2026-08-noble",
       "releaseTag": "2026-08-noble",
-      "digest": "sha256:551743687de8699cc95d9707fc07556be975cd7411d9ac030b8e9cea59d62b60",
+      "digest": "sha256:c5e467a1b7db42f43c6642ff8480a4935cd25d87e5c158a3b8148edb63d2d43c",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Ubuntu 24.04.4 LTS",
@@ -83,7 +83,7 @@
       "image": "julia-ubuntu",
       "sourceTag": "2026-08-resolute",
       "releaseTag": "2026-08-resolute",
-      "digest": "sha256:ffa459c31ef8e253f1bc3146d8bddb0b319092940b2b8fae685b838bdb3a91f2",
+      "digest": "sha256:66342747fa0e2e4cc547bfb8900e4c491a775cfe019909a77701ddc830c0afb7",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Ubuntu 26.04 LTS",
@@ -102,12 +102,12 @@
       "image": "python-alma",
       "sourceTag": "2026-08-10",
       "releaseTag": "2026-08-10",
-      "digest": "sha256:cc6a647b65d3b4ac540c21f668285fdeb4754a046e6b9d2d7d3ade490420d22c",
+      "digest": "sha256:697095376f6890eb30fb7f4bf6919a349e3736745fb9c14f3594cbf8f8bfe6fa",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "AlmaLinux 10.2 (Lavender Lion)",
         "r": ["Not installed"],
-        "python": ["3.12.13", "3.13.14", "3.14.6"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
         "julia": ["Not installed"],
         "quarto": "1.10.18"
       },
@@ -121,12 +121,12 @@
       "image": "python-alma",
       "sourceTag": "2026-08-9",
       "releaseTag": "2026-08-9",
-      "digest": "sha256:73f8db80f7321ca936d635133380b0afe1e93a67bca262fcaa413bd6fd197ffe",
+      "digest": "sha256:75f7786f0cd39ff7c0b3af9e6fe662f267e28561430866e0a562ccef0affb8b9",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "AlmaLinux 9.8 (Olive Jaguar)",
         "r": ["Not installed"],
-        "python": ["3.12.13", "3.13.14", "3.14.6"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
         "julia": ["Not installed"],
         "quarto": "1.10.18"
       },
@@ -140,12 +140,12 @@
       "image": "python-ubuntu",
       "sourceTag": "2026-08-noble",
       "releaseTag": "2026-08-noble",
-      "digest": "sha256:93365e3c6a0814fe6b56bcda82302d0199d4ac29c1ff1a033c1b57e50a9c37ab",
+      "digest": "sha256:5952631b98ab6381dc01729a6c34f58b31d9b355f15067ad09c52ab404369ae2",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Ubuntu 24.04.4 LTS",
         "r": ["Not installed"],
-        "python": ["3.12.13", "3.13.14", "3.14.6"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
         "julia": ["Not installed"],
         "quarto": "1.10.18"
       },
@@ -159,12 +159,12 @@
       "image": "python-ubuntu",
       "sourceTag": "2026-08-resolute",
       "releaseTag": "2026-08-resolute",
-      "digest": "sha256:15d0a07412cd5ec999a740e9a9bed8b45efd15cf16d6ba7173642efd101a0c32",
+      "digest": "sha256:fecf91df308acf69b9ceb92cbdfc168166ca0d0e4297e51bd33c45ce15519af6",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Ubuntu 26.04 LTS",
         "r": ["Not installed"],
-        "python": ["3.12.13", "3.13.14", "3.14.6"],
+        "python": ["3.12.14", "3.13.15", "3.14.7"],
         "julia": ["Not installed"],
         "quarto": "1.10.18"
       },
@@ -178,7 +178,7 @@
       "image": "r-alma",
       "sourceTag": "2026-08-10",
       "releaseTag": "2026-08-10",
-      "digest": "sha256:43957b666c579fa8abdd4ff4b86f3f9006d3a18cfe996073e6e63aeeb1c6bc1b",
+      "digest": "sha256:2f67a31bc9408f6c198b832321ea439619eb56393f3e79eb79577d106d0a04cb",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "AlmaLinux 10.2 (Lavender Lion)",
@@ -197,7 +197,7 @@
       "image": "r-alma",
       "sourceTag": "2026-08-9",
       "releaseTag": "2026-08-9",
-      "digest": "sha256:a523da8eeca50fdb636ade9aee063c2442d140af665589674c1e949aef84da1f",
+      "digest": "sha256:cab910741875106dd3396d24ba9230f76d5bca74c0783173f33be8f52a816ed8",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "AlmaLinux 9.8 (Olive Jaguar)",
@@ -216,7 +216,7 @@
       "image": "r-alpine",
       "sourceTag": "2026-08-3.23",
       "releaseTag": "2026-08-3.23",
-      "digest": "sha256:6bfe19804fdf081d8c135a27ae665b4401996a01225d9ef573105360d1e7f612",
+      "digest": "sha256:e2b92849e6e1e82f89d837fe9bb3cf9204baee1bcd487e2e41ae117ac2388784",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Alpine Linux v3.23",
@@ -235,7 +235,7 @@
       "image": "r-alpine",
       "sourceTag": "2026-08-3.24",
       "releaseTag": "2026-08-3.24",
-      "digest": "sha256:30fe165d3f22f3cfc166005ec2867537c4906cf586878b8c5ca3ed1c22544665",
+      "digest": "sha256:71ca34bd1b0568d4aba9efbf5e16eab932af24667e250af153bf8c368c199ef2",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Alpine Linux v3.24",
@@ -254,7 +254,7 @@
       "image": "r-ubuntu",
       "sourceTag": "2026-08-noble",
       "releaseTag": "2026-08-noble",
-      "digest": "sha256:c0070f83e8b683606860016fdc3412d4583664b512ad29a6091fd0ecd0d0d52c",
+      "digest": "sha256:04d21a40c871750a1d63f5a5749fd959a26360d1c761e40a3fa281d1aab89735",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Ubuntu 24.04.4 LTS",
@@ -273,7 +273,7 @@
       "image": "r-ubuntu",
       "sourceTag": "2026-08-resolute",
       "releaseTag": "2026-08-resolute",
-      "digest": "sha256:ebffd3776a8843950ed8b2efb1db129858eb33f46b6c4f71f956b22c425f6690",
+      "digest": "sha256:77d5d7afbbbf5cd3e9b08440524f7685226829ad54398dd9e69efbb7bd1cd94f",
       "platforms": ["linux/amd64", "linux/arm64"],
       "versions": {
         "os": "Ubuntu 26.04 LTS",
@@ -290,6 +290,6 @@
   ],
   "ci": {
     "status": "passed",
-    "url": "https://ci.ricochet.rs/repos/7/pipeline/424"
+    "url": "https://ci.ricochet.rs/repos/7/pipeline/490"
   }
 }

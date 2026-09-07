@@ -7,7 +7,7 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | ---------------- | ------------------------ |
 | Operating system | Ubuntu 26.04 LTS         |
 | R                | Not installed            |
-| Python           | 3.12.13; 3.13.14; 3.14.6 |
+| Python           | 3.12.14; 3.13.15; 3.14.7 |
 | Julia            | Not installed            |
 | Quarto           | 1.10.18                  |
 | Platforms        | linux/amd64; linux/arm64 |

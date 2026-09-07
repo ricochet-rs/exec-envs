@@ -10,9 +10,9 @@ os = "ubuntu-24.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for Ubuntu 24.04"
 python = [
-  { version = "3.12.13", bin = "/usr/local/bin/python3.12" },
-  { version = "3.13.14", bin = "/usr/local/bin/python3.13" },
-  { version = "3.14.6", bin = "/usr/local/bin/python3.14" },
+  { version = "3.12.14", bin = "/usr/local/bin/python3.12" },
+  { version = "3.13.15", bin = "/usr/local/bin/python3.13" },
+  { version = "3.14.7", bin = "/usr/local/bin/python3.14" },
 ]
 
 [image.python-ubuntu-resolute]
@@ -21,8 +21,8 @@ os = "ubuntu-26.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for Ubuntu 26.04"
 python = [
-  { version = "3.12.13", bin = "/usr/local/bin/python3.12" },
-  { version = "3.13.14", bin = "/usr/local/bin/python3.13" },
-  { version = "3.14.6", bin = "/usr/local/bin/python3.14" },
+  { version = "3.12.14", bin = "/usr/local/bin/python3.12" },
+  { version = "3.13.15", bin = "/usr/local/bin/python3.13" },
+  { version = "3.14.7", bin = "/usr/local/bin/python3.14" },
 ]
 ```
