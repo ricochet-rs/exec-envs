@@ -189,8 +189,14 @@ probe_image() {
             quarto_version=$(quarto --version)
         fi
 
-        printf "os\t%s\nr\t%s\npython\t%s\njulia\t%s\nquarto\t%s\n" \
-            "${os_version}" "${r_versions}" "${python_versions}" "${julia_version}" "${quarto_version}"
+        pandoc_output=$(pandoc --version) || exit 1
+        pandoc_version=$(printf "%s\n" "${pandoc_output}" | awk "NR == 1 {print \$2}")
+        typst_output=$(typst --version) || exit 1
+        typst_version=$(printf "%s\n" "${typst_output}" | awk "NR == 1 {print \$2}")
+        [ -n "${pandoc_version}" ] && [ -n "${typst_version}" ] || exit 1
+
+        printf "os\t%s\nr\t%s\npython\t%s\njulia\t%s\nquarto\t%s\npandoc\t%s\ntypst\t%s\n" \
+            "${os_version}" "${r_versions}" "${python_versions}" "${julia_version}" "${quarto_version}" "${pandoc_version}" "${typst_version}"
     '
 }
 
@@ -221,6 +227,8 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
     python_versions=""
     julia_version=""
     quarto_version=""
+    pandoc_version=""
+    typst_version=""
     while IFS=$'\t' read -r key value; do
         case "${key}" in
             os) os_version=${value} ;;
@@ -228,6 +236,8 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
             python) python_versions=${value} ;;
             julia) julia_version=${value} ;;
             quarto) quarto_version=${value} ;;
+            pandoc) pandoc_version=${value} ;;
+            typst) typst_version=${value} ;;
         esac
     done <<<"${probe}"
 
@@ -235,11 +245,13 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
         jq -r --arg id "${environment_id}" \
             --arg r "${r_versions}" \
             --arg julia "${julia_version}" \
+            --arg pandoc "${pandoc_version}" \
+            --arg typst "${typst_version}" \
             --arg quarto "${quarto_version}" \
             --arg python "${python_versions}" \
             '.environments[]
                 | select(.id == $id)
-                | {r: ($r | split(",") | map(gsub("^ +| +$"; ""))), julia: ($julia | split(",") | map(gsub("^ +| +$"; ""))), quarto: $quarto, python: ($python | split(",") | map(gsub("^ +| +$"; "")))} as $current
+                | {r: ($r | split(",") | map(gsub("^ +| +$"; ""))), julia: ($julia | split(",") | map(gsub("^ +| +$"; ""))), quarto: $quarto, pandoc: $pandoc, typst: $typst, python: ($python | split(",") | map(gsub("^ +| +$"; "")))} as $current
                 | (.versions
                     | .r = (if .r | type == "array" then .r else [.r] end)
                     | .julia = (if .julia | type == "array" then .julia else [.julia] end)
@@ -247,6 +259,8 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
                 | [
                     (if $recorded.r != $current.r then "  \($id) R \($recorded.r | join(", ")) became \($current.r | join(", "))" else empty end),
                     (if $recorded.julia != $current.julia then "  \($id) Julia \($recorded.julia | join(", ")) became \($current.julia | join(", "))" else empty end),
+                    (if $recorded.pandoc != null and $recorded.pandoc != $current.pandoc then "  \($id) Pandoc \($recorded.pandoc) became \($current.pandoc)" else empty end),
+                    (if $recorded.typst != null and $recorded.typst != $current.typst then "  \($id) Typst \($recorded.typst) became \($current.typst)" else empty end),
                     (if $recorded.quarto != $current.quarto then "  \($id) Quarto \($recorded.quarto) became \($current.quarto)" else empty end),
                     (if $recorded.python != $current.python then "  \($id) Python \($recorded.python | join(", ")) became \($current.python | join(", "))" else empty end)
                   ][]' "${archived_metadata}" >>"${version_changes}"
@@ -278,6 +292,8 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
         --argjson r "${r_versions_json}" \
         --argjson python "${python_versions_json}" \
         --argjson julia "${julia_versions_json}" \
+        --arg pandoc "${pandoc_version}" \
+        --arg typst "${typst_version}" \
         --arg quarto "${quarto_version}" \
         --arg dockerHub "${docker_hub_reference}" \
         --arg registry "${registry_reference}" \
@@ -288,7 +304,7 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
             releaseTag: $releaseTag,
             digest: $digest,
             platforms: ($platforms | split(",")),
-            versions: {os: $os, r: $r, python: $python, julia: $julia, quarto: $quarto},
+            versions: {os: $os, r: $r, python: $python, julia: $julia, quarto: $quarto, pandoc: $pandoc, typst: $typst},
             images: {dockerHub: $dockerHub, ricochetRegistry: $registry}
         }')
 
@@ -299,7 +315,7 @@ while IFS=$'\t' read -r environment_id image version_suffix expected_platforms; 
 # ${environment_id}
 
 This exec environment is pinned to a digest from the ${release_month} release and is retained through at least ${retention_until}.
-A rebuild may move it to a digest carrying operating system security fixes, while its R, Python, Julia, and Quarto versions stay as recorded below.
+A rebuild may move it to a digest carrying operating system security fixes, while its R, Python, Julia, Quarto, Pandoc, and Typst versions stay as recorded below.
 
 | Component | Version |
 | --- | --- |
@@ -308,6 +324,8 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | Python | ${python_versions//,/; } |
 | Julia | ${julia_version} |
 | Quarto | ${quarto_version} |
+| Pandoc | ${pandoc_version} |
+| Typst | ${typst_version} |
 | Platforms | ${platforms//,/; } |
 
 The [Containerfile](./Containerfile) pins the current multi-platform image digest so repeated builds select the same environment.

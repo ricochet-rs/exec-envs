@@ -36,12 +36,14 @@ Release images are built by the monthly release pipeline for `amd64` and `arm64`
 Pull requests that change R images or dependency tooling also validate all configured R targets on native AMD64 and ARM64 workers without publishing images.
 
 Monthly releases pin every supported environment to a multi-platform digest and retain its registry tags for at least three years.  
-Each monthly directory contains the generated operating system, R, Python, Julia, and Quarto inventory for all environments in that release.
+Each monthly directory contains the generated operating system, R, Python, Julia, Quarto, Pandoc, and Typst inventory for all environments in that release.
 Only calendar-versioned tags are published, and release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
 
 Each R image bundles R 4.4, 4.5, and 4.6, with R 4.6 selected by the unversioned `R` and `Rscript` commands.
 R images include [generated Linux system dependencies](r/sysreqs/README.md) and retain the distro Python executables needed by dependency tools.
 Each Python image bundles Python 3.12, 3.13, and 3.14, with Python 3.14 selected by `python3`.
+Every image provides `quarto`, `pandoc`, and `typst` commands.
+Ubuntu and AlmaLinux expose the Pandoc and Typst versions bundled with Quarto; Alpine uses native packages for musl compatibility.
 Each Julia image bundles Julia 1.10 and 1.12, with Julia 1.12 selected by `julia`.
 Environment tags identify the operating system release, such as `julia-ubuntu:2026-08-resolute`, rather than repeating bundled language versions.
 
@@ -51,7 +53,7 @@ Each archived month also gets a GitHub release tagged `YYYY-MM` whose notes list
 
 An archived month can be rebuilt so its images pick up operating system security fixes.
 A rebuild moves the existing calendar tag onto the new digest, so nothing has to change for anyone already pulling that tag.
-It is refused when the rebuilt image reports a different R, Python, Julia, or Quarto version, which keeps a month's recorded software fixed while its base layers move.
+It is refused when the rebuilt image reports a different R, Python, Julia, Quarto, Pandoc, or Typst version, which keeps a month's recorded software fixed while its base layers move.
 
 ## Releasing on Crow
 

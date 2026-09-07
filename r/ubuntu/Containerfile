@@ -32,6 +32,10 @@ RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     rm -rf /var/lib/apt/lists/* && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
+    ln -sf "/opt/quarto/bin/tools/$(uname -m)/pandoc" /usr/local/bin/pandoc && \
+    ln -sf "/opt/quarto/bin/tools/$(uname -m)/typst" /usr/local/bin/typst && \
+    pandoc --version && \
+    typst --version && \
     rm /tmp/quarto.tar.gz && \
     ln -sf /opt/R/4.4.3/bin/R /usr/local/bin/R4.4 && \
     ln -sf /opt/R/4.4.3/bin/Rscript /usr/local/bin/Rscript4.4 && \

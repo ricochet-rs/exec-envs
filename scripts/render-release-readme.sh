@@ -18,10 +18,10 @@ retention_until=$(jq -r '.retentionUntil' "${release_metadata}")
 {
     printf '# %s exec environments\n\n' "${release_month}"
     printf 'This release is retained through at least %s.\n\n' "${retention_until}"
-    echo '| Environment | Operating system | R | Python | Julia | Quarto |'
-    echo '| --- | --- | --- | --- | --- | --- |'
+    echo '| Environment | Operating system | R | Python | Julia | Quarto | Pandoc | Typst |'
+    echo '| --- | --- | --- | --- | --- | --- | --- | --- |'
     jq -r 'def version_list: if type == "array" then join(", ") else tostring end;
-        .environments[] | "| [\(.id)](./\(.id)/) | \(.versions.os) | \(.versions.r | version_list) | \(.versions.python | version_list) | \(.versions.julia | version_list) | \(.versions.quarto) |"' \
+        .environments[] | "| [\(.id)](./\(.id)/) | \(.versions.os) | \(.versions.r | version_list) | \(.versions.python | version_list) | \(.versions.julia | version_list) | \(.versions.quarto) | \(.versions.pandoc // "Not recorded") | \(.versions.typst // "Not recorded") |"' \
         "${release_metadata}"
 } >"${rendered_readme}"
 

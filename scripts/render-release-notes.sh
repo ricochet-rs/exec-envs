@@ -38,10 +38,10 @@ jq -rn \
     --slurpfile current "${release_metadata}" \
     --slurpfile previous "${previous_metadata}" '
     def component_label:
-        {os: "the operating system", r: "R", python: "Python", julia: "Julia", quarto: "Quarto"}[.];
+        {os: "the operating system", r: "R", python: "Python", julia: "Julia", quarto: "Quarto", pandoc: "Pandoc", typst: "Typst"}[.];
 
     def component_version($environment; $component):
-        ($environment.versions[$component]
+        (($environment.versions[$component] // "Not recorded")
             | if type == "array" then join(", ") else tostring end);
 
     def sentence_list:
@@ -59,7 +59,7 @@ jq -rn \
     | (($baseline.environments) // []) as $before
     | ($now | map(.id)) as $now_ids
     | ($before | map(.id)) as $before_ids
-    | ["os", "r", "python", "julia", "quarto"] as $components
+    | ["os", "r", "python", "julia", "quarto", "pandoc", "typst"] as $components
 
     | ($now | map(select(.id | IN($before_ids[]) | not))) as $added
     | ($before | map(select(.id | IN($now_ids[]) | not))) as $removed
@@ -138,10 +138,10 @@ jq -rn \
     + [
         "## Environments",
         "",
-        "| Environment | Operating system | R | Python | Julia | Quarto |",
-        "| --- | --- | --- | --- | --- | --- |"
+        "| Environment | Operating system | R | Python | Julia | Quarto | Pandoc | Typst |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |"
       ]
-    + ($now | map("| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | \(.versions.os) | \(.versions.r | if type == "array" then join(", ") else tostring end) | \(.versions.python | join(", ")) | \(.versions.julia | if type == "array" then join(", ") else tostring end) | \(.versions.quarto) |"))
+    + ($now | map("| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | \(.versions.os) | \(.versions.r | if type == "array" then join(", ") else tostring end) | \(.versions.python | join(", ")) | \(.versions.julia | if type == "array" then join(", ") else tostring end) | \(.versions.quarto) | \(.versions.pandoc // "Not recorded") | \(.versions.typst // "Not recorded") |"))
     + [
         "",
         "## Pulling an environment",

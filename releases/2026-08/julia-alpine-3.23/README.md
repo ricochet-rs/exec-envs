@@ -10,6 +10,8 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | Python           | Not installed      |
 | Julia            | 1.10.10,1.12.0-rc1 |
 | Quarto           | 1.10.18            |
+| Pandoc           | Not recorded       |
+| Typst            | Not recorded       |
 | Platforms        | linux/amd64        |
 
 The [Containerfile](./Containerfile) pins the current multi-platform image digest so repeated builds select the same environment.

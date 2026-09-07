@@ -107,7 +107,8 @@ Set `RELEASE_MONTH` to the archived month and `RELEASE_REBUILD` to `true` in the
 A rebuild moves the existing calendar tag onto the new digest in both registries, so consumers of `YYYY-MM-<environment-suffix>` receive the patched image without changing anything.
 The archive then records the new digest, the new operating system string, and an updated wrapper Containerfile.
 
-The rebuild is refused when any environment reports a different R, Python, Julia, or Quarto version than the archive records.
+The rebuild is refused when any environment reports a different R, Python, Julia, Quarto, Pandoc, or Typst version than the archive records.
+Pandoc and Typst versions are checked when the archive records them; older archives display `Not recorded`.
 The failure names every environment and component that moved, and the archive is left untouched.
 A distro Python patch bump is enough to trigger this, which is intended: a month's recorded software stays fixed, and changed software belongs in the next month.
 
