@@ -32,14 +32,15 @@ Runtime dependency updates are prepared on the fifteenth, and the resulting vers
 ## Release policy
 
 Each environment is defined by a Containerfile under `<language>/<operating-system>/`, and its build matrix in `release/environments/` names that path.
-Those Containerfiles are built only by the monthly release pipeline, once per calendar month, for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
-Pull requests lint the Containerfiles but never build them, so no image is produced outside a monthly release.
+Release images are built by the monthly release pipeline for `amd64` and `arm64`, except for Julia on Alpine, which is available for `amd64` only.
+Pull requests that change R images or dependency tooling also validate all configured R targets on native AMD64 and ARM64 workers without publishing images.
 
 Monthly releases pin every supported environment to a multi-platform digest and retain its registry tags for at least three years.  
 Each monthly directory contains the generated operating system, R, Python, Julia, and Quarto inventory for all environments in that release.
 Only calendar-versioned tags are published, and release cutoffs remove deprecated variants from newer monthly archives without changing retained historical releases.
 
-Each R image bundles R 4.4, 4.5, and 4.6 without Python, with R 4.6 selected by the unversioned `R` and `Rscript` commands.
+Each R image bundles R 4.4, 4.5, and 4.6, with R 4.6 selected by the unversioned `R` and `Rscript` commands.
+R images include [generated Linux system dependencies](r/sysreqs/README.md) and retain the distro Python executables needed by dependency tools.
 Each Python image bundles Python 3.12, 3.13, and 3.14, with Python 3.14 selected by `python3`.
 Each Julia image bundles Julia 1.10 and 1.12, with Julia 1.12 selected by `julia`.
 Environment tags identify the operating system release, such as `julia-ubuntu:2026-08-resolute`, rather than repeating bundled language versions.
@@ -56,6 +57,7 @@ It is refused when the rebuilt image reports a different R, Python, Julia, or Qu
 
 The `monthly release` Crow cron rebuilds and archives every supported environment on the first day of each month.
 Its month is prepared on the fifteenth of the preceding month, which gives scheduled dependency updates time to build and merge before release day.
+The same preparation cron opens an R system-dependency update PR when the upstream catalog has changed.
 
 The same release can be started manually when a scheduled run needs recovery:
 

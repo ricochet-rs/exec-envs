@@ -20,6 +20,9 @@ ENV PATH=/opt/quarto/bin:${PATH}
 
 WORKDIR /opt/ricochet
 
+ARG OS_VERSION
+COPY r/sysreqs/alma-${OS_VERSION}/install.sh /opt/ricochet/install-sysreqs.sh
+
 COPY --from=r44 /opt/R/4.4.3 /opt/R/4.4.3
 COPY --from=r45 /opt/R/4.5.3 /opt/R/4.5.3
 
@@ -30,7 +33,7 @@ RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     dnf install -y epel-release && \
     dnf config-manager --set-enabled crb && \
     dnf update -y && \
-    dnf install -q -y --nodocs which java-21-openjdk java-21-openjdk-devel git libcurl-devel jq fribidi gdal gdal-libs gdal-devel geos-devel proj-devel glpk glpk-devel mesa-libGLU libicu-devel harfbuzz libjpeg-turbo-devel ImageMagick-c++-devel ImageMagick-libs ImageMagick-c++ netcdf-devel openblas readline libtiff-devel udunits2-devel libxml2-devel qpdf-libs freetds-devel unixODBC-devel libsodium-devel libuuid-devel mpfr freetype-devel fontconfig-devel sqlite-devel zlib-devel tzdata libpq-devel libpng-devel cairo openssl-devel wget vim-minimal libssh-devel cronie libsecret libxslt-devel libaio hostname libiodbc unzip libgit2-devel jq-devel gmp-devel libsecret-devel cmake poppler-utils mesa-libGL rust cargo postgresql-devel abseil-cpp-devel tbb-devel libX11-devel libXt-devel git && \
+    sh /opt/ricochet/install-sysreqs.sh && \
     dnf clean all && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
@@ -44,8 +47,7 @@ RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     ln -sf "$(R RHOME)/bin/Rscript" /usr/local/bin/Rscript && \
     R4.4 -q -e 'install.packages("renv")' && \
     R4.5 -q -e 'install.packages("renv")' && \
-    R4.6 -q -e 'install.packages("renv")' && \
-    find /usr/bin /usr/local/bin -maxdepth 1 -name 'python*' -delete
+    R4.6 -q -e 'install.packages("renv")'
 
 # Ricochet spawns these images under an arbitrary uid whose only group is 0.
 RUN chgrp -R 0 /var/lib/ricochet /opt/ricochet && \

@@ -2,6 +2,10 @@
 
 set dotenv-load
 
+# Regenerate R system dependencies from the pinned upstream rules
+update-r-sysreqs:
+    scripts/update-r-sysreqs.sh
+
 # Render the generated build and merge workflows from release/environments
 render-release-workflows:
     scripts/render-release-workflows.sh
