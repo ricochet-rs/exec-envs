@@ -1,7 +1,7 @@
 # r-alma-10
 
 This exec environment is pinned to a digest from the 2026-08 release and is retained through at least 2029-09-01.
-A rebuild may move it to a digest carrying operating system security fixes, while its R, Python, Julia, and Quarto versions stay as recorded below.
+A rebuild may move it to a digest carrying operating system security fixes, while its R, Python, Julia, Quarto, Pandoc, and Typst versions stay as recorded below.
 
 | Component        | Version                        |
 | ---------------- | ------------------------------ |
@@ -10,8 +10,8 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | Python           | Not installed                  |
 | Julia            | Not installed                  |
 | Quarto           | 1.10.18                        |
-| Pandoc           | Not recorded                   |
-| Typst            | Not recorded                   |
+| Pandoc           | 3.10                           |
+| Typst            | 0.15.1                         |
 | Platforms        | linux/amd64; linux/arm64       |
 
 The [Containerfile](./Containerfile) pins the current multi-platform image digest so repeated builds select the same environment.

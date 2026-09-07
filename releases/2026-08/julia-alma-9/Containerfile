@@ -1,1 +1,1 @@
-FROM docker.io/ricochetrs/julia-alma:2026-08-9@sha256:13cb3932881a462c97a44ff95082bf53c9b5c82a280d301451fc51f9adf15e5f
+FROM docker.io/ricochetrs/julia-alma:2026-08-9@sha256:7706a767f343b5632970dcb78c9f35d4a083f8b1e2d4889f885c7499c0e1794e

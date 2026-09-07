@@ -1,1 +1,1 @@
-FROM docker.io/ricochetrs/r-ubuntu:2026-08-resolute@sha256:77d5d7afbbbf5cd3e9b08440524f7685226829ad54398dd9e69efbb7bd1cd94f
+FROM docker.io/ricochetrs/r-ubuntu:2026-08-resolute@sha256:e84aca974eff6869136cca666758142d4fc3c5efd39a72c55fd99095ac9a9d52

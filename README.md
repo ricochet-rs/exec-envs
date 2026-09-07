@@ -14,7 +14,7 @@ Runtime dependency updates are prepared on the fifteenth, and the resulting vers
 
 | Release                      | Retained through | Environments | CI                                                    |
 | ---------------------------- | ---------------- | ------------ | ----------------------------------------------------- |
-| [2026-08](releases/2026-08/) | 2029-09-01       | 15           | [Passed](https://ci.ricochet.rs/repos/7/pipeline/490) |
+| [2026-08](releases/2026-08/) | 2029-09-01       | 15           | [Passed](https://ci.ricochet.rs/repos/7/pipeline/520) |
 
 <!-- releases:end -->
 
