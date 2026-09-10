@@ -14,30 +14,37 @@ execEnv:
   config: |
     [image.julia-alpine-3-24]
     image = "reg.ricochet.rs/exec-envs/julia-alpine:2026-09-3.24"
-    os = "alpine-3.24"
+    os = "Alpine 3.24"
     description = "Latest julia preview environment from release 2026-09"
+    release = "2026-09"
     arch = ["linux/amd64"]
     julia = [
       { version = "1.10.10", bin = "/usr/local/bin/julia1.10" },
       { version = "1.12.0-rc1", bin = "/usr/local/bin/julia1.12" },
     ]
     quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+    pandoc = "3.10"
+    typst = "0.14.2"
 
     [image.julia-ubuntu-resolute]
     image = "reg.ricochet.rs/exec-envs/julia-ubuntu:2026-09-resolute"
-    os = "ubuntu-26.04"
+    os = "Ubuntu 26.04"
     description = "Latest julia preview environment from release 2026-09"
+    release = "2026-09"
     arch = ["linux/amd64", "linux/arm64"]
     julia = [
       { version = "1.10.12", bin = "/usr/local/bin/julia1.10" },
       { version = "1.12.7", bin = "/usr/local/bin/julia1.12" },
     ]
     quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+    pandoc = "3.10"
+    typst = "0.15.1"
 
     [image.python-ubuntu-resolute]
     image = "reg.ricochet.rs/exec-envs/python-ubuntu:2026-09-resolute"
-    os = "ubuntu-26.04"
+    os = "Ubuntu 26.04"
     description = "Latest python preview environment from release 2026-09"
+    release = "2026-09"
     arch = ["linux/amd64", "linux/arm64"]
     python = [
       { version = "3.12.14", bin = "/usr/local/bin/python3.12" },
@@ -45,11 +52,14 @@ execEnv:
       { version = "3.14.7", bin = "/usr/local/bin/python3.14" },
     ]
     quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+    pandoc = "3.10"
+    typst = "0.15.1"
 
     [image.r-alpine-3-24]
     image = "reg.ricochet.rs/exec-envs/r-alpine:2026-09-3.24"
-    os = "alpine-3.24"
+    os = "Alpine 3.24"
     description = "Latest r preview environment from release 2026-09"
+    release = "2026-09"
     arch = ["linux/amd64", "linux/arm64"]
     r = [
       { version = "4.4.3", bin = "/opt/R/4.4.3/bin/R" },
@@ -57,11 +67,14 @@ execEnv:
       { version = "4.6.1", bin = "/opt/R/4.6.1/bin/R" },
     ]
     quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+    pandoc = "3.10"
+    typst = "0.14.2"
 
     [image.r-ubuntu-resolute]
     image = "reg.ricochet.rs/exec-envs/r-ubuntu:2026-09-resolute"
-    os = "ubuntu-26.04"
+    os = "Ubuntu 26.04"
     description = "Latest r preview environment from release 2026-09"
+    release = "2026-09"
     arch = ["linux/amd64", "linux/arm64"]
     r = [
       { version = "4.4.3", bin = "/opt/R/4.4.3/bin/R" },
@@ -69,3 +82,5 @@ execEnv:
       { version = "4.6.1", bin = "/opt/R/4.6.1/bin/R" },
     ]
     quarto = [{ version = "1.10.18", bin = "/opt/quarto/bin/quarto" }]
+    pandoc = "3.10"
+    typst = "0.15.1"

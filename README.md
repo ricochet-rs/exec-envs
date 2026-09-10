@@ -19,6 +19,12 @@ Runtime dependency updates are prepared on the fifteenth, and the resulting vers
 
 <!-- releases:end -->
 
+## Ricochet catalogue
+
+Each archived month also renders `releases/<month>/catalogue.toml`, the `[image.<id>]` blocks Ricochet reads as its execution environment configuration, with Docker Hub image references and the declared runtime paths.
+The latest one is mirrored to [`catalogue.toml`](catalogue.toml), and [`releases/index.json`](releases/index.json) lists every archived month with its catalogue path.
+Ricochet reads the index and the monthly catalogues to offer vendored environments from any retained release in its execution environments page.
+
 ## DockerHub
 
 - [ricochetrs/r-alpine](https://hub.docker.com/r/ricochetrs/r-alpine)
