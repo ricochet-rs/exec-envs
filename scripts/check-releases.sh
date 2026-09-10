@@ -96,6 +96,35 @@ validate_generated_environment_readmes() {
     rm -rf "${rendered}"
 }
 
+validate_generated_catalogues() {
+    local rendered latest_release release_directory release_month
+
+    latest_release=$(find "${repository_root}/releases" -mindepth 2 -maxdepth 2 -name release.json -print | sort -r | head -n 1)
+    rendered=$(mktemp)
+    for release_directory in "${repository_root}"/releases/*/; do
+        release_month=$(basename "${release_directory}")
+        [[ -f ${release_directory}release.json ]] || continue
+        "${repository_root}/scripts/render-catalogue.sh" "${release_month}" "${rendered}"
+        if ! cmp -s "${rendered}" "${release_directory}catalogue.toml"; then
+            echo "releases/${release_month}/catalogue.toml does not match scripts/render-catalogue.sh" >&2
+            rm -f "${rendered}"
+            exit 1
+        fi
+        if [[ ${release_directory}release.json == "${latest_release}" ]] && ! cmp -s "${rendered}" "${repository_root}/catalogue.toml"; then
+            echo "catalogue.toml does not match releases/${release_month}/catalogue.toml" >&2
+            rm -f "${rendered}"
+            exit 1
+        fi
+    done
+    "${repository_root}/scripts/render-release-index-json.sh" "${rendered}"
+    if ! cmp -s "${rendered}" "${repository_root}/releases/index.json"; then
+        echo "releases/index.json does not match scripts/render-release-index-json.sh" >&2
+        rm -f "${rendered}"
+        exit 1
+    fi
+    rm -f "${rendered}"
+}
+
 validate_generated_preview_values() {
     local rendered
 
@@ -287,6 +316,7 @@ validate_environment_containerfiles
 validate_generated_workflows
 validate_generated_environment_readmes
 validate_generated_preview_values
+validate_generated_catalogues
 validate_plugin_builds
 validate_release_triggers
 

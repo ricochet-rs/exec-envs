@@ -59,60 +59,13 @@ for required_language in r julia; do
     fi
 done
 
-normalize_os() {
-    local recorded_os=$1
+# shellcheck source=scripts/lib/environment-toml.sh
+source "${repository_root}/scripts/lib/environment-toml.sh"
 
-    case ${recorded_os} in
-        "Alpine Linux v"*) printf 'alpine-%s\n' "${recorded_os#Alpine Linux v}" ;;
-        "Ubuntu "*)
-            os_version=${recorded_os#Ubuntu }
-            printf 'ubuntu-%s\n' "$(cut -d. -f1,2 <<<"${os_version%% *}")"
-            ;;
-        *)
-            echo "Unsupported preview operating system: ${recorded_os}" >&2
-            return 1
-            ;;
-    esac
-}
-
+release=$(jq -r '.release' "${release_metadata}")
 while IFS= read -r environment; do
-    environment_id=$(jq -r '.id | gsub("\\."; "-")' <<<"${environment}")
-    image=$(jq -r '.images.ricochetRegistry' <<<"${environment}")
-    recorded_os=$(jq -r '.versions.os' <<<"${environment}")
-    os=$(normalize_os "${recorded_os}")
-    platforms=$(jq -r '.platforms | map("\"" + . + "\"") | join(", ")' <<<"${environment}")
-    language=${environment_id%%-*}
-
-    {
-        printf '[image.%s]\n' "${environment_id}"
-        printf 'image = "%s"\n' "${image}"
-        printf 'os = "%s"\n' "${os}"
-        printf 'description = "Latest %s preview environment from release %s"\n' "${language}" "$(jq -r '.release' "${release_metadata}")"
-        printf 'arch = [%s]\n' "${platforms}"
-    } >>"${rendered_toml}"
-
-    case ${language} in
-        r)
-            echo 'r = [' >>"${rendered_toml}"
-            jq -r '.versions.r[] | "  { version = \"" + . + "\", bin = \"/opt/R/" + . + "/bin/R\" },"' <<<"${environment}" >>"${rendered_toml}"
-            echo ']' >>"${rendered_toml}"
-            ;;
-        python)
-            echo 'python = [' >>"${rendered_toml}"
-            jq -r '.versions.python[] | "  { version = \"" + . + "\", bin = \"/usr/local/bin/python" + (split(".")[0:2] | join(".")) + "\" },"' <<<"${environment}" >>"${rendered_toml}"
-            echo ']' >>"${rendered_toml}"
-            ;;
-        julia)
-            echo 'julia = [' >>"${rendered_toml}"
-            jq -r '.versions.julia[] | "  { version = \"" + . + "\", bin = \"/usr/local/bin/julia" + (split(".")[0:2] | join(".")) + "\" },"' <<<"${environment}" >>"${rendered_toml}"
-            echo ']' >>"${rendered_toml}"
-            ;;
-    esac
-
-    quarto=$(jq -r '.versions.quarto' <<<"${environment}")
-    if [[ ${quarto} != "Not installed" ]]; then
-        printf 'quarto = [{ version = "%s", bin = "/opt/quarto/bin/quarto" }]\n' "${quarto}" >>"${rendered_toml}"
-    fi
+    language=$(jq -r '.id | split("-")[0]' <<<"${environment}")
+    render_environment_toml "${environment}" ricochetRegistry "Latest ${language} preview environment from release ${release}" "${release}" >>"${rendered_toml}"
     echo >>"${rendered_toml}"
 done < <(jq -c '.[]' "${selected_environments}")
 

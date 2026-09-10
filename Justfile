@@ -18,6 +18,10 @@ render-environment-readmes:
 render-preview-values:
     scripts/render-preview-values.sh
 
+# Render the Ricochet catalogue for every archived month and mirror the latest at the root
+render-catalogue:
+    scripts/render-catalogue.sh
+
 # Lint Containerfiles
 lint-docker:
     find . -type f \( -iname \*.containerfile -o -iname Containerfile \) -print0 | sort -z | xargs -0 hadolint
