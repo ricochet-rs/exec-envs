@@ -22,7 +22,7 @@ labels:
 variables:
   RELEASE_MONTH:
     description: Calendar month as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.
-    default: '2026-09'
+    default: '2026-10'
   RELEASE_REBUILD:
     description: Set to true to replace existing calendar tags during an archived release rebuild.
     options:

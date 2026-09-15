@@ -8,20 +8,17 @@ when:
     branch:
       - main
     evaluate: "RELEASE_METADATA_ONLY != 'true'"
-
 depends_on:
   - lint
   - publish
-
 # The release probes run each image to inventory it, so this needs a Docker daemon.
 labels:
   backend: docker
   agent: thumper
-
 variables:
   RELEASE_MONTH:
     description: Calendar month to release as YYYY-MM. Crow cron cannot pass a variable or expose a date, so every release states it.
-    default: '2026-09'
+    default: '2026-10'
   RELEASE_REBUILD:
     description: Set to true with RELEASE_RERELEASE to replace existing calendar tags.
     options:
@@ -40,7 +37,6 @@ variables:
       - 'false'
       - 'true'
     default: 'false'
-
 steps:
   create-and-prepare-release:
     when:
@@ -69,7 +65,6 @@ steps:
       - scripts/prepare-next-release.sh "$${RELEASE_MONTH}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
   format-release:
     when:
       evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
@@ -79,7 +74,6 @@ steps:
     commands:
       - apk add -q --no-cache bash
       - scripts/format-release.sh "$${RELEASE_MONTH}"
-
   verify-and-archive-release:
     when:
       evaluate: "RELEASE_REBUILD != 'true' || RELEASE_RERELEASE == 'true'"
