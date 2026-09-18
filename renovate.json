@@ -6,6 +6,13 @@
   "customManagers": [
     {
       "customType": "regex",
+      "managerFilePatterns": ["/^scripts/render-(?:r-sysreqs|release)-workflows\\.sh$/"],
+      "matchStrings": ["(?<depName>codefloe\\.com/crow-plugins/docker-buildx):(?<currentValue>[^\\s}]+)"],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
       "managerFilePatterns": ["/^\\.crow(?:/[^/]+)?\\.ya?ml$/"],
       "matchStrings": [
         "(?<depName>\\w+):\\s*(?<currentValue>\\S+)\\s*#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s*depName=(?<depName2>\\S+)"
@@ -34,6 +41,11 @@
     }
   ],
   "packageRules": [
+    {
+      "matchDepNames": ["codefloe.com/crow-plugins/docker-buildx"],
+      "groupName": "crow and docker-compose",
+      "schedule": ["every monday"]
+    },
     {
       "description": "Prepare runtime dependency updates in the middle of the month",
       "matchFileNames": ["**/Containerfile*", "release/environments/*.yaml"],
