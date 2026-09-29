@@ -18,7 +18,7 @@ WORKDIR /opt/ricochet
 
 RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content /opt/ricochet/cache/uv /opt/python /opt/quarto && \
     apt-get update && \
-    apt-get install --no-install-recommends -y ca-certificates curl git && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y ca-certificates curl git tzdata && \
     rm -rf /var/lib/apt/lists/* && \
     curl -fsSLo /tmp/quarto.tar.gz "https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-${TARGETARCH}.tar.gz" && \
     tar -xzf /tmp/quarto.tar.gz -C /opt/quarto --strip-components=1 && \
