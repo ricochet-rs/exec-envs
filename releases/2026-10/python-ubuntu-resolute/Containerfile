@@ -1,1 +1,1 @@
-FROM docker.io/ricochetrs/python-ubuntu:2026-10-resolute@sha256:7707ef308e2956a3c4304d0115d5d91a97b5bcdd1609f8c9f0e2d68ddd28879e
+FROM docker.io/ricochetrs/python-ubuntu:2026-10-resolute@sha256:0b2f81654a160da69d4e4e5c7e02e5f0167cfb60d148be40f3bd499566ead03c

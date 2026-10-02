@@ -7,7 +7,7 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | ---------------- | ------------------------ |
 | Operating system | Ubuntu 24.04.5 LTS       |
 | R                | Not installed            |
-| Python           | 3.12.14; 3.13.15; 3.14.7 |
+| Python           | 3.12.15; 3.13.16; 3.14.8 |
 | Julia            | Not installed            |
 | Quarto           | 1.10.18                  |
 | Pandoc           | 3.10                     |

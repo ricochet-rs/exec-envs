@@ -1,1 +1,1 @@
-FROM docker.io/ricochetrs/r-alpine:2026-10-3.24@sha256:dd7e1531e5df529fc41309021b406d1b6bd8122c2c7ecd912e4fd7c621dd94da
+FROM docker.io/ricochetrs/r-alpine:2026-10-3.24@sha256:6e9eee66acb6332b8664925f2b5e7ad0d9a067a03be6049e1702f20e1da60f15

@@ -8,7 +8,7 @@ A rebuild may move it to a digest carrying operating system security fixes, whil
 | Operating system | Ubuntu 26.04.1 LTS       |
 | R                | Not installed            |
 | Python           | Not installed            |
-| Julia            | 1.10.12,1.12.7           |
+| Julia            | 1.10.12,1.13.1           |
 | Quarto           | 1.10.18                  |
 | Pandoc           | 3.10                     |
 | Typst            | 0.15.1                   |

@@ -1,1 +1,1 @@
-FROM docker.io/ricochetrs/python-alma:2026-10-9@sha256:2a06ed7508ac02d2353e64254fa3cefd400402e8cec53400a70178a84e39fbf4
+FROM docker.io/ricochetrs/python-alma:2026-10-9@sha256:b71c0a32e48e6e209162ff811d8528a8388e1aeabe9149e1c1050bdfb278fb75
