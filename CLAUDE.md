@@ -24,6 +24,7 @@ The `r-alpine` base image builds R without the cairo, png, and jpeg devices, so 
 Alpine environments cannot run the glibc-only binaries that upstream tools vendor, so prefer an Alpine-native package for the failing binary and rely on `gcompat` for the remainder.
 Ricochet spawns these images under an arbitrary uid whose only group is 0, so every runtime-writable path needs `chgrp -R 0` and `chmod -R g=u`.
 `/var/lib/ricochet/data` is the spawned pod's `HOME` and the parent of the content and cache volume mounts, so each environment creates it even though nothing in the image lives there.
+Upstream Julia publishes no musl build after `1.12.0-rc1`, so the Alpine Julia image cannot follow a newer series and carries no `julia-current` Renovate marker.
 
 ## Declared runtime paths
 
@@ -31,3 +32,9 @@ Ricochet validates an environment by executing every declared `bin` with `--vers
 The Julia images key their install directories by series (`/opt/julia/1.12`) while the R images key theirs by full patch version (`/opt/R/4.6.1`), so a path formula copied between languages is wrong.
 Probe a runtime through the `/usr/local/bin` link the Containerfile creates rather than through `command -v`, because a base image such as AlmaLinux 9 carries its own `python3.9` on `PATH` and recording it publishes a runtime the image does not expose.
 Changing an install layout requires updating every generator that emits a `bin` path, including the Cloud portal's environment list outside this repository.
+
+## Runtime update tracking
+
+Renovate's dockerfile manager cannot rewrite a `FROM` tag assembled from build arguments, so track such a runtime with a `# renovate:` marker on the version `ARG` and derive every path from that argument.
+A new bundled R series needs its own `allowedVersions` rule in `renovate.json`, because without one Renovate bumps every older series to the newest R.
+Every file a release script regenerates must be staged in the archive step of both `monthly-release` and `metadata-only-release`, because `check-releases.sh` fails `main` on a stale generated file.

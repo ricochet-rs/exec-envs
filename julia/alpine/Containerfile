@@ -2,7 +2,6 @@ ARG OS_VERSION=3.24
 FROM alpine:${OS_VERSION}
 
 ARG JULIA_110_VERSION=1.10
-# renovate: julia-current
 ARG JULIA_112_VERSION=1.12
 # renovate: datasource=github-releases depName=quarto-dev/quarto-cli
 ARG QUARTO_VERSION=1.10.18

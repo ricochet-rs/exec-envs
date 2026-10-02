@@ -168,7 +168,7 @@ probe_image() {
         fi
 
         julia_version=""
-        for executable in julia1.10 julia1.12; do
+        for executable in julia1.10 julia1.12 julia1.13; do
             if command -v "${executable}" >/dev/null 2>&1; then
                 version=$("${executable}" --version | awk "{print \$3}")
                 if [ -n "${julia_version}" ]; then

@@ -30,7 +30,7 @@ A matrix cannot be filtered at run time, so every entry carries `release_from` a
 R, Python, and Julia versions are bundled by language family, so their matrix entries vary by operating system rather than language minor version.
 R images contain R 4.4, 4.5, and 4.6 and expose no Python executable.
 Python images contain Python 3.12, 3.13, and 3.14.
-Julia images contain Julia 1.10 and 1.12.
+Ubuntu and AlmaLinux Julia images contain Julia 1.10 and 1.13, while Alpine Julia images stay on 1.10 and 1.12 because upstream publishes no newer musl build.
 
 `RELEASE_MONTH` defaults to the value in `release/next-month`, because a Crow cron cannot pass a variable and exposes no date during matrix expansion.
 The `prepare monthly release` cron runs on the fifteenth, computes the following UTC month, writes that default into every release workflow, and commits it to `main`.
@@ -46,7 +46,9 @@ Alpine releases keep exactly two OS minor versions active each month, so each Ma
 
 The same rollover removes expired matrix entries immediately and updates both Alpine Containerfile defaults.
 
-Renovate ignores `releases/**` and follows the `julia-current` marker on the current Julia build argument in each Julia Containerfile.
+Renovate ignores `releases/**` and follows the `julia-current` marker on `JULIA_CURRENT_VERSION` in the Ubuntu and AlmaLinux Julia Containerfiles.
+The Alpine Julia Containerfile carries no marker, so Renovate never proposes a series without a musl build.
+Renovate tracks each bundled R series through its `R_4x_VERSION` build argument and proposes only patch updates, which also move the `/opt/R` paths derived from it.
 
 The monthly builder publishes the Ricochet Registry calendar tag, and the generator resolves it to a digest, verifies its advertised platforms, runs its `amd64` variant to inventory installed software, and writes an immutable wrapper Containerfile.
 The latest archived metadata also generates each language and operating system README so its `ricochet-exec-env.toml` snippets follow the current calendar tags and installed language versions.
@@ -54,7 +56,7 @@ It also generates `deploy/ricochet-previews/values.yaml` for Flux consumers, con
 
 The publisher verifies that exact digest in the Ricochet Registry and copies it to the matching calendar tag in Docker Hub without rebuilding it.
 
-Renovate opens runtime dependency updates on the fifteenth, leaving the rest of the month for their builds and automerge before the next release.
+Renovate opens runtime dependency updates from the fifteenth to the twenty-fifth, so a runtime released after the fifteenth still reaches the next release while leaving time for its builds and automerge.
 The repository-specific schedule overrides the shared first-of-month runtime dependency schedule, which would otherwise prepare updates too late for that month's release.
 New release metadata records the successful Crow pipeline URL so the main release index links each month to its creation status.
 

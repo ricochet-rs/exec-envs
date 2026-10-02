@@ -1,5 +1,11 @@
 [
   {
+    "release": "2026-10",
+    "retentionUntil": "2029-11-01",
+    "environments": 15,
+    "catalogue": "releases/2026-10/catalogue.toml"
+  },
+  {
     "release": "2026-09",
     "retentionUntil": "2029-10-01",
     "environments": 15,
