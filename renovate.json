@@ -6,12 +6,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/^scripts/render-(?:r-sysreqs|release)-workflows\\.sh$/"
-      ],
-      "matchStrings": [
-        "(?<depName>codefloe\\.com/crow-plugins/docker-buildx):(?<currentValue>[^\\s}]+)"
-      ],
+      "managerFilePatterns": ["/^scripts/render-(?:r-sysreqs|release)-workflows\\.sh$/"],
+      "matchStrings": ["(?<depName>codefloe\\.com/crow-plugins/docker-buildx):(?<currentValue>[^\\s}]+)"],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
     },
@@ -27,10 +23,8 @@
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^release/environments/julia-.*\\.ya?ml$/"],
-      "matchStrings": [
-        "JULIA_VERSION:\\s*'(?<currentValue>[^']+)'\\s*#\\s*renovate:\\s*julia-current"
-      ],
+      "managerFilePatterns": ["/^julia/[^/]+/Containerfile$/"],
+      "matchStrings": ["#\\s*renovate:\\s*julia-current\\s*\\nARG JULIA_CURRENT_VERSION=(?<currentValue>\\S+)"],
       "depNameTemplate": "JuliaLang/julia",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+)\\.\\d+$",
@@ -42,7 +36,7 @@
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\nARG \\w+_VERSION=(?<currentValue>\\S+)"
       ],
-      "extractVersionTemplate": "^v(?<version>.+)$",
+      "extractVersionTemplate": "^v?(?<version>.+)$",
       "versioningTemplate": "semver"
     }
   ],
@@ -53,13 +47,37 @@
       "schedule": ["on monday"]
     },
     {
-      "description": "Prepare runtime dependency updates in the middle of the month",
+      "description": "Prepare runtime dependency updates in the second half of the month",
       "matchFileNames": ["**/Containerfile*", "release/environments/*.yaml"],
-      "schedule": ["* * 15 * *"]
+      "schedule": ["* * 15-25 * *"]
     },
     {
       "matchDepNames": ["JuliaLang/julia"],
       "groupName": "julia stable"
+    },
+    {
+      "description": "Track R through the version build arguments, because the FROM tags are assembled from them",
+      "matchManagers": ["dockerfile"],
+      "matchDepNames": ["docker.io/devxygmbh/r-ubuntu", "docker.io/devxygmbh/r-alpine", "docker.io/devxygmbh/r-alma"],
+      "enabled": false
+    },
+    {
+      "description": "Keep the bundled R 4.4 series on R 4.4",
+      "matchDepNames": ["docker.io/devxygmbh/r-ubuntu", "docker.io/devxygmbh/r-alpine", "docker.io/devxygmbh/r-alma"],
+      "matchCurrentValue": "/^4\\.4\\./",
+      "allowedVersions": "/^4\\.4\\./"
+    },
+    {
+      "description": "Keep the bundled R 4.5 series on R 4.5",
+      "matchDepNames": ["docker.io/devxygmbh/r-ubuntu", "docker.io/devxygmbh/r-alpine", "docker.io/devxygmbh/r-alma"],
+      "matchCurrentValue": "/^4\\.5\\./",
+      "allowedVersions": "/^4\\.5\\./"
+    },
+    {
+      "description": "Keep the bundled R 4.6 series on R 4.6",
+      "matchDepNames": ["docker.io/devxygmbh/r-ubuntu", "docker.io/devxygmbh/r-alpine", "docker.io/devxygmbh/r-alma"],
+      "matchCurrentValue": "/^4\\.6\\./",
+      "allowedVersions": "/^4\\.6\\./"
     }
   ]
 }

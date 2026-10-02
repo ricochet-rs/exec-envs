@@ -2,8 +2,11 @@ ARG OS_VERSION=10
 ARG R_44_TAG=4.4
 ARG R_45_TAG=4.5
 ARG R_46_TAG=4.6
+# renovate: datasource=docker depName=docker.io/devxygmbh/r-alma
 ARG R_44_VERSION=4.4.3
+# renovate: datasource=docker depName=docker.io/devxygmbh/r-alma
 ARG R_45_VERSION=4.5.3
+# renovate: datasource=docker depName=docker.io/devxygmbh/r-alma
 ARG R_46_VERSION=4.6.1
 FROM docker.io/devxygmbh/r-alma:${R_44_TAG}-${OS_VERSION} AS r44
 FROM docker.io/devxygmbh/r-alma:${R_45_TAG}-${OS_VERSION} AS r45
@@ -21,10 +24,13 @@ ENV PATH=/opt/quarto/bin:${PATH}
 WORKDIR /opt/ricochet
 
 ARG OS_VERSION
+ARG R_44_VERSION
+ARG R_45_VERSION
+ARG R_46_VERSION
 COPY r/sysreqs/alma-${OS_VERSION}/install.sh /opt/ricochet/install-sysreqs.sh
 
-COPY --from=r44 /opt/R/4.4.3 /opt/R/4.4.3
-COPY --from=r45 /opt/R/4.5.3 /opt/R/4.5.3
+COPY --from=r44 /opt/R/${R_44_VERSION} /opt/R/${R_44_VERSION}
+COPY --from=r45 /opt/R/${R_45_VERSION} /opt/R/${R_45_VERSION}
 
 # The Quarto knitr engine resolves the unversioned Rscript command.
 RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
@@ -42,12 +48,12 @@ RUN mkdir -p /var/lib/ricochet/data /opt/ricochet/data/content && \
     pandoc --version && \
     typst --version && \
     rm /tmp/quarto.tar.gz && \
-    ln -sf /opt/R/4.4.3/bin/R /usr/local/bin/R4.4 && \
-    ln -sf /opt/R/4.4.3/bin/Rscript /usr/local/bin/Rscript4.4 && \
-    ln -sf /opt/R/4.5.3/bin/R /usr/local/bin/R4.5 && \
-    ln -sf /opt/R/4.5.3/bin/Rscript /usr/local/bin/Rscript4.5 && \
-    ln -sf /opt/R/4.6.1/bin/R /usr/local/bin/R4.6 && \
-    ln -sf /opt/R/4.6.1/bin/Rscript /usr/local/bin/Rscript4.6 && \
+    ln -sf /opt/R/${R_44_VERSION}/bin/R /usr/local/bin/R4.4 && \
+    ln -sf /opt/R/${R_44_VERSION}/bin/Rscript /usr/local/bin/Rscript4.4 && \
+    ln -sf /opt/R/${R_45_VERSION}/bin/R /usr/local/bin/R4.5 && \
+    ln -sf /opt/R/${R_45_VERSION}/bin/Rscript /usr/local/bin/Rscript4.5 && \
+    ln -sf /opt/R/${R_46_VERSION}/bin/R /usr/local/bin/R4.6 && \
+    ln -sf /opt/R/${R_46_VERSION}/bin/Rscript /usr/local/bin/Rscript4.6 && \
     ln -sf "$(R RHOME)/bin/Rscript" /usr/local/bin/Rscript && \
     R4.4 -q -e 'install.packages("renv")' && \
     R4.5 -q -e 'install.packages("renv")' && \
