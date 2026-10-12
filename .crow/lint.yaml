@@ -33,7 +33,7 @@ steps:
       path: '*.{md,markdown}'
 
   prettier:
-    image: reg.ricochet.rs/docker.io/oven/bun:1.4.2-alpine
+    image: reg.ricochet.rs/docker.io/oven/bun:1.4.3-alpine
     depends_on: []
     commands:
       - bunx prettier@latest --check .
@@ -45,7 +45,7 @@ steps:
       event: pull_request
 
   lint-yaml:
-    image: reg.ricochet.rs/docker.io/pipelinecomponents/yamllint:0.35.13
+    image: reg.ricochet.rs/docker.io/pipelinecomponents/yamllint:0.35.27
     depends_on: []
     commands:
       - yamllint .
