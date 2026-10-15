@@ -10,7 +10,7 @@ FROM docker.io/devxygmbh/r-ubuntu:${R_45_VERSION}-${OS_VERSION} AS r45
 FROM docker.io/devxygmbh/r-ubuntu:${R_46_VERSION}-${OS_VERSION}
 
 # renovate: datasource=github-releases depName=quarto-dev/quarto-cli
-ARG QUARTO_VERSION=1.10.18
+ARG QUARTO_VERSION=1.10.19
 ARG TARGETARCH
 
 ENV RENV_PATHS_PREFIX_AUTO=TRUE
