@@ -49,7 +49,8 @@
     {
       "description": "Prepare runtime dependency updates a few days before the first-of-month release",
       "matchFileNames": ["**/Containerfile*", "release/environments/*.yaml"],
-      "schedule": ["* * 28 * *"]
+      "schedule": ["* * 28 * *"],
+      "automergeSchedule": ["at any time"]
     },
     {
       "matchDepNames": ["JuliaLang/julia"],
