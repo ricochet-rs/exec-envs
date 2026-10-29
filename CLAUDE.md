@@ -38,3 +38,4 @@ Changing an install layout requires updating every generator that emits a `bin` 
 Renovate's dockerfile manager cannot rewrite a `FROM` tag assembled from build arguments, so track such a runtime with a `# renovate:` marker on the version `ARG` and derive every path from that argument.
 A new bundled R series needs its own `allowedVersions` rule in `renovate.json`, because without one Renovate bumps every older series to the newest R.
 Every file a release script regenerates must be staged in the archive step of both `monthly-release` and `metadata-only-release`, because `check-releases.sh` fails `main` on a stale generated file.
+Workflows on the `prepare monthly release` cron run in parallel from the same commit, so derive the upcoming month with `scripts/next-release-month.sh` because `release/next-month` there still holds the previous month.
