@@ -56,7 +56,7 @@ It also generates `deploy/ricochet-previews/values.yaml` for Flux consumers, con
 
 The publisher verifies that exact digest in the Ricochet Registry and copies it to the matching calendar tag in Docker Hub without rebuilding it.
 
-Renovate opens runtime dependency updates from the fifteenth to the twenty-fifth, so a runtime released after the fifteenth still reaches the next release while leaving time for its builds and automerge.
+Renovate opens runtime dependency updates on the twenty-eighth, the last day every month has, so the release on the first ships runtimes published up to a few days earlier while leaving time for their builds and automerge.
 The repository-specific schedule overrides the shared first-of-month runtime dependency schedule, which would otherwise prepare updates too late for that month's release.
 New release metadata records the successful Crow pipeline URL so the main release index links each month to its creation status.
 

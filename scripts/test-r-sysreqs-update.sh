@@ -31,7 +31,7 @@ cat >"${temporary}/bin/bunx" <<'EOF'
 exit 0
 EOF
 export PATH="${temporary}/bin:${PATH}"
-cp "${repository_root}/scripts/prepare-r-sysreqs-update.sh" "${temporary}/seed/scripts/"
+cp "${repository_root}/scripts/prepare-r-sysreqs-update.sh" "${repository_root}/scripts/next-release-month.sh" "${temporary}/seed/scripts/"
 cat >"${temporary}/seed/scripts/update-r-sysreqs.sh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -87,4 +87,9 @@ if SYSREQS_TEST_FAIL=true "${temporary}/failure/scripts/prepare-r-sysreqs-update
 fi
 test ! -f "${SYSREQS_TEST_STATE}/pr"
 test -z "$(git --git-dir="${temporary}/remote.git" for-each-ref refs/heads/chore/r-sysreqs-2026-11)"
+
+# Without an argument, the update targets the month the scheduled release prepares.
+checkout default
+"${temporary}/default/scripts/prepare-r-sysreqs-update.sh"
+git --git-dir="${temporary}/remote.git" rev-parse --verify -q "refs/heads/chore/r-sysreqs-$("${repository_root}/scripts/next-release-month.sh")" >/dev/null
 echo "Scheduled R dependency update tests passed"

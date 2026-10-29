@@ -8,7 +8,7 @@ The catalog is curated, and some requirements have no mapping for a particular d
 ## Updating
 
 The existing `prepare monthly release` Crow cron runs on the fifteenth and invokes `.crow/update-r-sysreqs.yaml` alongside release preparation.
-It checks the latest upstream commit, regenerates the manifests and installers, and opens `chore/r-sysreqs-YYYY-MM` using the existing `exec_envs_release_token` secret.
+It checks the latest upstream commit, regenerates the manifests and installers, and opens `chore/r-sysreqs-YYYY-MM` for the upcoming release month using the existing `exec_envs_release_token` secret.
 That token must be able to push repository branches and create pull requests.
 No additional cron registration is needed.
 An unchanged revision opens no PR, and repeat runs preserve the month's existing PR, including a closed one.

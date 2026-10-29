@@ -4,7 +4,7 @@ set -euo pipefail
 
 repository_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 cd "${repository_root}"
-month=${1:-$(date -u +%Y-%m)}
+month=${1:-$(scripts/next-release-month.sh)}
 if [[ ! ${month} =~ ^[0-9]{4}-(0[1-9]|1[0-2])$ ]]; then
   echo "Month must use YYYY-MM format: ${month}" >&2
   exit 1

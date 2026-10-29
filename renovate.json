@@ -47,9 +47,9 @@
       "schedule": ["on monday"]
     },
     {
-      "description": "Prepare runtime dependency updates in the second half of the month",
+      "description": "Prepare runtime dependency updates a few days before the first-of-month release",
       "matchFileNames": ["**/Containerfile*", "release/environments/*.yaml"],
-      "schedule": ["* * 15-25 * *"]
+      "schedule": ["* * 28 * *"]
     },
     {
       "matchDepNames": ["JuliaLang/julia"],
