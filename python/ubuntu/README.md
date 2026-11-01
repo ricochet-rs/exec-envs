@@ -5,24 +5,24 @@ The calendar-versioned tags keep the configured Python and Ubuntu versions repro
 
 ```toml
 [image.python-ubuntu-noble]
-image = "docker.io/ricochetrs/python-ubuntu:2026-10-noble"
+image = "docker.io/ricochetrs/python-ubuntu:2026-11-noble"
 os = "ubuntu-24.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for Ubuntu 24.04"
 python = [
-  { version = "3.12.15", bin = "/usr/local/bin/python3.12" },
-  { version = "3.13.16", bin = "/usr/local/bin/python3.13" },
-  { version = "3.14.8", bin = "/usr/local/bin/python3.14" },
+  { version = "3.12.16", bin = "/usr/local/bin/python3.12" },
+  { version = "3.13.18", bin = "/usr/local/bin/python3.13" },
+  { version = "3.14.10", bin = "/usr/local/bin/python3.14" },
 ]
 
 [image.python-ubuntu-resolute]
-image = "docker.io/ricochetrs/python-ubuntu:2026-10-resolute"
+image = "docker.io/ricochetrs/python-ubuntu:2026-11-resolute"
 os = "ubuntu-26.04"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Python execution environment for Ubuntu 26.04"
 python = [
-  { version = "3.12.15", bin = "/usr/local/bin/python3.12" },
-  { version = "3.13.16", bin = "/usr/local/bin/python3.13" },
-  { version = "3.14.8", bin = "/usr/local/bin/python3.14" },
+  { version = "3.12.16", bin = "/usr/local/bin/python3.12" },
+  { version = "3.13.18", bin = "/usr/local/bin/python3.13" },
+  { version = "3.14.10", bin = "/usr/local/bin/python3.14" },
 ]
 ```

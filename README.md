@@ -14,6 +14,7 @@ Runtime dependency updates are prepared on the twenty-eighth, and the resulting 
 
 | Release                      | Retained through | Environments | CI                                                    |
 | ---------------------------- | ---------------- | ------------ | ----------------------------------------------------- |
+| [2026-11](releases/2026-11/) | 2029-12-01       | 15           | [Passed](https://ci.ricochet.rs/repos/7/pipeline/625) |
 | [2026-10](releases/2026-10/) | 2029-11-01       | 15           | [Passed](https://ci.ricochet.rs/repos/7/pipeline/591) |
 | [2026-09](releases/2026-09/) | 2029-10-01       | 15           | [Passed](https://ci.ricochet.rs/repos/7/pipeline/522) |
 | [2026-08](releases/2026-08/) | 2029-09-01       | 15           | [Passed](https://ci.ricochet.rs/repos/7/pipeline/520) |

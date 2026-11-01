@@ -5,12 +5,12 @@ The calendar-versioned tag keeps the configured Julia and AlmaLinux versions rep
 
 ```toml
 [image.julia-alma-9]
-image = "docker.io/ricochetrs/julia-alma:2026-10-9"
+image = "docker.io/ricochetrs/julia-alma:2026-11-9"
 os = "alma-9"
 arch = ["linux/amd64", "linux/arm64"]
 description = "Julia execution environment for AlmaLinux 9"
 julia = [
   { version = "1.10.12", bin = "/usr/local/bin/julia1.10" },
-  { version = "1.13.1", bin = "/usr/local/bin/julia1.13" },
+  { version = "1.13.3", bin = "/usr/local/bin/julia1.13" },
 ]
 ```
