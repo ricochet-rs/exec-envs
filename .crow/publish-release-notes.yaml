@@ -1,0 +1,26 @@
+when:
+  - event: push
+    branch:
+      - main
+    path:
+      - scripts/render-release-notes.sh
+      - scripts/publish-release-notes.sh
+      - .crow/publish-release-notes.yaml
+
+depends_on:
+  - lint
+
+labels:
+  agent: thumper
+
+# Republishes every archived month whose rendered notes differ from GitHub, so a renderer change goes live without a release.
+# A push event cannot start the build, publish, or release workflows, which all run only on manual and cron events.
+steps:
+  publish-release-notes:
+    image: reg.ricochet.rs/docker.io/library/alpine:3.24
+    environment:
+      GH_TOKEN:
+        from_secret: exec_envs_release_token
+    commands:
+      - apk add -q --no-cache bash github-cli git jq
+      - scripts/publish-release-notes.sh
