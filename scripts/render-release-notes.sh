@@ -38,7 +38,7 @@ jq -rn \
     --slurpfile current "${release_metadata}" \
     --slurpfile previous "${previous_metadata}" '
     def component_label:
-        {os: "the operating system", r: "R", python: "Python", julia: "Julia", quarto: "Quarto", pandoc: "Pandoc", typst: "Typst"}[.];
+        {os: "Operating system", r: "R", python: "Python", julia: "Julia", quarto: "Quarto", pandoc: "Pandoc", typst: "Typst"}[.];
 
     def component_version($environment; $component):
         (($environment.versions[$component] // "Not recorded")
@@ -109,16 +109,18 @@ jq -rn \
               end)
             + (if ($updated | length) == 0 then [] else
                 ["### Updated software", ""]
-                + ($updated | map(
-                    "- `\(.id)` "
-                    + (.changes | map(
-                        if .from == "Not installed" then "adds \(.component | component_label) \(.to)"
-                        elif .to == "Not installed" then "drops \(.component | component_label)"
-                        else "moves \(.component | component_label) from \(.from) to \(.to)"
-                        end
-                      ) | sentence_list)
-                    + "."
-                  ))
+                + [
+                    "| Component | From | To | Environments |",
+                    "| --- | --- | --- | --- |"
+                  ]
+                # One row per distinct version change, listing every environment that shares it.
+                + ([$updated[] | .id as $id | .changes[] | . + {id: $id}]
+                    | group_by([(.component as $c | $components | index($c)), .from, .to])
+                    | map(
+                        "| \(.[0].component | component_label) | \(.[0].from) | \(.[0].to) | "
+                        + (if length == ($now | length) then "All environments" else map("`" + .id + "`") | join(", ") end)
+                        + " |"
+                      ))
                 + [""]
               end)
             + (if ($rebuilt | length) == 0 then [] else
