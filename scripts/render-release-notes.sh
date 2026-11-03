@@ -40,9 +40,15 @@ jq -rn \
     def component_label:
         {os: "Operating system", r: "R", python: "Python", julia: "Julia", quarto: "Quarto", pandoc: "Pandoc", typst: "Typst"}[.];
 
-    def component_version($environment; $component):
-        (($environment.versions[$component] // "Not recorded")
-            | if type == "array" then join(", ") else tostring end);
+    def component_versions($environment; $component):
+        ($environment.versions[$component] // "Not recorded")
+            | if type == "array" then map(tostring) else [tostring] end;
+
+    def version_cell:
+        if length == 0 then "–" else join(", ") end;
+
+    def environment_cell:
+        map(if . == "Not installed" then "–" else . end) | join(", ");
 
     def sentence_list:
         if length == 1 then .[0]
@@ -73,10 +79,12 @@ jq -rn \
                     $components[]
                     | {
                         component: .,
-                        from: component_version($earlier; .),
-                        to: component_version($environment; .)
+                        from: component_versions($earlier; .),
+                        to: component_versions($environment; .)
                     }
                     | select(.from != .to)
+                    # Report only the versions that differ, so an unchanged series is not repeated.
+                    | {component, from: (.from - .to), to: (.to - .from)}
                 ]
             }
         )) as $carried
@@ -117,7 +125,7 @@ jq -rn \
                 + ([$updated[] | .id as $id | .changes[] | . + {id: $id}]
                     | group_by([(.component as $c | $components | index($c)), .from, .to])
                     | map(
-                        "| \(.[0].component | component_label) | \(.[0].from) | \(.[0].to) | "
+                        "| \(.[0].component | component_label) | \(.[0].from | version_cell) | \(.[0].to | version_cell) | "
                         + (if length == ($now | length) then "All environments" else map("`" + .id + "`") | join(", ") end)
                         + " |"
                       ))
@@ -143,7 +151,12 @@ jq -rn \
         "| Environment | Operating system | R | Python | Julia | Quarto | Pandoc | Typst |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |"
       ]
-    + ($now | map("| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | \(.versions.os) | \(.versions.r | if type == "array" then join(", ") else tostring end) | \(.versions.python | join(", ")) | \(.versions.julia | if type == "array" then join(", ") else tostring end) | \(.versions.quarto) | \(.versions.pandoc // "Not recorded") | \(.versions.typst // "Not recorded") |"))
+    + ($now | map(
+        . as $environment
+        | "| [\(.id)](https://github.com/ricochet-rs/exec-envs/tree/main/releases/\($release.release)/\(.id)) | "
+        + ($components | map(component_versions($environment; .) | environment_cell) | join(" | "))
+        + " |"
+      ))
     + [
         "",
         "## Pulling an environment",
