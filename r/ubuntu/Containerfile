@@ -4,7 +4,7 @@ ARG R_44_VERSION=4.4.3
 # renovate: datasource=docker depName=docker.io/devxygmbh/r-ubuntu
 ARG R_45_VERSION=4.5.3
 # renovate: datasource=docker depName=docker.io/devxygmbh/r-ubuntu
-ARG R_46_VERSION=4.6.1
+ARG R_46_VERSION=4.6.2
 FROM docker.io/devxygmbh/r-ubuntu:${R_44_VERSION}-${OS_VERSION} AS r44
 FROM docker.io/devxygmbh/r-ubuntu:${R_45_VERSION}-${OS_VERSION} AS r45
 FROM docker.io/devxygmbh/r-ubuntu:${R_46_VERSION}-${OS_VERSION}
